@@ -40,7 +40,7 @@ a{color:inherit}
 main .in{padding-block:56px 24px;display:flex;flex-direction:column;gap:56px}
 h2{font-family:var(--display);text-transform:uppercase;font-size:2rem;letter-spacing:.02em;margin:0 0 6px;line-height:1}
 .lead{color:var(--muted);margin:0 0 24px;max-width:62ch}
-.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:22px}
+.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:22px}
 .proj{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;transition:transform .2s ease,border-color .2s ease}
 .proj:hover{transform:translateY(-3px);border-color:var(--copper)}
 .proj img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid var(--line)}
@@ -81,6 +81,15 @@ footer .in{padding-block:24px 48px;color:var(--muted);font-size:.85rem;border-to
       <h2>Proyectos</h2>
       <p class="lead">Herramientas que se pueden abrir y usar en el navegador, con su código y sus fuentes a la vista.</p>
       <div class="projects">
+        <a class="proj" href="procesos/">
+          <img src="img/procesos.jpg" alt="Corte interactivo de un pórfido de cobre con sus zonas de óxidos, enriquecimiento y primaria" loading="lazy">
+          <div class="b">
+            <h3>Procesos del cobre para ingenieros eléctricos</h3>
+            <p>Curso abierto del mineral al cátodo: la química del proceso explicada con voltajes, corrientes y nodos, con simuladores y fuentes públicas.</p>
+            <div class="tags"><span>Curso abierto</span><span>Hidrometalurgia</span><span>Instrumentación</span></div>
+            <span class="go">Empezar el curso →</span>
+          </div>
+        </a>
         <a class="proj" href="simulador-ew/">
           <img src="img/ew.jpg" alt="Vista del simulador: nave de celdas, cortocircuitos en rojo, indicadores de producción y energía" loading="lazy">
           <div class="b">
