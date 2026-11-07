@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inspección de EPP con IA</title>
+<meta name="description" content="Prueba con 5.000 fotos reales de faena: cuánto aciertan los modelos de visión de NVIDIA detectando personas sin casco, cuántas falsas alarmas dan y cuánto trabajo ahorran.">
+<meta property="og:image" content="https://jsnn15.github.io/img/ia-epp.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
+:root{
+  --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
+  --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.top{background:var(--ink);color:#e9eef2}
+.top .in{padding-block:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.top a{color:#e9eef2;text-decoration:none}
+.in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+header.ch{padding-block:48px 8px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+article{padding-block:16px 40px}
+.prose{max-width:68ch}
+h2{font-size:1.45rem;font-weight:600;margin:52px 0 6px;line-height:1.25;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:.85rem;color:var(--copper);display:block;letter-spacing:.08em;margin-bottom:4px}
+p{margin:0 0 14px}
+.analogy{border-left:3px solid var(--copper-2);background:var(--soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.analogy b{color:var(--copper)}
+.eq{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.92rem;margin:14px 0}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0;display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:24px}
+@media (max-width:46rem){.lab{grid-template-columns:1fr}}
+.lab h3{grid-column:1/-1;margin:0;font-size:1rem;font-weight:600}
+.lab h3 small{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--copper)}
+.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+button{font:inherit;font-size:.86rem;padding:7px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--copper)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--soft)}
+.ro .l{font-size:.72rem;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.ro .v.bad{color:var(--bad)} .ro .v.ok{color:var(--ok)}
+canvas{display:block;width:100%}
+.msg{font-size:.88rem;padding:8px 10px;border-radius:6px;background:var(--soft);border:1px solid var(--line)}
+.msg.bad{border-color:var(--bad)} .msg.ok{border-color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+.tbl{overflow-x:auto}
+.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:12px;margin:16px 0}
+.inst div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.inst b{display:block;font-size:.95rem}
+.inst span{font-size:.87rem;color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.src li{margin-bottom:6px}
+.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;margin-top:40px}
+.next a{text-decoration:none;font-weight:600}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="../">← jsnn15.github.io</a><span>IA visual · prueba con datos reales</span></div></div>
+<div class="in">
+  <header class="ch">
+    <div class="kick">Inspección de EPP con IA · noviembre 2026</div>
+    <h1>¿Cuánto acierta la IA revisando cascos en faena?</h1>
+    <p class="lede">Puse a prueba modelos de visión de NVIDIA con 5.000 fotos reales de obras y faenas. La pregunta no es si la IA "ve cosas", sino cuántas infracciones se le escapan, cuántas falsas alarmas da, cuánto tarda y cuánto trabajo le ahorra a un equipo de seguridad.</p>
+  </header>
+
+  <article>
+    <div class="prose">
+      <h2><span class="n">01</span>La prueba</h2>
+      <p>Usé el conjunto público <i>Hard Hat Workers</i>: 5.000 fotos de obras y faenas con cada cabeza marcada a mano como "con casco" o "sin casco" (licencia CC0). En 18,4 % de las fotos hay al menos una persona sin casco.</p>
+      <p>Separé 200 fotos de prueba, mitad con infracción y mitad sin, que ningún modelo vio antes. Comparé dos caminos:</p>
+      <div class="inst">
+        <div><b>Modelos de visión sin entrenar</b><span>Modelos de NVIDIA que reciben la foto y una instrucción: "cuenta las personas con y sin casco". Cero fotos etiquetadas, listos el primer día.</span></div>
+        <div><b>Clasificador entrenado</b><span>Un modelo de NVIDIA convierte cada imagen en un vector numérico y una regresión logística aprende de 300 fotos etiquetadas. Barato de entrenar, pero hay que etiquetar.</span></div>
+      </div>
+    </div>
+
+    <h2><span class="n">02</span>Resultados en las 200 fotos de prueba</h2>
+    <div class="tbl"><table id="t-res"><thead><tr><th>Modelo</th><th>Tipo</th><th>Infracciones detectadas</th><th>Falsas alarmas</th><th>Acierto</th><th>Error de conteo</th><th>Tiempo por foto</th></tr></thead><tbody></tbody></table></div>
+    <p class="src" id="res-note"></p>
+
+    <div class="inst" id="findings"></div>
+
+    <section class="lab" aria-label="Ahorro de trabajo">
+      <h3>¿Cuánto trabajo le ahorra al equipo de seguridad?<small>Estrategia: la IA revisa todas las fotos y una persona solo mira las que la IA marca. Las tasas vienen de la prueba; el volumen y los minutos son tuyos.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="s-str">Quién filtra</label><select id="s-str"></select></div>
+        <div class="f"><label for="s-n">Fotos por día <b id="s-n-v"></b></label><input id="s-n" type="range" min="100" max="5000" step="100" value="1000"></div>
+        <div class="f"><label for="s-p">Fotos con alguna infracción <b id="s-p-v"></b></label><input id="s-p" type="range" min="2" max="50" step="0.5" value="18.4"></div>
+        <div class="f"><label for="s-m">Minutos por foto revisada <b id="s-m-v"></b></label><input id="s-m" type="range" min="0.2" max="3" step="0.1" value="0.5"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Fotos que mira una persona</div><div class="v" id="r-rev"></div></div>
+          <div class="ro"><div class="l">Horas ahorradas por día</div><div class="v" id="r-h"></div></div>
+          <div class="ro"><div class="l">Infracciones que se escapan</div><div class="v" id="r-miss"></div></div>
+        </div>
+        <div class="msg" id="m-sav"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <h2><span class="n">03</span>¿Cuántas fotos hay que etiquetar?</h2>
+      <p>El clasificador entrenado trabaja mejor persona por persona: se le muestra el recorte de cada cabeza y decide si lleva casco. La curva muestra el acierto en las 1.316 cabezas de prueba según cuántos recortes etiquetados se usaron para entrenar.</p>
+    </div>
+    <section class="lab" aria-label="Curva de aprendizaje" style="grid-template-columns:1fr">
+      <h3>Acierto por persona según ejemplos etiquetados<small>Promedio de 5 repeticiones con muestras al azar. Los recortes salen de las cajas marcadas a mano: equivale a tener un detector de cabezas perfecto.</small></h3>
+      <canvas id="cv-lc" height="240" aria-label="Curva de aprendizaje"></canvas>
+    </section>
+
+    <div class="prose">
+      <h2><span class="n">04</span>Casos que enseñan</h2>
+      <p>Fotos pixeladas para proteger la identidad de las personas. Recuadro verde: casco según el etiquetado manual. Rojo: sin casco.</p>
+    </div>
+    <div class="gal" id="gal"></div>
+
+    <div class="prose">
+      <h2><span class="n">05</span>Qué significa para una operación</h2>
+      <div class="inst" id="concl"></div>
+
+      <h2>Método, código y fuentes</h2>
+      <ul class="src">
+        <li>Datos: <a href="https://huggingface.co/datasets/Voxel51/hard-hat-detection">Hard Hat Workers</a> (5.000 imágenes, 3 clases, licencia CC0), originalmente publicado por Make ML. Prueba: 100 fotos con infracción y 100 sin, elegidas al azar con semilla fija. Entrenamiento: otras 300 fotos.</li>
+        <li>Modelos: endpoints de <a href="https://build.nvidia.com">build.nvidia.com</a> consultados con temperatura 0 y la misma instrucción para todos. Vectores de imagen con <code>nvidia/llama-nemotron-embed-vl-1b-v2</code>. Clasificador: regresión logística de scikit-learn.</li>
+        <li>Los tiempos son de los endpoints gratuitos de prototipo, con su cola y sus límites. En producción se despliegan los mismos modelos en servidor propio o con licencia, y los tiempos cambian.</li>
+        <li>Revisé a mano las 25 falsas alarmas del modelo grande. En 3 hay personas sin casco claramente visibles que el etiquetado original no marcó.</li>
+        <li>Código completo, sin claves: <a href="https://github.com/JSNN15/jsnn15.github.io/tree/main/ia-epp/codigo">GitHub</a>.</li>
+      </ul>
+      <div class="next"><a href="../">← Portafolio</a><a href="../planta-virtual/">Planta virtual →</a></div>
+    </div>
+  </article>
+</div>
+<style>
+.gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:14px;margin:16px 0}
+.gal figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.gal img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.gal figcaption{padding:10px 12px;font-size:.85rem;display:flex;flex-direction:column;gap:6px}
+.gal figcaption b{font-size:.92rem}
+.gal .k{font-family:var(--mono);font-size:.78rem;color:var(--muted);display:grid;grid-template-columns:auto 1fr;gap:2px 10px}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 6px;border-radius:3px;border:1px solid var(--line);color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+.bar{display:inline-block;height:8px;background:var(--copper);border-radius:2px;vertical-align:middle;margin-right:6px}
+</style>
+
+<script type="application/json" id="data-res">{
+ "models": [
+  {
+   "n": 200,
+   "acc": 0.875,
+   "prec": 0.8,
+   "rec": 1.0,
+   "f1": 0.888888888888889,
+   "tp": 100,
+   "fp": 25,
+   "tn": 75,
+   "fn": 0,
+   "mae_sin": 0.895,
+   "mae_con": 0.98,
+   "exact_sin": 0.58,
+   "lat_med": 1.5060007572174072,
+   "lat_p90": 3.0817105770111084,
+   "tok": 376.13,
+   "invalid": 0,
+   "key": "nemotron-super-vl",
+   "name": "Nemotron 3.5 Super VL 120B",
+   "kind": "vlm"
+  },
+  {
+   "n": 200,
+   "acc": 0.91,
+   "prec": 0.8596491228070176,
+   "rec": 0.98,
+   "f1": 0.9158878504672898,
+   "tp": 98,
+   "fp": 16,
+   "tn": 84,
+   "fn": 2,
+   "mae_sin": 1.195,
+   "mae_con": 1.3,
+   "exact_sin": 0.625,
+   "lat_med": 13.748891592025757,
+   "lat_p90": 114.71302056312561,
+   "tok": 4011.57,
+   "invalid": 16,
+   "key": "nemotron-omni",
+   "name": "Nemotron 3 Nano Omni 30B (razonamiento)",
+   "kind": "vlm"
+  },
+  {
+   "n": 200,
+   "acc": 0.755,
+   "prec": 0.6917293233082706,
+   "rec": 0.92,
+   "f1": 0.7896995708154506,
+   "tp": 92,
+   "fp": 41,
+   "tn": 59,
+   "fn": 8,
+   "mae_sin": 1.97,
+   "mae_con": 2.18,
+   "exact_sin": 0.405,
+   "lat_med": 0.7599791288375854,
+   "lat_p90": 0.9392890930175781,
+   "tok": 362.03,
+   "invalid": 0,
+   "key": "nemotron-bolt",
+   "name": "Nemotron 3.5 Bolt E4B",
+   "kind": "vlm"
+  }
+ ],
+ "probe": {
+  "full": {
+   "acc": 0.855,
+   "prec": 0.8817204301075269,
+   "rec": 0.82,
+   "f1": 0.8497409326424871
+  },
+  "crop_person": {
+   "n": 1316.0,
+   "acc": 0.9278115501519757,
+   "prec": 0.9225037257824144,
+   "rec": 0.9350453172205438,
+   "f1": 0.9287321830457614
+  },
+  "crop_image": {
+   "acc": 0.9,
+   "prec": 0.8571428571428571,
+   "rec": 0.96,
+   "f1": 0.9056603773584906
+  },
+  "crop_count_mae": 0.435,
+  "crop_count_exact": 0.715,
+  "learning_curve": [
+   [
+    20,
+    0.8493920972644377
+   ],
+   [
+    50,
+    0.8840425531914894
+   ],
+   [
+    100,
+    0.9012158054711247
+   ],
+   [
+    200,
+    0.9104863221884498
+   ],
+   [
+    500,
+    0.9159574468085105
+   ],
+   [
+    1000,
+    0.9224924012158053
+   ],
+   [
+    1914,
+    0.9278115501519757
+   ]
+  ]
+ },
+ "n_test": 200,
+ "n_train_img": 300,
+ "n_train_crops": 1914,
+ "n_test_crops": 1316,
+ "dataset_n": 5000,
+ "dataset_prev": 0.184,
+ "incomplete": [
+  {
+   "key": "llama-90b-vision",
+   "name": "Llama 3.2 90B Vision",
+   "n": 8,
+   "lat_med": 64.78858840465546
+  }
+ ],
+ "triage": {
+  "nemotron-super-vl": {
+   "tpr": 1.0,
+   "fpr": 0.25
+  },
+  "nemotron-omni": {
+   "tpr": 0.98,
+   "fpr": 0.16
+  },
+  "nemotron-bolt": {
+   "tpr": 0.92,
+   "fpr": 0.41
+  },
+  "probe_full": {
+   "tpr": 0.82,
+   "fpr": 0.11
+  },
+  "probe_crop": {
+   "tpr": 0.96,
+   "fpr": 0.16
+  },
+  "vl_or_probe": {
+   "tpr": 1.0,
+   "fpr": 0.32
+  },
+  "vl_and_probe": {
+   "tpr": 0.82,
+   "fpr": 0.04
+  }
+ },
+ "audit": {
+  "fp_reviewed": 25,
+  "label_misses_clear": [
+   "hard_hat_workers1386.png",
+   "hard_hat_workers3675.png",
+   "hard_hat_workers4717.png"
+  ]
+ }
+}</script>
+<script type="application/json" id="data-ex">[
+{
+"img": "img/hard_hat_workers1726.jpg",
+"kind": "acierto",
+"gt": [
+3,
+1
+],
+"sv": [
+3,
+1
+],
+"bo": [
+1,
+2
+],
+"probe": 0,
+"crop": 0
+},
+{
+"img": "img/hard_hat_workers3675.jpg",
+"kind": "etiqueta",
+"gt": [
+2,
+0
+],
+"sv": [
+1,
+1
+],
+"bo": [
+2,
+0
+],
+"probe": 0,
+"crop": 0
+},
+{
+"img": "img/hard_hat_workers1386.jpg",
+"kind": "etiqueta",
+"gt": [
+1,
+0
+],
+"sv": [
+1,
+8
+],
+"bo": [
+0,
+7
+],
+"probe": 1,
+"crop": 0
+},
+{
+"img": "img/hard_hat_workers1969.jpg",
+"kind": "falsa",
+"gt": [
+9,
+0
+],
+"sv": [
+9,
+2
+],
+"bo": [
+6,
+0
+],
+"probe": 0,
+"crop": 4
+},
+{
+"img": "img/hard_hat_workers4756.jpg",
+"kind": "omision",
+"gt": [
+3,
+6
+],
+"sv": [
+2,
+7
+],
+"bo": [
+4,
+0
+],
+"probe": 1,
+"crop": 7
+},
+{
+"img": "img/hard_hat_workers3493.jpg",
+"kind": "conteo",
+"gt": [
+0,
+20
+],
+"sv": [
+0,
+16
+],
+"bo": [
+1,
+10
+],
+"probe": 1,
+"crop": 19
+}
+]</script>
+<script>
+(() => {
+  const R = JSON.parse(document.getElementById('data-res').textContent);
+  const EX = JSON.parse(document.getElementById('data-ex').textContent);
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nf = {}; const f = (v, d = 0) => { nf[d] = nf[d] || new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d}); return nf[d].format(v); };
+  const pct = (v, d = 0) => f(v * 100, d) + ' %';
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+  const T = R.triage, P = R.probe;
+
+  /* tabla */
+  const rows = R.models.map((m) => ({name: m.name, kind: 'Sin entrenar', tp: m.tp, fp: m.fp, acc: m.acc, mae: f(m.mae_sin, 2), lat: f(m.lat_med, 1) + ' s', inv: m.invalid}));
+  rows.push({name: 'Clasificador sobre vectores de NVIDIA, foto completa', kind: 'Entrenado con 300 fotos', tp: Math.round(T.probe_full.tpr * 100), fp: Math.round(T.probe_full.fpr * 100), acc: P.full.acc, mae: '—', lat: '≈ 0,6 s'});
+  rows.push({name: 'Clasificador por persona, con detector perfecto', kind: 'Entrenado con 1.914 cabezas', tp: Math.round(T.probe_crop.tpr * 100), fp: Math.round(T.probe_crop.fpr * 100), acc: P.crop_image.acc, mae: f(P.crop_count_mae, 2), lat: '≈ 0,6 s + detector'});
+  $('t-res').querySelector('tbody').innerHTML = rows.map((r) => `<tr><td><b>${esc(r.name)}</b></td><td>${r.kind}</td><td class="num"><span class="bar" style="width:${r.tp * 0.6}px"></span>${r.tp} de 100</td><td class="num">${r.fp} de 100</td><td class="num">${pct(r.acc, 1)}</td><td class="num">${r.mae}</td><td class="num">${r.lat}</td></tr>`).join('');
+  const nores = R.models.filter((m) => m.invalid > 0).map((m) => `${m.name} no entregó respuesta en ${m.invalid} fotos aun con 12.000 tokens de presupuesto; esas fotos se cuentan como "revisar"`).join('. ');
+  const inc = (R.incomplete || []).map((m) => `${m.name}: mediana de ${f(m.lat_med, 0)} s por foto en el endpoint gratuito; la prueba se detuvo con ${m.n} fotos y no entra en la tabla`).join('. ');
+  $('res-note').textContent = '"Infracciones detectadas": fotos con alguien sin casco que el modelo marcó, de 100. "Falsas alarmas": fotos sin infracción que el modelo marcó, de 100. "Error de conteo": diferencia promedio entre las personas sin casco contadas y las etiquetadas. ' + (nores ? nores + '. ' : '') + (inc ? inc + '.' : '');
+
+  /* hallazgos */
+  const sv = R.models.find((m) => m.key === 'nemotron-super-vl'), bo = R.models.find((m) => m.key === 'nemotron-bolt'), om = R.models.find((m) => m.key === 'nemotron-omni');
+  const rev = (t, p) => t.tpr * p + t.fpr * (1 - p);
+  $('findings').innerHTML = [
+    ['No se le escapó ninguna', `${sv.name} marcó las ${sv.tp} fotos con infracción, sin entrenar. A cambio dio ${sv.fp} falsas alarmas de 100. Con la proporción real del conjunto (18,4 %), una persona tendría que mirar ${f(rev(T['nemotron-super-vl'], 0.184) * 100)} de cada 100 fotos.`],
+    ['Entrenar baja las falsas alarmas', `El clasificador entrenado con 300 fotos dio solo ${Math.round(T.probe_full.fpr * 100)} falsas alarmas, pero se le escaparon ${100 - Math.round(T.probe_full.tpr * 100)} infracciones: en la foto completa, una cabeza pequeña se pierde.`],
+    ['El etiquetado humano también falla', `De las 25 falsas alarmas del modelo grande, 3 eran infracciones reales que nadie había marcado: personas con sombrero de paja o de terno en plena obra.`]
+  ].map(([t, s]) => `<div><b>${t}</b><span>${s}</span></div>`).join('');
+
+  /* ahorro */
+  const STR = [
+    ['nemotron-super-vl', 'Nemotron Super VL, sin entrenar'],
+    ['nemotron-omni', 'Nemotron Nano Omni, sin entrenar'],
+    ['nemotron-bolt', 'Nemotron Bolt, sin entrenar'],
+    ['probe_full', 'Clasificador entrenado, foto completa'],
+    ['vl_or_probe', 'Super VL o clasificador: revisar si cualquiera marca'],
+    ['vl_and_probe', 'Super VL y clasificador: revisar solo si ambos marcan'],
+    ['probe_crop', 'Clasificador por persona con detector perfecto']
+  ].filter(([k]) => T[k]);
+  $('s-str').innerHTML = STR.map(([k, n]) => `<option value="${k}">${n}</option>`).join('');
+  const sav = () => {
+    const k = $('s-str').value, N = +$('s-n').value, p = +$('s-p').value / 100, m = +$('s-m').value, t = T[k];
+    $('s-n-v').textContent = f(N); $('s-p-v').textContent = f(p * 100, 1) + ' %'; $('s-m-v').textContent = f(m, 1) + ' min';
+    const fr = rev(t, p), reviewed = N * fr, saved = (N - reviewed) * m / 60, miss = N * p * (1 - t.tpr);
+    $('r-rev').textContent = f(reviewed) + ' de ' + f(N);
+    $('r-h').textContent = f(saved, 1) + ' h';
+    const rm = $('r-miss'); rm.textContent = f(miss, 1) + ' fotos'; rm.className = 'v ' + (miss >= 1 ? 'bad' : 'ok');
+    const msg = $('m-sav'); msg.className = 'msg ' + (miss >= 1 ? 'bad' : 'ok');
+    msg.textContent = miss < 0.5 ? `La persona revisa ${f(fr * 100)} % de las fotos y, según la prueba, no se le escapa ninguna infracción. Las horas ahorradas pueden ir a terreno.` :
+      `Se revisa solo ${f(fr * 100)} % de las fotos, pero en la prueba se escaparon ${f((1 - t.tpr) * 100)} de cada 100 infracciones. Para seguridad, normalmente no es aceptable: conviene un filtro que no deje pasar ninguna.`;
+  };
+  ['s-str', 's-n', 's-p', 's-m'].forEach((id) => $(id).addEventListener('input', sav)); sav();
+
+  /* curva de aprendizaje */
+  const lc = () => {
+    const cv = $('cv-lc'), H = 240, d = devicePixelRatio || 1, W = cv.clientWidth; cv.width = W * d; cv.height = H * d; cv.style.height = H + 'px';
+    const x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.font = `11px ${css('--mono')}`;
+    const pts = P.learning_curve, mg = {l: 46, r: 16, t: 14, b: 30}, lo = 0.8, hi = 0.95;
+    const X = (n) => mg.l + (W - mg.l - mg.r) * Math.log10(n / 20) / Math.log10(2000 / 20), Y = (v) => mg.t + (H - mg.t - mg.b) * (hi - v) / (hi - lo);
+    x.strokeStyle = css('--line'); x.fillStyle = css('--muted');
+    for (let v = 0.8; v <= 0.951; v += 0.05) { x.beginPath(); x.moveTo(mg.l, Y(v)); x.lineTo(W - mg.r, Y(v)); x.stroke(); x.textAlign = 'right'; x.fillText(f(v * 100) + ' %', mg.l - 6, Y(v) + 4); }
+    x.textAlign = 'center'; [20, 50, 100, 200, 500, 1000, 2000].forEach((n) => x.fillText(f(n), X(n), H - 12)); x.fillText('recortes etiquetados (escala logarítmica)', mg.l + (W - mg.l - mg.r) / 2, H);
+    x.strokeStyle = css('--copper'); x.lineWidth = 2.2; x.beginPath(); pts.forEach(([n, a], i) => i ? x.lineTo(X(n), Y(a)) : x.moveTo(X(n), Y(a))); x.stroke();
+    x.fillStyle = css('--copper'); pts.forEach(([n, a]) => { x.beginPath(); x.arc(X(n), Y(a), 3.5, 0, 7); x.fill(); x.fillStyle = css('--fg'); x.textAlign = 'center'; x.fillText(f(a * 100, 1), X(n), Y(a) - 9); x.fillStyle = css('--copper'); });
+  };
+  lc(); addEventListener('resize', lc); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', lc);
+
+  /* galería */
+  const KIND = {acierto: ['Acierto', 'El modelo grande cuenta exactamente lo mismo que el etiquetado.'], etiqueta: ['La IA tenía razón', 'Cuenta como falsa alarma, pero hay personas sin casco que el etiquetado no marcó.'], falsa: ['Falsa alarma real', 'Todos llevan casco; el modelo grande ve dos personas sin casco que no existen.'], omision: ['Omisión del modelo pequeño', 'El modelo pequeño dice que todos llevan casco; hay seis personas sin casco.'], conteo: ['Escena con mucha gente', 'Con 20 personas, todos los modelos cuentan de menos.']};
+  $('gal').innerHTML = EX.map((e) => `<figure><img src="${e.img}" alt="${KIND[e.kind][0]}: foto de faena con ${e.gt[0] + e.gt[1]} cabezas etiquetadas" loading="lazy"><figcaption><b>${KIND[e.kind][0]}</b><span>${KIND[e.kind][1]}</span><span class="k"><span>Etiquetado</span><span>${e.gt[0]} con casco · ${e.gt[1]} sin casco</span><span>Super VL</span><span>${e.sv[0]} con · ${e.sv[1]} sin</span><span>Bolt</span><span>${e.bo[0]} con · ${e.bo[1]} sin</span></span></figcaption></figure>`).join('');
+
+  /* conclusiones */
+  $('concl').innerHTML = [
+    ['Úsala como filtro, no como juez', 'El mejor uso hoy es que la IA mire todo y una persona confirme lo marcado. Sin entrenar ya sirve para eso.'],
+    ['Razonar ayuda, pero cuesta', `${om ? `El modelo que razona antes de responder dio menos falsas alarmas (${om.fp} de 100) y detectó ${om.tp} de 100, pero tardó ${f(om.lat_med, 0)} s por foto en la mediana, usó unos ${f(om.tok)} tokens por foto y no respondió en ${om.invalid} de 200.` : ''}`],
+    ['Lo pequeño es rápido, no confiable', `${bo ? `El modelo pequeño responde en ${f(bo.lat_med, 1)} s, pero dejó pasar ${100 - bo.tp} de 100 infracciones.` : ''} Para seguridad, la omisión pesa más que la velocidad.`],
+    ['Etiquetar 100 a 200 ejemplos rinde', `Con 100 recortes etiquetados el clasificador ya llega a ${f(P.learning_curve.find((p) => p[0] === 100)[1] * 100)} % por persona. No hace falta un proyecto de etiquetado de meses.`],
+    ['El detector es la pieza que falta', 'El clasificador por persona supone que alguien encontró las cabezas. Para operar, va un detector entrenado con las fotos propias de la faena, y la IA de visión-lenguaje queda como segunda opinión.'],
+    ['Gratis para probar, no para operar', 'Los endpoints gratuitos de NVIDIA sirvieron para esta prueba completa. Para producción, los mismos modelos se instalan en un servidor propio, con las fotos sin salir de la faena.']
+  ].map(([t, s]) => `<div><b>${t}</b><span>${s}</span></div>`).join('');
+})();
+</script>
+</body>
+</html>
