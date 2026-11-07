@@ -28,8 +28,10 @@
   }
 
   /* ---------- Equipos con motor ---------- */
-  const mkMotor = (id, desc, area, kw, mcc, o = {}) => Object.assign({id, desc, area, kw, mcc, state: 'RUN', remote: true, hours: 1000 + Math.floor(rnd() * 9000), starts: 50 + Math.floor(rnd() * 400),
-    vib: 1.6 + rnd() * 0.8, vibBase: 1.6 + rnd() * 0.8, temp: 55, amps: 0, load: 0.75, pmEvery: 2000, sincePM: Math.floor(rnd() * 1800), trip: null, deg: 0, standby: false}, o);
+  // Zonas de vibración (ISO 10816-3, hoy ISO 20816-3), base rígida: grupo 1 sobre 300 kW, grupo 2 de 15 a 300 kW. Límites A/B, B/C y C/D en mm/s RMS.
+  const VIBZ = {1: [2.3, 4.5, 7.1], 2: [1.4, 2.8, 4.5]};
+  const mkMotor = (id, desc, area, kw, mcc, o = {}) => { const grp = kw > 300 ? 1 : 2, z = VIBZ[grp], vb = z[0] * (0.75 + rnd() * 0.3); return Object.assign({id, desc, area, kw, mcc, grp, z, state: 'RUN', remote: true, hours: 1000 + Math.floor(rnd() * 9000), starts: 50 + Math.floor(rnd() * 400),
+    vib: vb, vibBase: vb, temp: 55, amps: 0, load: 0.75, pmEvery: 2000, sincePM: Math.floor(rnd() * 1800), trip: null, deg: 0, standby: false}, o); };
 
   /* ---------- Curva de recuperación (capítulo 3: Saldaña et al. 2019, óxidos, R90 = 64,6 %) ---------- */
   const g = (t) => 1 - 0.40 * Math.exp(-0.0844 * t) - 0.60 * Math.exp(-0.0055 * t);
@@ -53,7 +55,7 @@
   const vparts = (j, T) => { const kap = 55 * (1 + 0.02 * (T - 45)), jj = Math.max(j, 20); return {rev: 0.89, an: 0.62 + 0.12 * Math.log10(jj / 300), cat: Math.max(0, 0.08 + 0.06 * Math.log10(jj / 300)), ohm: j * 0.04 / Math.max(kap, 10), hw: 0.15 * j / 300}; };
   const vcell = (j, T) => { const p = vparts(j, T); return p.rev + p.an + p.cat + p.ohm + p.hw; };
 
-  const NCELL = 160, NCAT = 60, CU_PRICE = 14330, E_PRICE = 100; // US$/t Cu (6,5 US$/lb), US$/MWh
+  const NCELL = 160, NCAT = 60, VEL = 1800, CU_PRICE = 14330, E_PRICE = 100; // celdas, cátodos por celda, m³ de electrolito, US$/t Cu (6,5 US$/lb), US$/MWh
 
   function create() {
     const S = {t: 0, t0: 8 * 3600 - 600, speed: 60, paused: false, log: [], seq: 0};
@@ -94,9 +96,9 @@
       'FIC-205': new PID({desc: 'Alimentación de PLS a SX', unit: 'm³/h', sp: 2134, op: 71, kp: 0.5, ti: 15, span: 3000, modes: ['MAN', 'AUTO', 'CAS']}),
       'FFIC-301': new PID({desc: 'Razón orgánico / acuoso (O/A)', unit: 'm³/h', sp: 1920, op: 55, kp: 0.5, ti: 15, span: 3500, ratio: 0.9, ratioUnit: 'O/A', modes: ['MAN', 'AUTO', 'CAS'], mode: 'CAS'}),
       'IIC-401': new PID({desc: 'Corriente del rectificador', unit: 'kA', sp: 37, op: 74, kp: 1, ti: 10, span: 50, modes: ['MAN', 'AUTO', 'CAS'], mode: 'CAS'}),
-      'AIC-405': new PID({desc: 'Cobre en electrolito (consigna a IIC-401)', unit: 'g/L', sp: 44, op: 74, kp: 4, ti: 2400, span: 60, act: 'dir'}),
+      'AIC-405': new PID({desc: 'Cobre en electrolito (consigna a IIC-401)', unit: 'g/L', sp: 44, op: 74, kp: 6, ti: 6000, span: 60, act: 'dir'}),
       'TIC-403': new PID({desc: 'Temperatura del electrolito', unit: '°C', sp: 45, op: 50, kp: 3, ti: 1200, span: 80}),
-      'FIC-404': new PID({desc: 'Dosificación de cobalto', unit: 'L/h', sp: 45, op: 45, kp: 0.6, ti: 10, span: 100}),
+      'FIC-404': new PID({desc: 'Dosificación de cobalto', unit: 'L/h', sp: 52.5, op: 52.5, kp: 0.6, ti: 10, span: 100}),
       'FIC-409': new PID({desc: 'Sangrado de electrolito', unit: 'm³/h', sp: 7, op: 35, kp: 0.6, ti: 10, span: 20})
     };
     L['LIC-204'].op = 71.1; // equivale a 2.134 m³/h
@@ -105,11 +107,11 @@
     const X = {
       feeder: 77.3, beltBuf: new Float32Array(240), bi: 0, ton: 1700, tonDrum: 1700, delayComp: true, oreAvail: 1,
       acidQ: 18.5, waterQ: 119, moist: 9.2, tk103: 60, p501On: false,
-      tk501: 1400, tk502: 3000, trucksPerH: 1, truckAcc: 0, trucksHold: 0,
+      tk501: 1400, tk502: 3000, trucksPerH: 1.15, truckAcc: 0, trucksHold: 0,   // 1,15 camiones de 30 t por hora cubren unas 34 t/h de consumo
       lvRaf: 3.0, lvPLS: 3.0, makeup: 66, qMod: [733, 733, 733], fMod: [1, 1, 1], pHdr: 4.0, stackF: 1, secR: [0, 0, 0], secCu: [0, 0, 0],
       qPLS: 2134, cuPLS: 3.2, pHtrue: 1.9, pHbias: 0, pHdrift: 0, labPH: 1.9, labT: 0, leach: 6600, oreF: 1, oreFf: 1,
       qFeed: 2134, qOrg: 1920, craf: 0.22, yL: 5.6, ys: 2.3, ext: 93, T: 6500, crud: 0.02, crudRate: 0, iface: 0.27, mixEff: [1, 1, 1],
-      Ce: 44, Acid: 182, Fe: 0.8, Co: 150, Vel: 600, qEl: 1000, Te: 45, hxOk: true, D: 6450, CE: 92, Vcell: 1.96,
+      Ce: 44, Acid: 182, Fe: 0.70, Co: 150, lvEl: 62, qEl: 1000, Te: 45, hxOk: true, D: 6450, CE: 92, Vcell: 1.96, outage: 0, pbSpike: 0,
       shorts: new Float32Array(NCELL), fixing: [], monitor: false, lastRound: 0, roundEvery: 4 * 3600, seen: new Uint8Array(NCELL),
       Pb: 1.5, Sppm: 4, FeC: 2, quality: true,
       cathShift: 0, cathTotal: 0, energyShift: 0, acidShift: 0, oreShift: 0, plannedShift: 0, lostShorts: 0, lostRect: 0, downShift: 0, alarmsShift: 0, shiftId: -1,
@@ -172,7 +174,7 @@
     tag('LIT-501', 'Stock de ácido', 't', 500, 0, 0, 2000, 500, 1900);
     tag('LIT-502', 'Piscina de agua de proceso', 'm³', 500, 0, 0, 5000, 1500, 4800);
 
-    Object.values(M).forEach((m) => tag('VIT-' + m.id, 'Vibración ' + m.id, 'mm/s', m.area, 1, 0, 12, 0, 4.5));
+    Object.values(M).forEach((m) => tag('VIT-' + m.id, 'Vibración ' + m.id, 'mm/s', m.area, 1, 0, m.z[2] * 1.6, 0, m.z[1]));
     /* ----- alarmas (ISA-18.2: prioridad 1 alta, 2 media, 3 baja) ----- */
     const AD = [];
     // en: condición de habilitación (alarma por estado, ISA-18.2): con el área detenida a propósito, estas alarmas no tienen sentido y se suprimen.
@@ -202,7 +204,8 @@
     al('KY-301', 'L', 0.75, 2, 'Razón O/A baja', 30);
     al('LIT-303', 'H', 0.38, 2, 'Interfase alta en E1 (borra)', 60);
     al('AIT-309', 'H', 500, 2, 'Arrastre alto hacia electrolito', 60);
-    al('IIT-401', 'L', 30, 2, 'Corriente baja en la nave', 30, () => RECT.state !== 'STOP');
+    // corriente baja deliberada (protección o rampa de puesta en servicio) no es una anormalidad
+    al('IIT-401', 'L', 30, 2, 'Corriente baja en la nave', 30, () => RECT.state !== 'STOP' && seqs[400].st !== 'RUN' && !(L['IIC-401'].mode === 'AUTO' && L['IIC-401'].sp < 30));
     al('FIT-402', 'L', 750, 2, 'Caudal bajo de electrolito');
     al('FIT-402', 'LL', 500, 1, 'Caudal muy bajo de electrolito (disparo RT)', 5);
     al('TIT-403', 'H', 52, 2, 'Temperatura alta electrolito');
@@ -295,44 +298,63 @@
       ackAll(area) { let n = 0; AD.forEach((a) => { if (area && a.area !== area) return; if (a.st === 'U') { a.st = 'A'; n++; } else if (a.st === 'R') { a.st = 'N'; n++; } }); if (n) log('Operador', `Reconoce ${n} alarma${n > 1 ? 's' : ''}` + (area ? ` del área ${area}` : ''), 'ack'); },
       shelve(id, sec = 3600) { const a = AD.find((x) => x.id === id); if (a) { a.shelved = S.t + sec; if (a.st !== 'N') a.st = 'N'; log('Operador', `Alarma ${id} inhibida por ${sec / 60} min`); } },
       seq(id) { return seqStart(id); },
-      seqAbort() { if (seq.st === 'IDLE') return; const s = SEQ[seq.id]; if (seq.st === 'RUN') log('Operador', `${s.name} abortada en el paso ${seq.k + 1}`, 'warn'); seq.st = 'IDLE'; seq.id = null; seq.msg = ''; }
+      seqAbort(area = 100) { const q = seqs[area]; if (!q || q.st === 'IDLE') return; const s = SEQ[q.id]; if (q.st === 'RUN') log('Operador', `${s.name} abortada en el paso ${q.k + 1}`, 'warn'); Object.assign(q, {st: 'IDLE', id: null, msg: ''}); }
     };
 
     /* ----- secuencias (automatización de procedimientos de proceso continuo, ISA-106 simplificado: paso, condición de avance y tiempo máximo) ----- */
     const SEQ = {
-      start100: {name: 'Partida secuencial del área 100', steps: [
+      start100: {area: 100, name: 'Partida secuencial del área 100', btn: 'Partida secuencial', note: 'Parte tambor, correa, alimentador y luego ácido y agua.', steps: [
         {d: 'Partir tambor aglomerador M-103', eq: 'M-103', go: () => cmd.start('M-103', 'Secuencia'), ok: () => running('M-103'), min: 15},
         {d: 'Partir correa CV-101', eq: 'CV-101', go: () => cmd.start('CV-101', 'Secuencia'), ok: () => running('CV-101'), min: 20},
-        {d: 'WIC-101 en automático y partir alimentador FD-101', eq: 'FD-101', go: () => { cmd.mode('WIC-101', 'AUTO', 'Secuencia'); cmd.start('FD-101', 'Secuencia'); }, ok: () => running('FD-101'), min: 5},
-        {d: 'Esperar mineral en el tambor (> 1.000 t/h)', go: () => {}, ok: () => X.tonDrum > 1000, max: 240},
+        // el controlador espera en manual hasta que el pesómetro mide mineral: si parte en automático con la medición en cero, sobrepasa
+        {d: 'WIC-101 en manual al 75 % y partir alimentador FD-101', eq: 'FD-101', go: () => { cmd.mode('WIC-101', 'MAN', 'Secuencia'); L['WIC-101'].op = 75; cmd.start('FD-101', 'Secuencia'); }, ok: () => running('FD-101'), min: 5},
+        {d: 'Esperar mineral en el pesómetro y en el tambor', go: () => {}, ok: () => X.ton > 1000 && X.tonDrum > 1000, max: 240},
+        {d: 'WIC-101 a automático (cambio sin salto)', go: () => cmd.mode('WIC-101', 'AUTO', 'Secuencia'), ok: () => L['WIC-101'].mode === 'AUTO', min: 5},
         {d: 'Razones en cascada y partir bombas de ácido y agua', eq: 'P-102', go: () => { cmd.mode('FFIC-102', 'CAS', 'Secuencia'); cmd.mode('FFIC-104', 'CAS', 'Secuencia'); cmd.start('P-102', 'Secuencia'); cmd.start('P-104', 'Secuencia'); }, ok: () => running('P-102') && running('P-104'), min: 5}
       ]},
-      stop100: {name: 'Parada secuencial del área 100', steps: [
+      stop100: {area: 100, name: 'Parada secuencial del área 100', btn: 'Parada secuencial', note: 'Detiene el alimentador y vacía la correa antes de cortar ácido y agua.', steps: [
         {d: 'Detener alimentador FD-101', go: () => cmd.stop('FD-101', 'Secuencia'), ok: () => !running('FD-101'), min: 2},
         {d: 'Vaciar la correa (mineral al tambor < 50 t/h)', go: () => {}, ok: () => X.tonDrum < 50, min: 10, max: 300},
         {d: 'Detener bombas de ácido y agua', go: () => { cmd.stop('P-102', 'Secuencia'); cmd.stop('P-104', 'Secuencia'); }, ok: () => !running('P-102') && !running('P-104'), min: 2},
         {d: 'Detener correa CV-101', go: () => cmd.stop('CV-101', 'Secuencia'), ok: () => !running('CV-101'), min: 2},
         {d: 'Descargar el tambor (60 s)', go: () => {}, ok: () => true, min: 60},
         {d: 'Detener tambor M-103', go: () => cmd.stop('M-103', 'Secuencia'), ok: () => !running('M-103'), min: 2}
+      ]},
+      // Nave EW: la corriente nunca se energiza sin circulación, temperatura y cobalto; y se sube en rampa para no quemar el depósito.
+      start400: {area: 400, name: 'Puesta en servicio de la nave EW', btn: 'Puesta en servicio', note: 'Circulación, temperatura y cobalto primero; luego corriente baja, rampa hasta producción y cascada con AIC-405.', steps: [
+        {d: 'Circulación de electrolito (> 800 m³/h)', eq: 'P-401A', go: () => { if (!running('P-401A') && !running('P-401B')) cmd.start(M['P-401A'].state === 'TRIP' && M['P-401A'].trip !== 'reset' ? 'P-401B' : 'P-401A', 'Secuencia'); }, ok: () => X.qEl > 800, min: 5, max: 120},
+        {d: 'TIC-403 en automático; electrolito a 38 °C o más', go: () => cmd.mode('TIC-403', 'AUTO', 'Secuencia'), ok: () => X.Te >= 38, max: 6 * 3600, why: () => X.hxOk ? `${X.Te.toFixed(1)} °C` : 'HX-401 sin transferencia de calor'},
+        {d: 'Dosificación de cobalto en automático; Co ≥ 110 mg/L (protege el ánodo)', go: () => cmd.mode('FIC-404', 'AUTO', 'Secuencia'), ok: () => X.Co >= 110, max: 2 * 3600, why: () => `cobalto en ${Math.round(X.Co)} mg/L`},
+        {d: 'Interruptor 52-RT cerrado', go: () => {}, ok: () => BRK['52-RT'], max: 60, why: () => '52-RT abierto: cerrarlo desde el área 500'},
+        {d: 'IIC-401 en automático a 10 kA y RT-401 en servicio', eq: 'RT-401', go: () => { cmd.mode('IIC-401', 'AUTO', 'Secuencia'); L['IIC-401'].sp = 10; if (RECT.state !== 'RUN') cmd.start('RT-401', 'Secuencia'); }, ok: () => RECT.state === 'RUN' && RECT.I >= 9.5, max: 600},
+        {d: 'Rampa de corriente hasta 37 kA (2 kA/min)', go: () => { L['IIC-401'].sp = 37; log('Secuencia', 'IIC-401 consigna 37 kA'); }, ok: () => RECT.I >= 36.5, max: 1200, why: () => RECT.state !== 'RUN' ? 'el rectificador salió de servicio' : `corriente en ${RECT.I.toFixed(1)} kA`},
+        {d: 'IIC-401 en cascada con AIC-405 (cambio sin salto)', go: () => { const a = L['AIC-405']; a.op = clamp(RECT.I / 50 * 100, 0, 100); a.i = null; cmd.mode('IIC-401', 'CAS', 'Secuencia'); }, ok: () => L['IIC-401'].mode === 'CAS', min: 5}
+      ]},
+      stop400: {area: 400, name: 'Parada controlada de la nave a corriente de protección', btn: 'Bajar a protección', note: 'Baja la corriente en rampa a 5 kA y la mantiene: el cátodo no se redisuelve y el ánodo conserva su capa de PbO₂. Si la parada se alarga, reduce la transferencia de SX o el cobre se acumula en el electrolito.', steps: [
+        {d: 'IIC-401 en automático', go: () => cmd.mode('IIC-401', 'AUTO', 'Secuencia'), ok: () => L['IIC-401'].mode === 'AUTO', min: 2},
+        {d: 'Rampa de corriente a 5 kA de protección', go: () => { L['IIC-401'].sp = 5; log('Secuencia', 'IIC-401 consigna 5 kA de protección'); }, ok: () => RECT.state === 'RUN' && RECT.I <= 5.5, max: 1200, why: () => RECT.state !== 'RUN' ? 'el rectificador está fuera de servicio' : `corriente en ${RECT.I.toFixed(1)} kA`},
+        {d: 'Mantener circulación y temperatura del electrolito', go: () => {}, ok: () => X.qEl > 800 && L['TIC-403'].mode !== 'MAN', min: 5, max: 60, why: () => X.qEl <= 800 ? 'sin circulación de electrolito' : 'TIC-403 en manual'}
       ]}
     };
-    const seq = {id: null, k: 0, t0: 0, st: 'IDLE', msg: ''};
-    const seqNext = () => {
-      seq.k++; const s = SEQ[seq.id];
-      if (seq.k >= s.steps.length) { seq.st = 'DONE'; log('Secuencia', `${s.name} completada`); return; }
-      seq.t0 = S.t; s.steps[seq.k].go();
+    const SEQ_AREAS = {100: ['start100', 'stop100'], 400: ['start400', 'stop400']};
+    const seqs = {100: {id: null, k: 0, t0: 0, st: 'IDLE', msg: ''}, 400: {id: null, k: 0, t0: 0, st: 'IDLE', msg: ''}};
+    const seqNext = (q) => {
+      q.k++; const s = SEQ[q.id];
+      if (q.k >= s.steps.length) { q.st = 'DONE'; log('Secuencia', `${s.name} completada`); return; }
+      q.t0 = S.t; s.steps[q.k].go();
     };
     const seqStart = (id) => {
-      if (!SEQ[id] || seq.st === 'RUN') return false;
-      Object.assign(seq, {id, k: -1, st: 'RUN', msg: '', tStart: S.t});
-      log('Operador', `Inicio de ${SEQ[id].name}`); seqNext(); return true;
+      const s = SEQ[id]; if (!s) return false;
+      const q = seqs[s.area]; if (q.st === 'RUN') return false;
+      Object.assign(q, {id, k: -1, st: 'RUN', msg: '', tStart: S.t});
+      log('Operador', `Inicio de ${s.name}`); seqNext(q); return true;
     };
-    const seqTick = () => {
-      if (seq.st !== 'RUN') return;
-      const s = SEQ[seq.id], st = s.steps[seq.k], el = S.t - seq.t0, max = st.max || 60;
-      if (st.ok() && el >= (st.min || 0)) seqNext();
-      else if (el > max) { const w = st.eq ? whyNot(st.eq) : ''; seq.st = 'FAIL'; seq.msg = `Paso ${seq.k + 1} sin confirmar en ${max} s${w ? ': ' + w : ''}`; log('Secuencia', `${s.name} detenida. ${seq.msg}`, 'trip'); }
-    };
+    const seqTick = () => Object.values(seqs).forEach((q) => {
+      if (q.st !== 'RUN') return;
+      const s = SEQ[q.id], st = s.steps[q.k], el = S.t - q.t0, max = st.max || 60;
+      if (st.ok() && el >= (st.min || 0)) seqNext(q);
+      else if (el > max) { const w = st.why ? st.why() : st.eq ? whyNot(st.eq) : ''; q.st = 'FAIL'; q.msg = `Paso ${q.k + 1} sin confirmar en ${max >= 3600 ? max / 3600 + ' h' : max + ' s'}${w ? ': ' + w : ''}`; log('Secuencia', `${s.name} detenida. ${q.msg}`, 'trip'); }
+    });
 
     /* ----- escenarios ----- */
     const SCN = [
@@ -342,8 +364,9 @@
       {id: 'mcc', name: 'Caída del MCC-200', area: 500, desc: 'Se abre el interruptor del centro de control de motores del área de pilas. Disparan todas las bombas de riego y de PLS a la vez: una avalancha de alarmas.', go() { BRK['MCC-200'] = false; log('Sistema', 'Interruptor MCC-200 abierto por protección', 'trip'); }},
       {id: 'ph', name: 'Deriva del pHmetro AIT-207', area: 200, desc: 'El electrodo empieza a perder calibración. El valor mostrado se aleja del real. La muestra de laboratorio cada 2 horas lo delata.', go() { X.pHdrift = 0.12 / 3600; }},
       {id: 'ore', name: 'Cambio de mineral', area: 200, desc: 'Entra mineral con menos cobre soluble y más ganga que consume ácido. Unas horas después cae el cobre del PLS y toda la cadena lo siente.', go() { X.oreF = 0.72; }},
-      {id: 'crud', name: 'Borra en el decantador E1', area: 300, desc: 'Se forma una banda de borra en la interfase. Sube el arrastre de PLS hacia el electrolito y con él el hierro, que a su vez baja la eficiencia de corriente.', go() { X.crudRate = 0.06 / 3600; }},
+      {id: 'crud', name: 'Borra en el decantador E1', area: 300, desc: 'Se forma una banda de borra en la interfase. Sube el arrastre de PLS hacia el electrolito y con él el hierro, que baja la eficiencia de corriente. Con 1.800 m³ de electrolito el hierro sube en días: míralo a ×300.', go() { X.crudRate = 0.06 / 3600; }},
       {id: 'shorts', name: 'Racha de cortocircuitos en EW', area: 400, desc: 'Aparecen diez cortocircuitos en distintas celdas. Sin monitoreo continuo solo se ven en la próxima ronda.', go() { for (let i = 0; i < 10; i++) { const k = Math.floor(rnd() * NCELL); X.shorts[k] = Math.min(6, X.shorts[k] + 1 + Math.floor(rnd() * 4)); } log('Sistema', 'Racha de cortocircuitos en la nave', 'trip'); }},
+      {id: 'rt', name: 'Disparo del rectificador RT-401', area: 400, desc: 'El rectificador dispara por una falla de refrigeración del transformador. La nave queda sin corriente: el cobre que sigue llegando de SX se acumula en el electrolito y, si el corte se alarga, el cátodo sale con plomo al volver la corriente. Rearma y usa la puesta en servicio de la nave.', go() { if (RECT.state === 'RUN') { RECT.state = 'TRIP'; RECT.trip = 'falla de refrigeración del transformador'; log('Sistema', 'RT-401 disparado: falla de refrigeración del transformador', 'trip'); } }},
       {id: 'hx', name: 'Falla del intercambiador HX-401', area: 400, desc: 'El intercambiador deja de calentar. La temperatura del electrolito baja lento, la conductividad cae y sube el voltaje y la energía por tonelada.', go() { X.hxOk = false; }},
       {id: 'acid', name: 'Camiones de ácido atrasados', area: 500, desc: 'Un corte de ruta detiene el abastecimiento por 12 horas con el stock en 300 t. La aglomeración consume unas 34 t/h de ácido.', go() { X.tk501 = 300; X.trucksHold = S.t + 12 * 3600; }}
     ];
@@ -468,8 +491,9 @@
       X.T = Math.min(X.T, X.qFeed * Math.max(0, X.cuPLS - X.craf) * 1.05 + 50);
 
       /* --- Área 400 --- */
-      ['P-401A', 'P-401B'].forEach((p) => { if (running(p) && X.Vel < 120) tripMotor(p, 'nivel muy bajo de electrolito'); });
+      ['P-401A', 'P-401B'].forEach((p) => { if (running(p) && X.lvEl < 10) tripMotor(p, 'nivel muy bajo de electrolito'); });
       const nP4 = (running('P-401A') ? 1 : 0) + (running('P-401B') ? 1 : 0);
+      X.lvEl = lag(X.lvEl, nP4 ? 62 : 84, 240, dt);   // sin bombeo, las cañerías de retorno drenan al estanque y el nivel sube
       X.qEl = lag(X.qEl, nP4 ? 1000 : 0, 8, dt);
       // interlocks del rectificador
       if (RECT.state === 'RUN') {
@@ -500,11 +524,10 @@
       X.D = I * 1.1855 * ceSum;                                           // kg/h
       const Pdc = I * vSum / 1000;                                       // MW (kA × V)
       RECT.V = vSum; RECT.P = Pdc;
-      X.Vel = clamp(X.Vel + 0 * dt, 0, 800);
       X.bleedQ = L['FIC-409'].step(X.bleedQ || 7, dt) / 100 * 20; // m³/h
       const coQ = L['FIC-404'].step(X.coQ || 45, dt) / 100 * 100;  X.coQ = coQ;
-      // inventario del electrolito (600 m³)
-      const V = 600;
+      // inventario del electrolito: 160 celdas de unos 8 m³ más estanques, filtros e intercambiadores
+      const V = VEL;
       X.Ce += (X.T - X.D - X.bleedQ * X.Ce) * dt / 3600 / V;
       X.Acid += 1.543 * (X.D + X.bleedQ * X.Ce - X.T) * dt / 3600 / V;   // la reposición del sangrado entra con ácido
       X.Acid = clamp(X.Acid + (182 - X.Acid) * X.bleedQ * dt / 3600 / V, 100, 260);
@@ -513,9 +536,14 @@
       X.Co += (coQ * 20 / 1000 - X.bleedQ * X.Co / 1000) * dt / 3600 / V * 1000; // mg/L
       // temperatura
       const qhx = X.hxOk ? L['TIC-403'].step(X.Te, dt) / 100 * 4 : (L['TIC-403'].step(X.Te, dt), 0); // MW
-      X.Te += (qhx + 0.25 * Pdc - 0.163 * (X.Te - 15)) * dt / 2400;
+      // balance térmico: capacidad ≈ 4 MJ/(m³·K) del electrolito; 25 % de la potencia DC queda como calor (V celda sobre el voltaje termoneutro)
+      X.Te += (qhx + 0.25 * Pdc - 0.163 * (X.Te - 15)) * dt / (VEL * 4);
       // calidad estimada del cátodo (ppm)
-      X.Pb = lag(X.Pb, 1.2 + 6 * Math.max(0, (120 - X.Co) / 120), 3600, dt);
+      // Corte de corriente: la capa de PbO2 del ánodo se reduce y, al volver la corriente, se desprenden partículas con plomo que el cátodo atrapa.
+      // Efecto conocido; la magnitud (unos 3 ppm de Pb por hora de corte, que decae en unas 4 h) es ilustrativa.
+      if (I < 1) X.outage += dt; else if (I > 5 && X.outage > 0) { if (X.outage > 600) { X.pbSpike = Math.min(12, X.pbSpike + 3 * X.outage / 3600); log('Sistema', `Nave reenergizada tras ${Math.round(X.outage / 60)} min sin corriente: riesgo de plomo en el cátodo`, 'warn'); } X.outage = 0; }
+      X.pbSpike = lag(X.pbSpike, 0, 4 * 3600, dt);
+      X.Pb = lag(X.Pb, 1.2 + 6 * Math.max(0, (120 - X.Co) / 120) + X.pbSpike, 900, dt);
       X.Sppm = lag(X.Sppm, 3 + Math.max(0, j - 320) * 0.12 + (X.Te < 40 ? 5 : 0), 3600, dt);
       X.FeC = lag(X.FeC, 1 + X.Fe * 1.5, 3600, dt);
       const sum = X.Pb + X.Sppm + X.FeC + 4 + 1.5;
@@ -535,10 +563,11 @@
         const ld = m.state === 'RUN' ? m.load : 0;
         m.amps = ld * m.kw * 1000 / (Math.sqrt(3) * 690 * 0.88) * (m.kw > 300 ? 690 / 6600 : 1);
         let vt = m.state === 'RUN' ? m.vibBase : 0.2;
-        if (m.deg > 0 && m.state === 'RUN') { m.deg += dt / 3600; vt = m.vibBase + 0.3 * (Math.exp((m.deg - 1) / 2) - 1); }
+        if (m.deg > 0 && m.state === 'RUN') { m.deg += dt / 3600; vt = m.vibBase + 0.3 * m.z[0] / 2.3 * (Math.exp((m.deg - 1) / 2) - 1); }
         m.vib = lag(m.vib, vt * (1 + 0.04 * gauss()), 20, dt);
-        m.temp = lag(m.temp, m.state === 'RUN' ? 52 + 3 * ld + 2.2 * Math.max(0, m.vib - 2.5) : 25, 900, dt);
-        if (m.state === 'RUN' && m.vib > 9) tripMotor(m.id, 'vibración muy alta (> 9 mm/s)');
+        m.temp = lag(m.temp, m.state === 'RUN' ? 52 + 3 * ld + 2.2 * Math.max(0, m.vib - m.z[0]) : 25, 900, dt);
+        const vtrip = m.z[2] * 1.25; // disparo a 1,25 veces el límite C/D
+        if (m.state === 'RUN' && m.vib > vtrip) tripMotor(m.id, `vibración muy alta (> ${vtrip.toFixed(1).replace('.', ',')} mm/s)`);
       });
 
       /* --- tags --- */
@@ -548,7 +577,7 @@
       set('LIT-201', X.lvRaf); set('FIT-206', X.makeup); set('FIT-203', X.qPLS); set('LIT-204', X.lvPLS); set('AIT-206', X.cuPLS); set('AIT-207', X.pHtrue + X.pHbias); set('FIT-205', X.qFeed);
       set('AIT-208', X.craf); set('FIT-301', X.qOrg); set('KY-301', X.qFeed > 10 ? X.qOrg / X.qFeed : 0); set('AIT-302', X.yL); set('KY-303', X.ext); set('LIT-303', X.iface); set('AIT-309', X.ent); set('KY-304', X.T / 1000);
       set('IIT-401', I); set('EIT-401', RECT.V); set('JIT-401', Pdc); set('KY-401', j); set('KY-402', X.Vcell); set('FIT-402', X.qEl); set('TIT-403', X.Te);
-      set('AIT-405', X.Ce); set('AIT-406', X.Acid); set('AIT-407', X.Fe * 1000); set('AIT-408', X.Co); set('LIT-401', 70); set('KY-405', X.D / 1000); set('KY-406', X.CE);
+      set('AIT-405', X.Ce); set('AIT-406', X.Acid); set('AIT-407', X.Fe * 1000); set('AIT-408', X.Co); set('LIT-401', X.lvEl); set('KY-405', X.D / 1000); set('KY-406', X.CE);
       set('FIT-404', coQ); set('FIT-409', X.bleedQ);
       set('JIT-500', MW); set('KY-501', X.pf); set('KY-502', X.thd); set('LIT-501', X.tk501); set('LIT-502', X.tk502);
       T['KY-407'].v = X.D > 100 ? Pdc * 1e6 / X.D : 0; // kWh/t = MW·1000 / (t/h)
@@ -573,9 +602,9 @@
       // discretas
       Object.values(M).forEach((m) => discAlarm(m.id + '.TRIP', 1, `${m.id} ${m.desc}: disparo${m.trip && m.trip !== 'reset' ? ' (' + m.trip + ')' : ''}`, m.area, m.state === 'TRIP' && m.trip !== 'reset'));
       discAlarm('RT-401.TRIP', 1, `RT-401 Rectificador: disparo${RECT.trip ? ' (' + RECT.trip + ')' : ''}`, 400, RECT.state === 'TRIP');
-      Object.values(M).forEach((m) => { discAlarm(m.id + '.VIB', 3, `${m.id}: vibración en zona C de ISO 10816-3 (> 4,5 mm/s)`, m.area, m.state === 'RUN' && m.vib > 4.5 && m.vib <= 7.1); discAlarm(m.id + '.VIBH', 2, `${m.id}: vibración en zona D de ISO 10816-3 (> 7,1 mm/s)`, m.area, m.state === 'RUN' && m.vib > 7.1); });
+      Object.values(M).forEach((m) => { const [, bc, cd] = m.z, nf = (v) => String(v).replace('.', ','); discAlarm(m.id + '.VIB', 3, `${m.id}: vibración en zona C, grupo ${m.grp} (> ${nf(bc)} mm/s)`, m.area, m.state === 'RUN' && m.vib > bc && m.vib <= cd); discAlarm(m.id + '.VIBH', 2, `${m.id}: vibración en zona D, grupo ${m.grp} (> ${nf(cd)} mm/s)`, m.area, m.state === 'RUN' && m.vib > cd); });
       ['MCC-100', 'MCC-200', 'MCC-300', 'MCC-400', '52-RT'].forEach((b) => discAlarm(b + '.OPEN', 1, `Interruptor ${b} abierto`, 500, !BRK[b]));
-      discAlarm('SEQ-100.FAIL', 2, `Secuencia del área 100 detenida: ${seq.msg}`, 100, seq.st === 'FAIL');
+      Object.entries(seqs).forEach(([ar, q]) => discAlarm(`SEQ-${ar}.FAIL`, 2, `Secuencia del área ${ar} detenida: ${q.msg}`, +ar, q.st === 'FAIL'));
       discAlarm('AIT-207.DEV', 3, 'AIT-207: desviación contra laboratorio mayor a 0,15 pH', 200, Math.abs(T['AIT-207'].v - X.labPH) > 0.15 && S.t - X.labT < 600);
       if (X.monitor) for (let k = 0; k < NCELL; k++) discAlarm('CELDA-' + (k + 1) + '.V', 3, `Celda ${k + 1}: voltaje bajo (posible cortocircuito)`, 400, X.shorts[k] >= 2);
       // análogas y discretas: máquina de estados
@@ -600,7 +629,7 @@
     S.log = []; X.shiftHist = []; X.alarmsShift = 0; X.cathShift = 0; X.energyShift = 0; X.plannedShift = 0; X.lostShorts = 0; X.lostRect = 0; X.acidShift = 0; X.oreShift = 0; X.downShift = 0;
     log('Sistema', 'Planta en régimen. Turno A a cargo.');
 
-    return {S, M, L, T, X, AD, H, RECT, BRK, SCN, SEQ, seq, NCELL, NCAT, CU_PRICE, E_PRICE, step, cmd, scenario, perms, whyNot, histGet, hhmm, hm, shiftOf, now, R};
+    return {S, M, L, T, X, AD, H, RECT, BRK, SCN, SEQ, SEQ_AREAS, seqs, VIBZ, NCELL, NCAT, VEL, CU_PRICE, E_PRICE, step, cmd, scenario, perms, whyNot, histGet, hhmm, hm, shiftOf, now, R};
   }
 
   G.PlantSim = {create};
