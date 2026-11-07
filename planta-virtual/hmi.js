@@ -8,12 +8,17 @@
   const tv = (id) => P.T[id].v;
   const ft = (id) => f(tv(id), P.T[id].dec);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const hms = (ts) => { const d = Math.floor(ts / 86400) + 1, h = Math.floor(ts % 86400 / 3600), m = Math.floor(ts % 3600 / 60), s2 = Math.floor(ts % 60); return `D${d} ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s2).padStart(2, '0')}`; };
+  const csvNum = (v, d) => Number.isFinite(v) ? v.toFixed(d).replace('.', ',') : '';
+  const csvq = (x) => `"${String(x).replace(/"/g, '""')}"`;
+  const download = (name, text) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + text], {type: 'text/csv;charset=utf-8'})); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); };
   const SHORT = {100: 'Aglomeración', 200: 'Pilas y piscinas', 300: 'SX', 400: 'EW', 500: 'Servicios y energía'};
   const AREAS = {100: 'Aglomeración', 200: 'Pilas y piscinas', 300: 'Extracción por solventes', 400: 'Electroobtención', 500: 'Servicios y energía'};
   const LOOP_PV = {'WIC-101': 'WIT-101', 'FFIC-102': 'FIT-102', 'FFIC-104': 'FIT-104', 'FIC-211': 'FIT-211', 'FIC-212': 'FIT-212', 'FIC-213': 'FIT-213', 'LIC-201': 'LIT-201', 'LIC-204': 'LIT-204', 'FIC-205': 'FIT-205', 'FFIC-301': 'FIT-301', 'IIC-401': 'IIT-401', 'AIC-405': 'AIT-405', 'TIC-403': 'TIT-403', 'FIC-404': 'FIT-404', 'FIC-409': 'FIT-409'};
   const VALVE = {'FFIC-102': 'FCV-102', 'FFIC-104': 'FCV-104', 'FIC-211': 'FCV-211', 'FIC-212': 'FCV-212', 'FIC-213': 'FCV-213', 'LIC-201': 'LCV-201', 'FIC-205': 'FCV-205', 'TIC-403': 'TCV-403', 'FIC-409': 'FCV-409'};
 
-  const state = {role: 'op', screen: 'gen', sel: null, trend: {pens: ['AIT-206', 'AIT-405', 'IIT-401', 'KY-406'], win: 7200}, maintSel: 'M-103'};
+  const state = {role: 'op', screen: 'gen', sel: null, confirm: null, evF: 'all', trend: {pens: ['AIT-206', 'AIT-405', 'IIT-401', 'KY-406'], win: 7200, cx: null}, maintSel: 'M-103'};
 
   /* =================== helpers SVG =================== */
   const T_ = (x, y, s, cls = 'lbl', a = 'start') => `<text x="${x}" y="${y}" class="${cls}" text-anchor="${a}">${s}</text>`;
@@ -25,9 +30,10 @@
     const ctl = !!o.loop;
     return `<g class="bub ${ctl ? 'ctl' : ''}" ${ctl ? `data-fp="${o.loop}"` : ''} transform="translate(${x},${y})">${ctl ? '<rect x="-17" y="-17" width="34" height="34"/>' : ''}<circle r="16"/><line x1="-16" x2="16" y1="0" y2="0" stroke="var(--eq)" stroke-width="${o.field ? 0 : 1}"/>` +
       `<text class="tagt" y="-3" text-anchor="middle">${a}</text><text class="tagt" y="10" text-anchor="middle">${b}</text></g>` +
-      (o.v ? V_(x + (o.vx ?? 22), y + (o.vy ?? 4), o.v, o.va || 'start') : '') + ALM(x + 18, y - 18, o.alm || o.v || tag);
+      (o.v ? V_(x + (o.vx ?? 22), y + (o.vy ?? 4), o.v, o.va || 'start') : '') + ALM(x + 18, y - 18, o.alm || o.v || tag) +
+      (ctl ? `<g class="mb" data-mb="${o.loop}" data-fp="${o.loop}" transform="translate(${x - 17},${y + 20})" style="display:none"><rect width="34" height="13" rx="2"/><text x="17" y="9.6" text-anchor="middle">MAN</text></g>` : '');
   };
-  const pump = (x, y, id, lbl = true, dir = 1) => `<g class="eq" data-eq="${id}" data-fp="${id}" transform="translate(${x},${y})"><circle r="14"/><path class="ic" d="${dir > 0 ? 'M-6,-8 L9,0 L-6,8 Z' : 'M6,-8 L-9,0 L6,8 Z'}"/></g>` + (lbl ? T_(x, y + 28, id, 'tagt', 'middle') : '') + ALM(x + 14, y - 14, id + '.TRIP');
+  const pump = (x, y, id, lbl = true, dir = 1) => `<g class="eq" data-eq="${id}" data-fp="${id}" transform="translate(${x},${y})"><path class="base" d="M-9,10 L-14,18 L14,18 L9,10"/><circle r="14"/><path class="ic" d="${dir > 0 ? 'M-6,-8 L9,0 L-6,8 Z' : 'M6,-8 L-9,0 L6,8 Z'}"/></g>` + (lbl ? T_(x, y + 28, id, 'tagt', 'middle') : '') + ALM(x + 14, y - 14, id + '.TRIP');
   const motor = (x, y, id) => `<g class="eq" data-eq="${id}" data-fp="${id}" transform="translate(${x},${y})"><circle r="13"/><text class="ic" y="4.5" text-anchor="middle" style="font-size:12px;font-weight:600">M</text></g>` + T_(x, y + 27, id, 'tagt', 'middle') + ALM(x + 14, y - 14, id + '.TRIP');
   const valve = (x, y, loop, vert = false) => `<g class="valve" data-valve="${loop}" data-fp="${loop}" transform="translate(${x},${y}) rotate(${vert ? 90 : 0})"><path d="M-10,-7 L10,7 L10,-7 L-10,7 Z"/><line x1="0" y1="0" x2="0" y2="-12" stroke="var(--eq)"/><rect x="-6" y="-18" width="12" height="6" fill="var(--panel2)" stroke="var(--eq)"/></g>` +
     `<text x="${x}" y="${y + (vert ? 4 : 22)}" dx="${vert ? 16 : 0}" class="unit" text-anchor="${vert ? 'start' : 'middle'}"><tspan>${VALVE[loop] || ''} </tspan><tspan data-op="${loop}">0</tspan>%</text>`;
@@ -40,12 +46,14 @@
   const btn = (x, y, w, label, act) => `<g class="btn" data-act="${act}" transform="translate(${x},${y})"><rect width="${w}" height="24" rx="3"/><text x="${w / 2}" y="16" text-anchor="middle" style="font-size:11px" data-btxt="${act}">${label}</text></g>`;
   const ai = (x, y, w, tag, label) => `<g class="ai" data-ai="${tag}" data-w="${w}" transform="translate(${x},${y})">${T_(0, 0, label || P.T[tag].desc, 'lbl')}<text x="${w}" y="0" class="val" text-anchor="end"><tspan data-v="${tag}">0</tspan><tspan class="unit"> ${P.T[tag].unit}</tspan></text>` +
     `<rect class="bg" x="0" y="6" width="${w}" height="7"/><rect class="nb" x="0" y="6" width="0" height="7"/><path class="ptr" d="M0,4 L-5,-3 L5,-3 Z" transform="translate(0,9)"/></g>`;
+  // tendencia mínima de 2 h bajo el indicador (pantalla de nivel 1, ISA-101)
+  const spk = (x, y, w, tag) => `<path class="spk" data-spk="${tag}" data-w="${w}" transform="translate(${x},${y})" d=""/>`;
 
   /* =================== pantallas P&ID =================== */
   const SCREENS = {};
   SCREENS.gen = () => {
     const blk = (x, y, w, h, area, tags) => `<g data-go="a${area}"><rect class="blk" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"/>${T_(x + 12, y + 22, area + ' · ' + SHORT[area], 'ttl')}` +
-      `<text x="${x + w - 12}" y="${y + 22}" text-anchor="end" class="unit" data-k="acount-${area}">—</text>` + tags.map((t, i) => ai(x + 12, y + 50 + i * 42, w - 24, t)).join('') + '</g>';
+      `<text x="${x + w - 12}" y="${y + 22}" text-anchor="end" class="unit" data-k="acount-${area}">—</text>` + tags.map((t, i) => ai(x + 12, y + 50 + i * 42, w - 24, t) + spk(x + 12, y + 67 + i * 42, w - 24, t)).join('') + '</g>';
     return `<svg viewBox="0 0 1200 560" role="img" aria-label="Vista general de la planta">
       ${blk(10, 20, 280, 230, 100, ['WIT-101', 'KY-102', 'AIT-105', 'LIT-103'])}
       ${blk(310, 20, 280, 230, 200, ['FIT-200', 'AIT-206', 'AIT-207', 'LIT-204'])}
@@ -55,17 +63,18 @@
       ${T_(150, 272, 'mineral aglomerado →', 'lbl', 'middle')}${T_(600, 272, 'PLS → · ← refino', 'lbl', 'middle')}${T_(900, 272, 'electrolito rico → · ← pobre', 'lbl', 'middle')}
       <g data-go="a500"><rect class="blk" x="10" y="300" width="880" height="160" rx="6"/>${T_(22, 322, '500 · ' + AREAS[500], 'ttl')}<text x="878" y="322" text-anchor="end" class="unit" data-k="acount-500">—</text>
       ${ai(22, 354, 190, 'JIT-500', 'Demanda')}${ai(240, 354, 190, 'KY-501', 'Factor de potencia')}${ai(458, 354, 190, 'LIT-501', 'Stock de ácido')}${ai(676, 354, 190, 'LIT-502', 'Agua de proceso')}
+      ${spk(22, 371, 190, 'JIT-500')}${spk(240, 371, 190, 'KY-501')}${spk(458, 371, 190, 'LIT-501')}${spk(676, 371, 190, 'LIT-502')}
       ${K_(22, 420, 'brk-sum', 'lbl')}</g>
       <rect class="blk" x="910" y="300" width="280" height="160" rx="6"/>${T_(922, 322, 'Cátodo', 'ttl')}
-      ${ai(922, 354, 256, 'KY-405')}${ai(922, 396, 256, 'KY-407', 'Energía específica de la nave')}${K_(922, 444, 'quality', 'lbl')}
-      ${T_(10, 500, 'Haz clic en un área para abrir su P&ID. Las barras muestran la banda normal de operación en gris oscuro y el valor actual con el indicador.', 'lbl')}
+      ${ai(922, 354, 256, 'KY-405')}${spk(922, 371, 256, 'KY-405')}${ai(922, 396, 256, 'KY-407', 'Energía específica de la nave')}${spk(922, 413, 256, 'KY-407')}${K_(922, 446, 'quality', 'lbl')}
+      ${T_(10, 500, 'Haz clic en un área para abrir su P&ID. Cada barra muestra la banda normal de operación y el valor actual; la línea bajo ella, las últimas 2 h.', 'lbl')}
     </svg>`;
   };
 
   SCREENS.a100 = () => `<svg viewBox="0 0 1200 560" role="img" aria-label="P&ID área 100">
     ${T_(16, 24, '100 · Chancado fino, aglomeración y curado ácido', 'ttl')}
     <polygon class="heap" points="40,262 135,150 230,262"/>${T_(135, 140, 'Acopio de mineral chancado', 'lbl', 'middle')}
-    <g class="eq" data-eq="FD-101" data-fp="FD-101"><rect x="92" y="266" width="90" height="20"/></g>${T_(137, 302, 'FD-101 alimentador', 'tagt', 'middle')}${ALM(190, 262, 'FD-101.TRIP')}
+    <g class="eq" data-eq="FD-101" data-fp="FD-101"><rect x="92" y="266" width="90" height="20"/></g>${T_(137, 302, 'FD-101', 'tagt', 'middle')}${ALM(190, 262, 'FD-101.TRIP')}
     ${V_(137, 318, 'SIT-101', 'middle')}
     <g class="eq" data-eq="CV-101" data-fp="CV-101"><path class="b" d="M180,292 L690,292 L760,252 L760,258 L692,298 L180,298 Z"/></g>
     ${pipe('M185,289 L690,289 L756,250', 'WIT-101', 50, 'thin')}
@@ -89,15 +98,14 @@
     ${motor(875, 350, 'M-103')}${ALM(892, 336, 'M-103.VIB')}
     ${pipe('M980,262 L1110,262', 'WIT-101', 50, 'thin')}${off(1110, 262, 'a pilas', 'a200')}
     ${bub(1050, 312, 'AIT-105', {v: 'AIT-105', vx: 22, vy: 4})}${sig('M1050,296 L1050,262')}
-    <rect x="40" y="420" width="560" height="120" rx="6" fill="var(--panel)" stroke="var(--line)"/>
+    <rect x="40" y="404" width="560" height="146" rx="6" fill="var(--panel)" stroke="var(--line)"/>
     ${T_(54, 442, 'Dosis real que recibe el mineral', 'ttl')}${V_(54, 468, 'KY-102')}${T_(160, 468, 'consigna', 'lbl')}${K_(220, 468, 'ratio-102b', 'val')}
     ${K_(54, 494, 'ratio-102', 'lbl')}${T_(330, 524, 'El pesómetro está 45 s antes del tambor.', 'lbl')}
     ${btn(54, 506, 260, 'Compensación de retardo', 'delay')}
-    <rect x="640" y="420" width="540" height="120" rx="6" fill="var(--panel)" stroke="var(--line)"/>
-    ${T_(654, 442, 'Secuencia de partida y enclavamientos', 'ttl')}
-    ${T_(654, 466, '1. Tambor M-103 → 2. Correa CV-101 → 3. Alimentador FD-101 → 4. Ácido y agua', 'lbl')}
-    ${T_(654, 490, 'Si se detiene la correa, se detienen el alimentador y las bombas de ácido y agua.', 'lbl')}
-    ${T_(654, 514, 'El cordón de emergencia de CV-101 exige rearme local antes de volver a partir.', 'lbl')}
+    <g data-fp="SEQ"><rect class="blk" x="640" y="404" width="540" height="146" rx="6"/>
+    ${T_(654, 426, 'Secuencias del área 100', 'ttl')}${K_(1166, 426, 'seq-st', 'unit', 'end')}
+    ${[0, 1, 2, 3, 4, 5].map((i) => K_(654, 448 + i * 17, 'seq-' + i, 'lbl')).join('')}
+    ${T_(1166, 543, 'clic para operar ▸', 'unit', 'end')}</g>
   </svg>`;
 
   SCREENS.a200 = () => {
@@ -260,60 +268,131 @@
     return h;
   };
 
-  /* faceplate de lazo */
+  /* =================== faceplates (ventana flotante) =================== */
+  // Seleccionar y luego confirmar (select-before-operate): ninguna orden a un equipo se ejecuta con un solo clic.
+  const STOP_NOTE = {
+    'RT-401': 'Corta la corriente de las 160 celdas: la nave deja de producir.',
+    'M-103': 'Por enclavamiento se detienen la correa, el alimentador y las bombas de ácido y agua.',
+    'CV-101': 'Por enclavamiento se detienen el alimentador y las bombas de ácido y agua.',
+    'P-201A': 'Si P-201B no está en respaldo, la presión de riego cae a cero.',
+    'P-202A': 'Si P-202B no está en respaldo, se corta la alimentación de PLS a SX.',
+    'P-401A': 'Si P-401B no está en respaldo, el caudal de electrolito baja y dispara el rectificador.',
+    'P-305': 'Sin orgánico, SX deja de extraer y el cobre se va al refino.'
+  };
+  const confirmBox = (key, label, note = '') => state.confirm && state.confirm.key === key ? `<div class="cfm"><b>${label}</b>${note ? `<span class="small">${esc(note)}</span>` : ''}<span class="small muted">La orden queda en la bitácora. Se cancela sola en 10 s.</span><div class="row"><button class="go" data-ok="${key}">Confirmar</button><button data-cancel>Cancelar</button></div></div>` : '';
+  const anyConfirm = (pairs) => pairs.map(([k, l, n]) => confirmBox(k, l, n)).join('');
+  const recentEvents = (id, pred = (l) => l.msg.includes(id)) => {
+    const ev = P.S.log.filter(pred).slice(0, 4);
+    return ev.length ? `<h3>Últimos eventos</h3><div class="evl">${ev.map((l) => `<div><span class="mono">${P.hm(l.t)}</span> ${esc(l.msg)}</div>`).join('')}</div>` : '';
+  };
+
   const fpLoop = (id) => {
     const c = P.L[id], pv = LOOP_PV[id], t = P.T[pv], sp = c.sp_();
-    const pct = (v) => Math.max(0, Math.min(100, (v - t.lo) / (t.hi - t.lo) * 100));
-    let h = `<div class="row"><h2 style="flex:1">${id}</h2><button data-close-fp>Cerrar</button></div><p class="small muted" style="margin:0">${esc(c.desc)}</p>`;
+    const pct = (v) => clamp((v - t.lo) / (t.hi - t.lo) * 100, 0, 100);
+    let h = `<p class="small muted" style="margin:0">${esc(c.desc)}${c.mode !== c.norm ? ` · <b class="abn">modo no habitual (normal: ${c.norm})</b>` : ''}</p>`;
     h += `<div class="grp">${c.modes.map((m) => `<button data-mode="${m}" class="${c.mode === m ? 'on' : ''}">${m === 'MAN' ? 'Manual' : m === 'AUTO' ? 'Automático' : 'Cascada'}</button>`).join('')}</div>`;
     h += `<div class="fpbars"><div><div class="b"><i style="height:${pct(t.v)}%"></i><u style="bottom:${pct(sp)}%"></u></div>PV<b>${f(t.v, t.dec)}</b></div><div><div class="b"><i style="height:${pct(sp)}%;background:var(--sel)"></i></div>SP<b>${f(sp, t.dec)}</b></div><div><div class="b"><i style="height:${c.op}%"></i></div>Salida<b>${f(c.op, 1)} %</b></div></div>`;
-    h += `<div class="small muted">Unidad: ${t.unit || '—'} · Rango ${f(t.lo, t.dec)} a ${f(t.hi, t.dec)}${c.mode === 'CAS' ? ' · consigna externa' : ''}</div>`;
-    if (c.ratio != null) h += `<div class="row"><label class="small">Razón (${c.ratioUnit})</label><input id="fp-ratio" type="number" step="any" value="${c.ratio}" style="width:90px"><button data-set="ratio">Aplicar</button></div>`;
-    h += `<div class="row"><label class="small">Consigna</label><input id="fp-sp" type="number" step="any" value="${+c.sp.toFixed(3)}" style="width:90px"><button data-set="sp">Aplicar</button></div>`;
-    h += `<div class="row"><label class="small">Salida manual %</label><input id="fp-op" type="number" step="1" min="0" max="100" value="${c.op.toFixed(0)}" style="width:90px" ${c.mode !== 'MAN' ? 'disabled' : ''}><button data-set="op" ${c.mode !== 'MAN' ? 'disabled' : ''}>Aplicar</button></div>`;
+    h += `<div class="small muted">${t.unit || 'sin unidad'} · rango ${f(t.lo, t.dec)} a ${f(t.hi, t.dec)}${c.mode === 'CAS' ? ' · consigna externa' : ''}</div>`;
+    const nud = (k, vals, lbl) => `<div class="row nud"><span class="small">${lbl}</span>${vals.map((v) => `<button data-nudge="${k}:${v}">${v > 0 ? '+' : '−'}${Math.abs(v)}</button>`).join('')}</div>`;
+    if (c.mode === 'CAS' && c.ratio != null) h += nud('ratio', [-5, -2, 2, 5], `Razón ${f(c.ratio, c.ratio < 1 ? 3 : 1)} ${c.ratioUnit} · ajuste %`);
+    if (c.mode === 'AUTO') h += nud('sp', [-5, -1, 1, 5], 'Consigna · % del rango');
+    if (c.mode === 'MAN') h += nud('op', [-5, -1, 1, 5], 'Salida manual · %');
+    if (c.ratio != null) h += `<div class="row"><label class="small" for="fp-ratio">Razón (${c.ratioUnit})</label><input id="fp-ratio" type="number" step="any" value="${c.ratio}" style="width:90px"><button data-set="ratio">Aplicar</button></div>`;
+    h += `<div class="row"><label class="small" for="fp-sp">Consigna</label><input id="fp-sp" type="number" step="any" value="${+c.sp.toFixed(3)}" style="width:90px"><button data-set="sp">Aplicar</button></div>`;
+    h += `<div class="row"><label class="small" for="fp-op">Salida manual %</label><input id="fp-op" type="number" step="1" min="0" max="100" value="${c.op.toFixed(0)}" style="width:90px" ${c.mode !== 'MAN' ? 'disabled' : ''}><button data-set="op" ${c.mode !== 'MAN' ? 'disabled' : ''}>Aplicar</button></div>`;
+    const lims = P.AD.filter((a) => a.tag === pv && a.type !== 'DISC').sort((a, b) => b.lim - a.lim);
+    if (lims.length) h += `<h3>Límites de alarma de ${pv}</h3><div class="lims">${lims.map((a) => `<span><span class="pr p${a.prio}">${a.prio}</span> ${a.type}</span><b>${f(a.lim, t.dec)} ${t.unit}</b><span class="small muted">${a.st === 'U' || a.st === 'A' ? '<b class="abn">activa</b>' : `retardo ${a.delay} s`}</span>`).join('')}</div>`;
     h += `<div class="small muted">Sintonía: Kp ${c.kp} · Ti ${c.ti} s · acción ${c.act === 'dir' ? 'directa' : 'inversa'}</div>`;
-    h += `<canvas id="fp-trend" height="130" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:4px"></canvas><div class="small muted">Últimos 30 min: PV (línea) y consigna actual (segmentada).</div>`;
+    h += `<canvas id="fp-trend" height="120" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:4px"></canvas><div class="row"><span class="small muted" style="flex:1">Últimos 30 min: PV y consigna (segmentada).</span><button data-totrend="${pv}">Ver en tendencias</button></div>`;
     return h;
   };
   const fpMotor = (id) => {
     if (id === 'RT-401') {
       const R = P.RECT, perms = P.perms['RT-401']();
-      return `<div class="row"><h2 style="flex:1">RT-401</h2><button data-close-fp>Cerrar</button></div><p class="small muted" style="margin:0">Rectificador de tiristores, 12 pulsos. Estado: <b>${stTxt(R.state)}</b>${R.trip ? ' · ' + esc(R.trip) : ''}</p>
-        <div class="row"><button data-cmd="start">Poner en servicio</button><button data-cmd="stop">Sacar de servicio</button><button data-cmd="reset">Rearmar</button></div>
+      return `<p class="small muted" style="margin:0">Rectificador de tiristores, 12 pulsos. Estado: <b>${stTxt(R.state)}</b>${R.trip ? ' · ' + esc(R.trip) : ''}</p>
+        <div class="row"><button data-ask="start" ${R.state === 'RUN' ? 'disabled' : ''}>Poner en servicio</button><button data-ask="stop" ${R.state !== 'RUN' ? 'disabled' : ''}>Sacar de servicio</button><button data-cmd="reset" ${R.state !== 'TRIP' ? 'disabled' : ''}>Rearmar</button></div>
+        ${anyConfirm([['start', '¿Poner RT-401 en servicio?', 'La corriente sube en rampa de 2 kA/min.'], ['stop', '¿Sacar RT-401 de servicio?', STOP_NOTE['RT-401']]])}
         <div class="box"><div class="kv"><span>Corriente</span><b>${ft('IIT-401')} kA</b><span>Voltaje</span><b>${ft('EIT-401')} V</b><span>Potencia DC</span><b>${ft('JIT-401')} MW</b><span>Rampa máxima</span><b>2 kA/min</b></div></div>
-        <h3>Permisivos</h3><ul class="perm">${perms.map(([t, ok]) => `<li class="${ok ? '' : 'no'}">${esc(t)}</li>`).join('')}</ul><button data-fp2="IIC-401">Abrir lazo IIC-401</button>`;
+        <h3>Permisivos</h3><ul class="perm">${perms.map(([t, ok]) => `<li class="${ok ? '' : 'no'}">${esc(t)}</li>`).join('')}</ul><button data-fp2="IIC-401">Abrir lazo IIC-401</button>${recentEvents('RT-401')}`;
     }
     const m = P.M[id]; const perms = P.perms[id] ? P.perms[id]() : [];
     const zone = (v) => v < 2.3 ? 'A' : v < 4.5 ? 'B' : v < 7.1 ? 'C' : 'D';
-    let h = `<div class="row"><h2 style="flex:1">${id}</h2><button data-close-fp>Cerrar</button></div><p class="small muted" style="margin:0">${esc(m.desc)} · ${m.kw} kW · ${m.mcc}</p>`;
+    let h = `<p class="small muted" style="margin:0">${esc(m.desc)} · ${m.kw} kW · ${m.mcc}</p>`;
     h += `<div class="small">Estado: <b>${stTxt(m.state, m)}</b>${m.trip && m.trip !== 'reset' ? ' · causa: ' + esc(m.trip) : ''}${m.ilk ? ' · última parada por enclavamiento: ' + esc(m.ilk) : ''}</div>`;
-    h += `<div class="row"><button data-cmd="start" ${m.maintUntil ? 'disabled' : ''}>Partir</button><button data-cmd="stop">Detener</button><button data-cmd="reset" ${m.state !== 'TRIP' ? 'disabled' : ''}>Rearmar</button></div>`;
+    h += `<div class="row"><button data-ask="start" ${m.maintUntil || m.state === 'RUN' ? 'disabled' : ''}>Partir</button><button data-ask="stop" ${m.state !== 'RUN' ? 'disabled' : ''}>Detener</button><button data-cmd="reset" ${m.state !== 'TRIP' || m.trip === 'reset' ? 'disabled' : ''}>Rearmar</button></div>`;
+    const why = P.whyNot(id);
+    h += anyConfirm([['start', `¿Partir ${id}?`, why ? `Atención: ${why}. La partida será rechazada.` : ''], ['stop', `¿Detener ${id}?`, STOP_NOTE[id] || '']]);
     if (/B$/.test(id)) h += `<label class="small row"><input type="checkbox" data-standby ${m.standby ? 'checked' : ''}> Respaldo automático si falla la bomba A</label>`;
     h += `<div class="box"><div class="kv"><span>Corriente</span><b>${f(m.amps)} A</b><span>Vibración</span><b>${f(m.vib, 1)} mm/s · zona ${zone(m.vib)}</b><span>Temperatura de rodamiento</span><b>${f(m.temp)} °C</b><span>Horas de marcha</span><b>${f(m.hours)} h</b><span>Partidas</span><b>${m.starts}</b><span>Horas desde la última PM</span><b>${f(m.sincePM)} / ${m.pmEvery} h</b></div></div>`;
     if (perms.length) h += `<h3>Permisivos de partida</h3><ul class="perm">${perms.map(([t, ok]) => `<li class="${ok ? '' : 'no'}">${esc(t)}</li>`).join('')}</ul>`;
-    return h;
+    return h + recentEvents(id);
   };
-  const fpBreaker = (id) => `<div class="row"><h2 style="flex:1">Interruptor ${id}</h2><button data-close-fp>Cerrar</button></div><p class="small">Estado: <b>${P.BRK[id] ? 'Cerrado' : 'Abierto'}</b></p><div class="row"><button data-brk-set="1">Cerrar</button><button data-brk-set="0">Abrir</button></div><p class="small muted" style="margin:0">Al cerrar un MCC no parten solos los motores: el operador debe partirlos en secuencia.</p>`;
+  const fpBreaker = (id) => `<p class="small">Estado: <b>${P.BRK[id] ? 'Cerrado' : 'Abierto'}</b></p><div class="row"><button data-ask="brk1" ${P.BRK[id] ? 'disabled' : ''}>Cerrar</button><button data-ask="brk0" ${!P.BRK[id] ? 'disabled' : ''}>Abrir</button></div>` +
+    anyConfirm([['brk1', `¿Cerrar ${id}?`, 'Los motores no parten solos: hay que partirlos en secuencia.'], ['brk0', `¿Abrir ${id}?`, id === '52-RT' ? 'Dispara el rectificador.' : 'Disparan todos los motores conectados a este centro de control.']]) +
+    `<p class="small muted" style="margin:0">Al cerrar un MCC no parten solos los motores: el operador debe partirlos en secuencia.</p>` + recentEvents(id);
   const fpCell = (k) => {
     const sh = P.X.shorts[k], known = P.X.monitor || P.X.seen[k], fx = P.X.fixing.find((x) => x.k === k);
-    return `<div class="row"><h2 style="flex:1">Celda ${k + 1}</h2><button data-close-fp>Cerrar</button></div>
-      <div class="box"><div class="kv"><span>Voltaje</span><b>${P.X.monitor ? f(P.X.cellV(k), 2) + ' V' : 'sin medición continua'}</b><span>Estado</span><b>${fx ? 'En corrección' : known && sh > 0 ? 'Cortocircuito detectado' : known ? 'Normal' : 'Desconocido hasta la próxima ronda'}</b></div></div>
+    return `<div class="box"><div class="kv"><span>Voltaje</span><b>${P.X.monitor ? f(P.X.cellV(k), 2) + ' V' : 'sin medición continua'}</b><span>Estado</span><b>${fx ? 'En corrección' : known && sh > 0 ? 'Cortocircuito detectado' : known ? 'Normal' : 'Desconocido hasta la próxima ronda'}</b></div></div>
       <button data-fixcell="${k}" ${!(known && sh > 0) || fx ? 'disabled' : ''}>Enviar cuadrilla a corregir</button>`;
   };
-  const renderSide = () => {
-    const sd = $('side');
-    if (!state.sel) { sd.innerHTML = sideDefault(); return; }
+  // estado de los pasos de la secuencia activa (o la de partida si no hay ninguna)
+  const seqLines = () => {
+    const q = P.seq, s = P.SEQ[q.id || 'start100'];
+    return s.steps.map((st, i) => {
+      let ic = '·', c = 'lbl';
+      if (q.id) {
+        if (q.st === 'DONE' || i < q.k) { ic = '✓'; c = 'lbl done'; }
+        else if (i === q.k) { ic = q.st === 'FAIL' ? '✗' : '▶'; c = q.st === 'FAIL' ? 'lbl bad' : 'lbl cur'; }
+      }
+      const el = i === q.k && q.st === 'RUN' ? ` · ${f(P.S.t - q.t0)} s de ${st.max || 60}` : '';
+      return {ic, d: `${i + 1}. ${st.d}`, el, c};
+    });
+  };
+  const seqStatus = () => { const q = P.seq; return !q.id ? 'Lista' : q.st === 'RUN' ? `${P.SEQ[q.id].name} · paso ${q.k + 1} de ${P.SEQ[q.id].steps.length}` : q.st === 'DONE' ? `${P.SEQ[q.id].name} · completada` : `${P.SEQ[q.id].name} · DETENIDA`; };
+  const fpSeq = () => {
+    const q = P.seq, busy = q.st === 'RUN';
+    let h = `<p class="small muted" style="margin:0">Control secuencial: cada paso da una orden y espera su confirmación antes de avanzar. Si no llega a tiempo, la secuencia se detiene y avisa la causa.</p>`;
+    h += `<div class="small">Estado: <b class="${q.st === 'FAIL' ? 'abn bad' : ''}">${esc(seqStatus())}</b></div>`;
+    if (q.st === 'FAIL') h += `<div class="notice p2"><span class="small">${esc(q.msg)}</span></div>`;
+    h += `<div class="row"><button data-ask="seq:start100" ${busy ? 'disabled' : ''}>Partida secuencial</button><button data-ask="seq:stop100" ${busy ? 'disabled' : ''}>Parada secuencial</button><button data-ask="seqabort" ${q.st === 'RUN' || q.st === 'FAIL' ? '' : 'disabled'}>Abortar</button></div>`;
+    h += anyConfirm([['seq:start100', '¿Iniciar la partida secuencial del área 100?', 'Parte tambor, correa, alimentador y luego ácido y agua.'], ['seq:stop100', '¿Iniciar la parada secuencial del área 100?', 'Detiene el alimentador y vacía la correa antes de cortar ácido y agua.'], ['seqabort', '¿Abortar la secuencia?', 'Los equipos quedan como estén en este momento.']]);
+    h += `<ol class="steps">${seqLines().map((l) => `<li class="${l.c.replace('lbl', '').trim()}"><span>${l.ic}</span>${esc(l.d.replace(/^\d+\. /, ''))}<i>${l.el}</i></li>`).join('')}</ol>`;
+    return h + recentEvents('', (l) => l.who === 'Secuencia' || /secuencia/i.test(l.msg));
+  };
+  const fpTitle = (s) => P.L[s] ? s : s.startsWith('BRK:') ? 'Interruptor ' + s.slice(4) : s.startsWith('CELL:') ? 'Celda ' + (+s.slice(5) + 1) : s === 'SEQ' ? 'Secuencias · área 100' : s;
+  const fpw = $('fpw');
+  const renderFp = () => {
+    if (!state.sel) { fpw.hidden = true; return; }
     const s = state.sel;
-    if (P.L[s]) sd.innerHTML = fpLoop(s);
-    else if (P.M[s] || s === 'RT-401') sd.innerHTML = fpMotor(s);
-    else if (s.startsWith('BRK:')) sd.innerHTML = fpBreaker(s.slice(4));
-    else if (s.startsWith('CELL:')) sd.innerHTML = fpCell(+s.slice(5));
+    const h = P.L[s] ? fpLoop(s) : (P.M[s] || s === 'RT-401') ? fpMotor(s) : s.startsWith('BRK:') ? fpBreaker(s.slice(4)) : s.startsWith('CELL:') ? fpCell(+s.slice(5)) : s === 'SEQ' ? fpSeq() : '';
+    $('fpw-t').textContent = fpTitle(s); $('fpw-b').innerHTML = h; fpw.hidden = false;
     drawFpTrend();
   };
+  const openFp = (id, ev) => {
+    const was = !fpw.hidden;
+    state.sel = id; state.confirm = null; renderFp();
+    if (window.innerWidth < 760 || !ev || (was && fpw.dataset.moved)) return;
+    fpw.dataset.moved = '';
+    const w = fpw.offsetWidth, h = fpw.offsetHeight;
+    const left = ev.clientX + 28 + w < innerWidth ? ev.clientX + 28 : ev.clientX - w - 28;
+    fpw.style.left = clamp(left, 8, innerWidth - w - 8) + 'px';
+    const top0 = Math.max(8, document.querySelector('main').getBoundingClientRect().top + 6); // no tapar la navegación
+    fpw.style.top = clamp(ev.clientY - 80, top0, Math.max(top0, innerHeight - h - 8)) + 'px';
+  };
+  const closeFp = () => { state.sel = null; state.confirm = null; renderFp(); };
+  // arrastre de la ventana por su barra de título
+  $('fpw-h').addEventListener('pointerdown', (e) => {
+    if (e.target.closest('button') || window.innerWidth < 760) return;
+    const r = fpw.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+    const mv = (ev) => { fpw.style.left = clamp(ev.clientX - dx, 0, innerWidth - r.width) + 'px'; fpw.style.top = clamp(ev.clientY - dy, 0, innerHeight - 40) + 'px'; fpw.dataset.moved = '1'; };
+    const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); };
+    addEventListener('pointermove', mv); addEventListener('pointerup', up);
+  });
+  const renderSide = () => { $('side').innerHTML = sideDefault(); };
   const drawFpTrend = () => {
     const cv = $('fp-trend'); if (!cv || !P.L[state.sel]) return;
     const pv = LOOP_PV[state.sel], t = P.T[pv], d = P.histGet(pv, 1800);
-    const W = cv.clientWidth, H = 130, dp = devicePixelRatio || 1; cv.width = W * dp; cv.height = H * dp; const x = cv.getContext('2d'); x.setTransform(dp, 0, 0, dp, 0, 0);
+    const W = cv.clientWidth, H = 120, dp = devicePixelRatio || 1; cv.width = W * dp; cv.height = H * dp; const x = cv.getContext('2d'); x.setTransform(dp, 0, 0, dp, 0, 0);
     if (d.length < 2) return;
     let lo = Math.min(...d.map((p) => p[1]), P.L[state.sel].sp_()), hi = Math.max(...d.map((p) => p[1]), P.L[state.sel].sp_()); const pad = (hi - lo) * 0.15 || Math.abs(hi) * 0.05 || 1; lo -= pad; hi += pad;
     const X = (tt) => 4 + (W - 8) * (1 - (P.S.t - tt) / 1800), Y = (v) => 8 + (H - 16) * (hi - v) / (hi - lo);
@@ -330,22 +409,23 @@
     const shH = Math.max(0.05, ((P.now() - 8 * 3600) % 28800) / 3600);
     const rate = P.X.alarmsShift / shH;
     const top = P.AD.filter((a) => a.count > 0).sort((a, b) => b.count - a.count).slice(0, 6);
-    const shelved = P.AD.filter((a) => a.shelved && P.S.t < a.shelved);
+    const shelved = P.AD.filter((a) => a.shelved && P.S.t < a.shelved), supp = P.AD.filter((a) => a.supp);
     let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1">Resumen de alarmas</h2><label class="small">Área <select id="al-f"><option value="0">Todas</option>${Object.keys(AREAS).map((k) => `<option value="${k}" ${+k === fa ? 'selected' : ''}>${k} · ${AREAS[k]}</option>`).join('')}</select></label><button data-ackall>Reconocer visibles</button></div>`;
     h += `<div class="cards"><div class="card ${rate > 12 ? 'bad' : rate > 6 ? 'warn' : ''}"><div class="l">Alarmas por hora en el turno</div><div class="v">${f(rate, 1)}</div><div class="s">ISA-18.2: ~6/h aceptable · ~12/h máximo manejable</div></div>
       <div class="card"><div class="l">Activas</div><div class="v">${act.filter((a) => a.st !== 'R').length}</div><div class="s">${act.filter((a) => a.st === 'U').length} sin reconocer</div></div>
-      <div class="card"><div class="l">Inhibidas temporalmente</div><div class="v">${shelved.length}</div><div class="s">vuelven solas al vencer el plazo</div></div></div>`;
+      <div class="card"><div class="l">Inhibidas temporalmente</div><div class="v">${shelved.length}</div><div class="s">vuelven solas al vencer el plazo</div></div>
+      <div class="card"><div class="l">Suprimidas por estado de equipo</div><div class="v">${supp.length}</div><div class="s">${supp.length ? esc(supp.slice(0, 3).map((a) => a.id).join(' · ')) + (supp.length > 3 ? '…' : '') : 'el área detenida no genera alarmas de proceso'}</div></div></div>`;
     h += `<div class="tblw"><table><thead><tr><th>Hora</th><th>Prior.</th><th>Área</th><th>Tag</th><th>Descripción</th><th>Estado</th><th></th></tr></thead><tbody>`;
     h += act.length ? act.map((a) => `<tr><td class="mono">${P.hm(a.since)}</td><td><span class="pr p${a.prio} ${a.st === 'U' ? 'blink' : ''}">${a.prio}</span></td><td>${a.area}</td><td class="mono">${esc(a.tag)}</td><td>${esc(a.desc)}</td><td class="small">${{U: 'Activa sin reconocer', A: 'Activa reconocida', R: 'Normalizada sin reconocer'}[a.st]}</td><td><div class="row"><button data-ack="${esc(a.id)}">Reconocer</button><button data-shelve="${esc(a.id)}">Inhibir 1 h</button></div></td></tr>`).join('') : '<tr><td colspan="7" class="muted">Sin alarmas.</td></tr>';
     h += `</tbody></table></div><h3 style="margin:0;font-size:.85rem">Alarmas más frecuentes (candidatas a racionalización)</h3><div class="tblw"><table><thead><tr><th>Tag</th><th>Descripción</th><th>Veces</th></tr></thead><tbody>${top.length ? top.map((a) => `<tr><td class="mono">${esc(a.tag)}</td><td>${esc(a.desc)}</td><td class="num">${a.count}</td></tr>`).join('') : '<tr><td colspan="3" class="muted">Aún no hay repeticiones.</td></tr>'}</tbody></table></div></div>`;
     return h;
   };
-  const PEN_COLORS = ['--sel', '--p2', '--diag', '--p1'];
+  const PEN_COLORS = ['--sel', '--diag', '--ok', '--pen4']; // sin rojo ni ámbar: esos colores son de alarma (ISA-101)
   const pageTrends = () => {
     const opts = Object.values(P.T).map((t) => `<option value="${t.id}">${t.id} · ${esc(t.desc)}</option>`).join('');
-    let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1">Tendencias</h2><span class="grp">${[[1800, '30 min'], [7200, '2 h'], [28800, '8 h']].map(([w, l]) => `<button data-win="${w}" class="${state.trend.win === w ? 'on' : ''}">${l}</button>`).join('')}</span></div>`;
+    let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1">Tendencias</h2><span class="grp">${[[1800, '30 min'], [7200, '2 h'], [28800, '8 h']].map(([w, l]) => `<button data-win="${w}" class="${state.trend.win === w ? 'on' : ''}">${l}</button>`).join('')}</span><button data-csv="trend" title="Separador punto y coma, decimales con coma">Exportar CSV</button></div>`;
     h += `<div class="cards">${state.trend.pens.map((p, i) => `<div class="card" style="border-left:4px solid var(${PEN_COLORS[i]})"><select data-pen="${i}" style="width:100%">${opts.replace(`value="${p}"`, `value="${p}" selected`)}</select><div class="v" data-pv="${i}">—</div></div>`).join('')}</div>`;
-    h += `<canvas id="tr-cv" height="380" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px"></canvas><div class="small muted">Cada pluma usa su propia escala (mínimo y máximo de la ventana). Historiador con una muestra cada 10 s simulados.</div></div>`;
+    h += `<canvas id="tr-cv" height="380" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px;touch-action:pan-y;cursor:crosshair"></canvas><div class="small muted">Pasa el cursor sobre el gráfico para leer los valores en ese instante. Cada pluma usa su propia escala (mínimo y máximo de la ventana). Historiador con una muestra cada 10 s simulados.</div></div>`;
     return h;
   };
   const drawTrends = () => {
@@ -354,13 +434,108 @@
     const win = state.trend.win, mg = {l: 10, r: 10, t: 14, b: 22};
     x.strokeStyle = css('--line'); x.fillStyle = css('--muted'); x.font = `10px ${css('--mono')}`;
     for (let i = 0; i <= 6; i++) { const xx = mg.l + (W - mg.l - mg.r) * i / 6; x.beginPath(); x.moveTo(xx, mg.t); x.lineTo(xx, H - mg.b); x.stroke(); const tt = P.now() - win * (1 - i / 6); x.textAlign = 'center'; x.fillText(P.hm(tt), Math.min(Math.max(xx, 20), W - 20), H - 6); }
+    const series = [];
     state.trend.pens.forEach((p, i) => {
       const d = P.histGet(p, win); if (d.length < 2) return;
       let lo = Math.min(...d.map((q) => q[1])), hi = Math.max(...d.map((q) => q[1])); const pad = (hi - lo) * 0.1 || Math.abs(hi) * 0.05 || 1; lo -= pad; hi += pad;
       const X = (tt) => mg.l + (W - mg.l - mg.r) * (1 - (P.S.t - tt) / win), Y = (v) => mg.t + (H - mg.t - mg.b) * (hi - v) / (hi - lo);
       x.strokeStyle = css(PEN_COLORS[i]); x.lineWidth = 1.6; x.beginPath(); d.forEach(([tt, v], k) => k ? x.lineTo(X(tt), Y(v)) : x.moveTo(X(tt), Y(v))); x.stroke();
       x.fillStyle = css(PEN_COLORS[i]); x.textAlign = 'left'; x.fillText(`${p}  ${f(hi, P.T[p].dec)} / ${f(lo, P.T[p].dec)}`, mg.l + 4 + i * Math.min(220, (W - 20) / 4), mg.t - 2 + 12);
+      series.push({p, i, d, X, Y});
     });
+    // cursor de lectura
+    const cx = state.trend.cx;
+    if (cx == null || cx < mg.l || cx > W - mg.r || !series.length) return;
+    const tt = P.S.t - win * (1 - (cx - mg.l) / (W - mg.l - mg.r));
+    x.strokeStyle = css('--txt'); x.lineWidth = 1; x.setLineDash([3, 3]); x.beginPath(); x.moveTo(cx, mg.t); x.lineTo(cx, H - mg.b); x.stroke(); x.setLineDash([]);
+    const rows = series.map((s) => { let best = s.d[0]; for (const q of s.d) if (Math.abs(q[0] - tt) < Math.abs(best[0] - tt)) best = q; x.fillStyle = css(PEN_COLORS[s.i]); x.beginPath(); x.arc(s.X(best[0]), s.Y(best[1]), 3.5, 0, 7); x.fill(); return [s.i, `${s.p}  ${f(best[1], P.T[s.p].dec)} ${P.T[s.p].unit}`]; });
+    const bw = 210, bh = 20 + rows.length * 16, bx = cx + 12 + bw > W ? cx - bw - 12 : cx + 12, by = mg.t + 24;
+    x.fillStyle = css('--panel'); x.strokeStyle = css('--line'); x.fillRect(bx, by, bw, bh); x.strokeRect(bx, by, bw, bh);
+    x.textAlign = 'left'; x.fillStyle = css('--txt'); x.fillText(hms(P.S.t0 + tt), bx + 8, by + 14);
+    rows.forEach(([i, txt], k) => { x.fillStyle = css(PEN_COLORS[i]); x.fillRect(bx + 8, by + 22 + k * 16, 8, 8); x.fillStyle = css('--txt'); x.fillText(txt, bx + 22, by + 30 + k * 16); });
+  };
+  const trendCSV = () => {
+    const pens = state.trend.pens, ds = pens.map((p) => P.histGet(p, state.trend.win));
+    const head = ['Hora simulada', ...pens.map((p) => `${p} (${P.T[p].unit || '-'})`)].map(csvq).join(';');
+    const lines = ds[0].map(([tt], k) => [csvq(hms(P.S.t0 + tt)), ...ds.map((d, i) => csvNum(d[k] ? d[k][1] : NaN, P.T[pens[i]].dec + 1))].join(';'));
+    download(`tendencias-planta-virtual.csv`, [head, ...lines].join('\r\n'));
+  };
+
+  /* bitácora de eventos (secuencia de eventos: alarmas, órdenes, disparos) */
+  const EVK = [['all', 'Todos'], ['alm', 'Alarmas'], ['op', 'Órdenes del operador'], ['sys', 'Sistema y secuencias'], ['mt', 'Mantenimiento'], ['scn', 'Escenarios']];
+  const evMatch = (l, k) => k === 'all' || (k === 'alm' && (l.kind === 'alm' || l.kind === 'rtn' || l.kind === 'ack')) || (k === 'op' && l.who === 'Operador') || (k === 'sys' && (l.who === 'Sistema' || l.who === 'Secuencia')) || (k === 'mt' && l.who === 'Mantenimiento') || (k === 'scn' && l.who === 'Escenario');
+  const evTag = (l) => {
+    if (l.kind === 'alm') { const pr = (/^P(\d)/.exec(l.msg) || [])[1] || 3; return `<span class="pr p${pr}">${pr}</span> Alarma`; }
+    const k = {rtn: 'Normaliza', ack: 'Reconoce', trip: '<b class="abn bad">Disparo</b>', warn: 'Rechazo o aviso', scn: 'Escenario'}[l.kind];
+    return k || {Operador: 'Orden', Secuencia: 'Paso de secuencia', Mantenimiento: 'Mantención'}[l.who] || 'Sistema';
+  };
+  const pageEvents = () => {
+    const k = state.evF, rows = P.S.log.filter((l) => evMatch(l, k));
+    let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1">Bitácora de eventos</h2><label class="small">Mostrar <select id="ev-f">${EVK.map(([v, l]) => `<option value="${v}" ${v === k ? 'selected' : ''}>${l}</option>`).join('')}</select></label><button data-csv="events">Exportar CSV</button></div>`;
+    h += `<p class="small muted" style="margin:0">Registro con hora de cada alarma, normalización, reconocimiento, orden del operador, paso de secuencia y disparo. ${rows.length} eventos${rows.length > 250 ? ', se muestran los 250 más recientes' : ''}.</p>`;
+    h += `<div class="tblw"><table><thead><tr><th>Hora</th><th>Origen</th><th>Tipo</th><th>Mensaje</th></tr></thead><tbody>`;
+    h += rows.length ? rows.slice(0, 250).map((l) => `<tr${l.kind === 'trip' ? ' class="trip"' : ''}><td class="mono">${hms(l.t)}</td><td class="small">${esc(l.who)}</td><td class="small">${evTag(l)}</td><td class="small">${esc(l.msg)}</td></tr>`).join('') : '<tr><td colspan="4" class="muted">Sin eventos con este filtro.</td></tr>';
+    return h + '</tbody></table></div></div>';
+  };
+  const eventsCSV = () => download('bitacora-planta-virtual.csv', [['Hora simulada', 'Origen', 'Tipo', 'Mensaje'].map(csvq).join(';'), ...P.S.log.map((l) => [hms(l.t), l.who, l.kind, l.msg].map(csvq).join(';'))].join('\r\n'));
+
+  /* modelo: de dónde sale cada número (trazabilidad del gemelo) */
+  const SRC = {
+    saldana: ['Saldaña y otros, Minerals 9(7) 421, 2019 (ENAMI)', 'https://www.mdpi.com/2075-163X/9/7/421'],
+    leon: ['León y otros, Processes 13, 1513, 2025', 'https://doi.org/10.3390/pr13051513'],
+    sole: ['Sole y otros, encuesta mundial de plantas de SX (27 plantas, 2012)', 'https://www.researchgate.net/publication/292140218_Global_survey_of_copper_solvent_extraction_operations_and_practices'],
+    cif: ['Cifuentes y otros, Universidad de Chile', 'https://www.electrochem.org/dl/ma/201/pdfs/1122.pdf'],
+    lme: ['LME, cobre grado A (BS EN 1978:2022, Cu-CATH-1)', 'https://www.lme.com/-/media/Files/Physical-services/Brands/Chemical-composition/Chemical-composition-Copper.pdf']
+  };
+  const neg = (v) => v >= 0.005 ? '−' + f(v, 2) : f(0, 2);
+  const src = (k) => `<a href="${SRC[k][1]}" target="_blank" rel="noopener">${SRC[k][0]}</a>`;
+  const ch = (file, n) => `<a href="../procesos/${file}.html">capítulo ${n} del curso</a>`;
+  const pageModel = () => {
+    const X = P.X, vp = X.vp || {rev: 0, an: 0, cat: 0, ohm: 0, hw: 0}, cl = X.ceLoss || {base: 95.5, fe: 0, temp: 0, shorts: 0};
+    const cuIn = 1700 * X.stackF * 0.006, recov = 100 * X.leach / (1700 * 6);
+    const bleedCu = (X.bleedQ || 0) * X.Ce, acc = X.T - X.D - bleedCu;
+    const node = (ttl, val, unit, eq, ref) => `<div class="mnode"><div class="l">${ttl}</div><div class="v">${val}<small> ${unit}</small></div><div class="eq">${eq}</div><div class="s">${ref}</div></div>`;
+    let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1">Modelo del gemelo · de dónde sale cada número</h2></div>`;
+    h += `<p class="small muted" style="margin:0;max-width:75ch">Cada valor de las pantallas sale de ecuaciones de balance y de parámetros publicados. Aquí se ve la cadena del cobre en línea, con la ecuación y la fuente de cada eslabón.</p>`;
+    h += `<h3 class="sec">Cadena del cobre, en este instante</h3><div class="chain">`;
+    h += node('Mineral apilado', f(cuIn, 2), 't/h de Cu', `${f(1700 * X.stackF)} t/h × 0,6 % Cu (promedio de 72 h)`, 'Planta de diseño del ' + ch('balance', 6));
+    h += node('Pilas → PLS', f(X.leach / 1000, 2), 't/h de Cu', `R(t) = 64,6 % · g(t)/g(90), g(t) = 1 − 0,40·e<sup>−0,0844t</sup> − 0,60·e<sup>−0,0055t</sup> · ahora ${f(recov, 1)} %`, src('saldana'));
+    h += node('PLS a SX', ft('AIT-206'), 'g/L', `Cu = refino + Cu lixiviado / caudal = ${ft('AIT-208')} + ${f(X.leach, 0)} / ${f(X.qPLS)} m³/h`, src('sole'));
+    h += node('SX', ft('KY-303'), '% extracción', `Equilibrio K = 4 con liberación de H⁺, E1 y E2 en contracorriente, O/A ${ft('KY-301')}`, 'Modelo del ' + ch('sx', 4));
+    h += node('Electrolito → cátodo', ft('KY-405'), 't/h', `m = I · 1,1855 g/Ah · ${P.NCELL} celdas · η = ${ft('IIT-401')} kA · ${ft('KY-406')} %`, 'Ley de Faraday · ' + ch('ew', 5));
+    h += `</div>`;
+    // balance del electrolito
+    h += `<h3 class="sec">Balance de cobre del electrolito (600 m³)</h3><div class="tblw"><table><tbody>
+      <tr><td>Entra desde SX (reextracción)</td><td class="num">+${f(X.T)} kg/h</td></tr>
+      <tr><td>Se deposita como cátodo</td><td class="num">−${f(X.D)} kg/h</td></tr>
+      <tr><td>Sale con el sangrado hacia refino</td><td class="num">−${f(bleedCu)} kg/h</td></tr>
+      <tr><td><b>Acumulación</b> · V·dCu/dt</td><td class="num"><b>${acc >= 0 ? '+' : '−'}${f(Math.abs(acc))} kg/h</b> = ${f(acc / 600, 3)} g/L por hora</td></tr></tbody></table></div>`;
+    // voltaje de celda
+    const parts = [['Potencial reversible', vp.rev, '--eq'], ['Sobrepotencial anódico (O₂)', vp.an, '--sel'], ['Sobrepotencial catódico', vp.cat, '--diag'], ['Caída óhmica del electrolito', vp.ohm, '--ok'], ['Contactos, barras y ánodos', vp.hw, '--pen4']];
+    const vt = parts.reduce((a, p) => a + p[1], 0);
+    h += `<h3 class="sec">Voltaje de una celda sana: ${f(vt, 3)} V</h3><div class="stack">${parts.map(([l, v, c]) => `<i style="width:${100 * v / vt}%;background:var(${c})" title="${l}: ${f(v, 3)} V"></i>`).join('')}</div>`;
+    h += `<div class="legend">${parts.map(([l, v, c]) => `<span><i style="background:var(${c})"></i>${l} <b>${f(v, 3)} V</b></span>`).join('')}</div>`;
+    h += `<p class="small muted" style="margin:0">Solo ${f(vp.rev, 2)} V son química inevitable. La caída óhmica baja si sube la temperatura (la conductividad crece 2 % por °C) y todo crece con la densidad de corriente (${ft('KY-401')} A/m²). Energía: ${ft('KY-407')} kWh/t. Fuente: ${src('cif')} y ${ch('ew', 5)}.</p>`;
+    // eficiencia de corriente
+    h += `<h3 class="sec">Eficiencia de corriente: ${ft('KY-406')} %</h3><div class="tblw"><table><tbody>
+      <tr><td>Base de una nave bien operada</td><td class="num">${f(cl.base, 1)} %</td></tr>
+      <tr><td>Hierro en el electrolito (Fe³⁺ se reduce en el cátodo y gasta corriente) · ${ft('AIT-407')} mg/L</td><td class="num">${neg(cl.fe)} %</td></tr>
+      <tr><td>Electrolito frío (bajo 40 °C) · ${ft('TIT-403')} °C</td><td class="num">${neg(cl.temp)} %</td></tr>
+      <tr><td>Cortocircuitos entre ánodo y cátodo · ${knownShorts()} conocidos</td><td class="num">${neg(cl.shorts)} %</td></tr></tbody></table></div>`;
+    // parámetros
+    h += `<h3 class="sec">Parámetros y fuentes</h3><div class="tblw"><table><thead><tr><th>Parámetro</th><th>Valor</th><th>Fuente</th></tr></thead><tbody>
+      <tr><td>Recuperación de óxidos a 90 días</td><td class="num">64,6 %</td><td class="small">${src('saldana')}</td></tr>
+      <tr><td>Tasa de riego</td><td class="num">10 L/h/m²</td><td class="small">${src('leon')} (rango 5 a 15)</td></tr>
+      <tr><td>PLS: Cu, pH y Fe</td><td class="num">3,2 g/L · 1,9 · 5,8 g/L</td><td class="small">${src('sole')}, promedios sudamericanos</td></tr>
+      <tr><td>Electrolito: Cu y H₂SO₄; extractante</td><td class="num">37 a 48 g/L · 183 g/L · 15,4 % vol</td><td class="small">${src('sole')}</td></tr>
+      <tr><td>Equivalente electroquímico del cobre</td><td class="num">1,1855 g/Ah</td><td class="small">M/(zF) = 63,546 / (2 · 96.485) · 3.600</td></tr>
+      <tr><td>Nave EW</td><td class="num">160 celdas · 60 cátodos · 1 m²/cara</td><td class="small">Supuesto de diseño, ${ch('ew', 5)}</td></tr>
+      <tr><td>Calidad del cátodo</td><td class="num">Pb ≤ 5 · S ≤ 15 · Fe ≤ 10 ppm</td><td class="small">${src('lme')}</td></tr>
+      <tr><td>Zonas de vibración</td><td class="num">2,3 · 4,5 · 7,1 mm/s</td><td class="small">ISO 10816-3, grupo 1, base rígida</td></tr>
+      <tr><td>Alarmas, pantallas, tags y secuencias</td><td class="num">—</td><td class="small">ISA-18.2 · ISA-101 · ISA-5.1 · ISA-88 (simplificado)</td></tr>
+      <tr><td>Precios</td><td class="num">US$ 6,5/lb Cu · US$ 100/MWh</td><td class="small">Supuesto para valorizar pérdidas</td></tr></tbody></table></div>`;
+    h += `<div class="notice"><b>Alcance</b><span class="small">Es un gemelo de referencia: un modelo físico con parámetros de literatura, no sincronizado con una planta real. Para ser un gemelo digital de una faena concreta le faltan la conexión al historiador de la planta (OPC UA o PI), la estimación en línea de sus parámetros y la validación contra sus datos. La dinámica es creíble y los balances cierran; los valores exactos no representan a ninguna operación.</span></div>`;
+    return h + '</div>';
   };
 
   const pageMaint = () => {
@@ -450,7 +625,8 @@
   };
 
   /* =================== navegación =================== */
-  const TABS = [['gen', 'General'], ['a100', '100 Aglomeración'], ['a200', '200 Pilas'], ['a300', '300 SX'], ['a400', '400 EW'], ['a500', '500 Servicios'], ['alarms', 'Alarmas'], ['trends', 'Tendencias']];
+  const TABS = [['gen', 'General'], ['a100', '100 Aglomeración'], ['a200', '200 Pilas'], ['a300', '300 SX'], ['a400', '400 EW'], ['a500', '500 Servicios'], ['alarms', 'Alarmas'], ['trends', 'Tendencias'], ['events', 'Eventos'], ['model', 'Modelo']];
+  const PAGES = {alarms: () => pageAlarms(), trends: () => pageTrends(), events: () => pageEvents(), model: () => pageModel()};
   const ROLES = [['op', 'Operación'], ['mt', 'Mantenimiento'], ['mg', 'Gerencia']];
   const SPEEDS = [[0, 'Pausa'], [1, '×1'], [10, '×10'], [60, '×60'], [300, '×300']];
   let speed = 60;
@@ -460,16 +636,34 @@
     $('tabs').style.display = state.role === 'op' ? '' : 'none';
     $('tabs').innerHTML = TABS.map(([v, l]) => `<button data-tab="${v}" class="${state.screen === v ? 'on' : ''}">${l}<i data-tcount="${v}"></i></button>`).join('');
   };
+  const full = (on) => { $('side').style.display = on ? 'none' : ''; document.querySelector('main').style.gridTemplateColumns = on ? '1fr' : ''; };
   const show = () => {
-    const scr = $('screen'), side = $('side');
-    buildBars();
-    if (state.role === 'mt') { scr.innerHTML = pageMaint(); side.style.display = 'none'; document.querySelector('main').style.gridTemplateColumns = '1fr'; drawMaint(); return; }
-    if (state.role === 'mg') { scr.innerHTML = pageMgmt(); side.style.display = 'none'; document.querySelector('main').style.gridTemplateColumns = '1fr'; drawMgmt(); return; }
-    document.querySelector('main').style.gridTemplateColumns = '';
-    if (state.screen === 'alarms' || state.screen === 'trends') { scr.innerHTML = state.screen === 'alarms' ? pageAlarms() : pageTrends(); side.style.display = 'none'; document.querySelector('main').style.gridTemplateColumns = '1fr'; drawTrends(); return; }
-    side.style.display = '';
+    const scr = $('screen');
+    buildBars(); renderFp();
+    if (state.role === 'mt') { scr.innerHTML = pageMaint(); full(true); drawMaint(); return; }
+    if (state.role === 'mg') { scr.innerHTML = pageMgmt(); full(true); drawMgmt(); return; }
+    if (PAGES[state.screen]) {
+      scr.innerHTML = PAGES[state.screen](); full(true);
+      if (state.screen === 'trends') {
+        const cv = $('tr-cv');
+        cv.onpointermove = (e) => { state.trend.cx = e.clientX - cv.getBoundingClientRect().left; drawTrends(); };
+        cv.onpointerleave = () => { state.trend.cx = null; drawTrends(); };
+        drawTrends();
+      }
+      return;
+    }
+    full(false);
     scr.innerHTML = SCREENS[state.screen]();
     renderSide(); refresh(true);
+  };
+  const drawSpk = () => {
+    $('screen').querySelectorAll('[data-spk]').forEach((e) => {
+      const tag = e.dataset.spk, w = +e.dataset.w, t = P.T[tag], d = P.histGet(tag, 7200); if (d.length < 2) return;
+      let lo = Infinity, hi = -Infinity; d.forEach((q) => { lo = Math.min(lo, q[1]); hi = Math.max(hi, q[1]); });
+      const minR = (t.hi - t.lo) * 0.04; if (hi - lo < minR) { const m = (hi + lo) / 2; lo = m - minR / 2; hi = m + minR / 2; }
+      const X = (tt) => w * (1 - (P.S.t - tt) / 7200), Y = (v) => 12 * (hi - v) / (hi - lo);
+      e.setAttribute('d', d.map((q, i) => (i ? 'L' : 'M') + X(q[0]).toFixed(1) + ',' + Y(q[1]).toFixed(1)).join(''));
+    });
   };
 
   /* =================== refresco de valores =================== */
@@ -488,8 +682,10 @@
     'qual-b': () => P.X.quality ? 'cátodo grado A' : 'cátodo fuera de norma',
     trucks: () => `Abastecimiento: ${P.S.t < P.X.trucksHold ? 'DETENIDO' : '1 camión de 30 t por hora'}`,
     'p-rt': () => `${f(P.RECT.P / 0.975, 1)} MW`,
-    'p-m100': () => `${f(mccKW('MCC-100'))} kW`, 'p-m200': () => `${f(mccKW('MCC-200'))} kW`, 'p-m300': () => `${f(mccKW('MCC-300'))} kW`, 'p-m400': () => `${f(mccKW('MCC-400'))} kW`
+    'p-m100': () => `${f(mccKW('MCC-100'))} kW`, 'p-m200': () => `${f(mccKW('MCC-200'))} kW`, 'p-m300': () => `${f(mccKW('MCC-300'))} kW`, 'p-m400': () => `${f(mccKW('MCC-400'))} kW`,
+    'seq-st': () => ({t: seqStatus(), c: 'unit' + (P.seq.st === 'FAIL' ? ' bad' : P.seq.st === 'RUN' ? ' cur' : '')})
   };
+  for (let i = 0; i < 6; i++) KEYS['seq-' + i] = () => { const l = seqLines()[i]; return l ? {t: `${l.ic}  ${l.d}${l.el}`, c: l.c} : {t: '', c: 'lbl'}; };
   const mccKW = (mcc) => Object.values(P.M).filter((m) => m.mcc === mcc && m.state === 'RUN').reduce((s, m) => s + m.kw * m.load, 0);
   for (let k = 0; k < 3; k++) KEYS['sec-' + k] = () => `${f(P.X.qMod[k])} m³/h · entrega ${f(P.X.secCu[k] / 1000, 2)} t/h de Cu`;
   [100, 200, 300, 400, 500].forEach((a) => { KEYS['acount-' + a] = () => { const n = P.AD.filter((x) => (x.st === 'U' || x.st === 'A') && x.area === a).length; return n ? n + ' alarma' + (n > 1 ? 's' : '') : 'sin alarmas'; }; });
@@ -498,7 +694,8 @@
   const refresh = (force) => {
     const root = $('screen');
     root.querySelectorAll('[data-v]').forEach((e) => { e.textContent = ft(e.dataset.v); });
-    root.querySelectorAll('[data-k]').forEach((e) => { const fn = KEYS[e.dataset.k]; if (fn) e.textContent = fn(); });
+    root.querySelectorAll('[data-k]').forEach((e) => { const fn = KEYS[e.dataset.k]; if (!fn) return; const r = fn(); if (r && typeof r === 'object') { e.textContent = r.t; e.setAttribute('class', r.c); } else e.textContent = r; });
+    root.querySelectorAll('[data-mb]').forEach((e) => { const c = P.L[e.dataset.mb], abn = c.mode !== c.norm; e.style.display = abn ? '' : 'none'; if (abn) e.querySelector('text').textContent = c.mode; });
     root.querySelectorAll('[data-lvl]').forEach((e) => { const t = P.T[e.dataset.lvl], fr = Math.max(0, Math.min(1, (t.v - t.lo) / (t.hi - t.lo))), y = +e.dataset.y, h = +e.dataset.h; e.setAttribute('y', y + h * (1 - fr)); e.setAttribute('height', h * fr); });
     root.querySelectorAll('[data-lvl-fixed]').forEach((e) => { const fr = +e.dataset.lvlFixed, r = e.previousElementSibling; const y = +r.getAttribute('y'), h = +r.getAttribute('height'); e.setAttribute('y', y + h * (1 - fr)); e.setAttribute('height', h * fr); });
     root.querySelectorAll('[data-eq]').forEach((e) => { const id = e.dataset.eq, st = id === 'RT-401' ? P.RECT.state : P.M[id].state; e.classList.toggle('run', st === 'RUN'); e.classList.toggle('trip', st === 'TRIP' && (id === 'RT-401' || P.M[id].trip !== 'reset')); });
@@ -524,13 +721,17 @@
     const un = P.AD.filter((a) => a.st === 'U').sort((a, b) => a.prio - b.prio || b.since - a.since)[0];
     $('alast').innerHTML = un ? `<span class="pr p${un.prio} blink">${un.prio}</span> ${P.hm(un.since)} · ${esc(un.desc)}` : '<span class="muted">Sin alarmas nuevas por reconocer</span>';
     $('clock').textContent = `${P.hhmm()} · Turno ${P.shiftOf()}`;
+    $('simst').className = 'simst' + (speed ? '' : ' paused'); $('simst').lastChild.textContent = speed ? ` SIM ×${speed}` : ' SIM EN PAUSA';
+    if (state.confirm && performance.now() - state.confirm.t > 10000) { state.confirm = null; renderFp(); }
     document.querySelectorAll('[data-tcount]').forEach((e) => { const ar = areaOf(e.dataset.tcount); if (!ar) { e.textContent = ''; return; } const n = act.filter((a) => a.area === ar); const pmin = Math.min(4, ...n.map((a) => a.prio)); e.innerHTML = n.length ? `<span class="pr p${pmin} ${n.some((a) => a.st === 'U') ? 'blink' : ''}">${n.length}</span>` : ''; });
     const nowR = performance.now();
     if (force || nowR - lastSide > 1000) {
       lastSide = nowR;
-      if (state.role === 'op' && state.screen !== 'alarms' && state.screen !== 'trends') { const foc = document.activeElement && document.activeElement.closest && document.activeElement.closest('#side input'); if (!foc) renderSide(); }
+      const ae = document.activeElement, selFoc = ae && ae.tagName === 'SELECT';
+      if (state.sel && !(ae && ae.closest && ae.closest('#fpw input'))) renderFp();
+      if (state.role === 'op' && !PAGES[state.screen]) { renderSide(); drawSpk(); }
       else if (state.screen === 'trends' && state.role === 'op') { drawTrends(); document.querySelectorAll('[data-pv]').forEach((e) => { const p = state.trend.pens[+e.dataset.pv]; e.textContent = ft(p) + ' ' + P.T[p].unit; }); }
-      else if (state.role === 'op' && state.screen === 'alarms') { const foc = document.activeElement && document.activeElement.tagName === 'SELECT'; if (!foc) $('screen').innerHTML = pageAlarms(); }
+      else if (state.role === 'op' && (state.screen === 'alarms' || state.screen === 'events' || state.screen === 'model')) { if (!selFoc) $('screen').innerHTML = PAGES[state.screen](); }
       else if (state.role === 'mt') { $('screen').innerHTML = pageMaint(); drawMaint(); }
       else if (state.role === 'mg') { $('screen').innerHTML = pageMgmt(); drawMgmt(); }
     }
@@ -538,22 +739,45 @@
 
   /* =================== eventos =================== */
   document.addEventListener('click', (ev) => {
-    const t = ev.target.closest('[data-speed],[data-role],[data-tab],[data-go],[data-fp],[data-fp2],[data-close-fp],[data-mode],[data-set],[data-cmd],[data-act],[data-brk-set],[data-fixcell],[data-cell],[data-ack],[data-shelve],[data-ackall],[data-win],[data-mact],[data-msel],[data-scn],[data-close]');
+    const t = ev.target.closest('[data-speed],[data-role],[data-tab],[data-go],[data-fp],[data-fp2],[data-close-fp],[data-mode],[data-set],[data-cmd],[data-ask],[data-ok],[data-cancel],[data-nudge],[data-totrend],[data-csv],[data-act],[data-fixcell],[data-cell],[data-ack],[data-shelve],[data-ackall],[data-win],[data-mact],[data-msel],[data-scn],[data-close]');
     if (!t) return;
     const d = t.dataset;
     if (d.speed != null) { speed = +d.speed; buildBars(); return; }
     if (d.role) { state.role = d.role; state.sel = null; show(); return; }
     if (d.tab) { state.screen = d.tab; state.sel = null; show(); return; }
     if (d.go) { state.role = 'op'; state.screen = d.go; state.sel = null; show(); return; }
-    if (d.cell != null) { state.sel = 'CELL:' + d.cell; renderSide(); return; }
-    if (d.fp2) { state.sel = d.fp2; renderSide(); return; }
-    if (d.fp) { state.sel = d.fp; renderSide(); if (window.innerWidth < 980) $('side').scrollIntoView({behavior: 'smooth'}); return; }
-    if (d.closeFp != null) { state.sel = null; renderSide(); return; }
-    if (d.mode) { P.cmd.mode(state.sel, d.mode); renderSide(); return; }
-    if (d.set) { const c = state.sel; if (d.set === 'sp') P.cmd.sp(c, +$('fp-sp').value); if (d.set === 'op') P.cmd.op(c, +$('fp-op').value); if (d.set === 'ratio') P.cmd.ratio(c, +$('fp-ratio').value); renderSide(); return; }
-    if (d.cmd) { P.cmd[d.cmd](state.sel); renderSide(); refresh(); return; }
-    if (d.brkSet != null) { P.cmd.breaker(state.sel.slice(4), d.brkSet === '1'); renderSide(); refresh(); return; }
-    if (d.fixcell != null) { P.cmd.fixCell(+d.fixcell); renderSide(); return; }
+    if (d.cell != null) { openFp('CELL:' + d.cell, ev); return; }
+    if (d.fp2) { openFp(d.fp2); return; }
+    if (d.fp) { openFp(d.fp, ev); return; }
+    if (d.closeFp != null) { closeFp(); return; }
+    if (d.mode) { P.cmd.mode(state.sel, d.mode); renderFp(); refresh(); return; }
+    if (d.set) {
+      const c = state.sel, lp = P.L[c], t2 = P.T[LOOP_PV[c]], v = +$('fp-' + d.set).value;
+      if (!Number.isFinite(v)) return;
+      if (d.set === 'sp') P.cmd.sp(c, clamp(v, t2.lo, t2.hi)); if (d.set === 'op') P.cmd.op(c, v); if (d.set === 'ratio' && v > 0) P.cmd.ratio(c, v);
+      renderFp(); return;
+    }
+    if (d.nudge) {
+      const c = state.sel, lp = P.L[c], t2 = P.T[LOOP_PV[c]], [k, v] = d.nudge.split(':'), n = +v;
+      if (k === 'sp') P.cmd.sp(c, +clamp(lp.sp + n / 100 * (t2.hi - t2.lo), t2.lo, t2.hi).toFixed(t2.dec + 1));
+      if (k === 'op') P.cmd.op(c, lp.op + n);
+      if (k === 'ratio') P.cmd.ratio(c, +(lp.ratio * (1 + n / 100)).toPrecision(4));
+      renderFp(); return;
+    }
+    if (d.totrend) { state.trend.pens[0] = d.totrend; state.role = 'op'; state.screen = 'trends'; state.sel = null; show(); return; }
+    if (d.ask) { state.confirm = {key: d.ask, t: performance.now()}; renderFp(); return; }
+    if (d.cancel != null) { state.confirm = null; renderFp(); return; }
+    if (d.ok) {
+      const k = d.ok, s2 = state.sel;
+      if (k === 'start' || k === 'stop') P.cmd[k](s2);
+      else if (k === 'brk1' || k === 'brk0') P.cmd.breaker(s2.slice(4), k === 'brk1');
+      else if (k.startsWith('seq:')) P.cmd.seq(k.slice(4));
+      else if (k === 'seqabort') P.cmd.seqAbort();
+      state.confirm = null; renderFp(); refresh(true); return;
+    }
+    if (d.cmd) { P.cmd[d.cmd](state.sel); renderFp(); refresh(); return; }
+    if (d.csv) { if (d.csv === 'trend') trendCSV(); else eventsCSV(); return; }
+    if (d.fixcell != null) { P.cmd.fixCell(+d.fixcell); renderFp(); return; }
     if (d.act) { if (d.act === 'delay') P.cmd.delayComp(!P.X.delayComp); if (d.act === 'monitor') P.cmd.monitor(!P.X.monitor); if (d.act === 'cap') P.cmd.capBank(!P.X.capBank); if (d.act === 'truck') P.cmd.truck(1); refresh(true); return; }
     if (d.ack) { P.cmd.ack(d.ack); $('screen').innerHTML = pageAlarms(); refresh(); return; }
     if (d.shelve) { P.cmd.shelve(d.shelve); $('screen').innerHTML = pageAlarms(); return; }
@@ -568,24 +792,21 @@
     const t = ev.target;
     if (t.dataset.pen != null) { state.trend.pens[+t.dataset.pen] = t.value; drawTrends(); return; }
     if (t.id === 'al-f') { state.alFilter = +t.value; $('screen').innerHTML = pageAlarms(); return; }
+    if (t.id === 'ev-f') { state.evF = t.value; $('screen').innerHTML = pageEvents(); return; }
     if (t.dataset.standby != null) { P.cmd.standby(state.sel, t.checked); return; }
   });
   $('ack-all').onclick = () => { P.cmd.ackAll(); refresh(); };
   $('go-alarms').onclick = () => { state.role = 'op'; state.screen = 'alarms'; show(); };
   $('btn-scn').onclick = () => { $('scn-list').innerHTML = P.SCN.map((s) => `<div class="card"><b>${esc(s.name)}</b><span class="small muted">Área ${s.area}</span><p>${esc(s.desc)}</p><button data-scn="${s.id}">Provocar</button></div>`).join(''); $('m-scn').classList.add('show'); };
   $('btn-reset').onclick = () => { P = PlantSim.create(); $('m-scn').classList.remove('show'); state.sel = null; show(); };
-  $('btn-src').onclick = (e) => { e.preventDefault(); $('src-body').innerHTML = SOURCES; $('m-src').classList.add('show'); };
+  $('btn-src').onclick = (e) => { e.preventDefault(); state.role = 'op'; state.screen = 'model'; state.sel = null; show(); scrollTo(0, 0); };
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (state.confirm) { state.confirm = null; renderFp(); } else if (state.sel) closeFp(); document.querySelectorAll('.modal.show').forEach((m) => m.classList.remove('show')); } });
+  const setTheme = (th) => { document.documentElement.dataset.theme = th; try { localStorage.setItem('pv-theme', th); } catch (e) { /* sin almacenamiento */ } $('btn-theme').title = th === 'dark' ? 'Pasar a tema claro' : 'Pasar a tema oscuro'; };
+  setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+  $('btn-theme').onclick = () => { setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); show(); };
+  if (document.documentElement.requestFullscreen) $('btn-fs').onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); };
+  else $('btn-fs').hidden = true;
 
-  const SOURCES = `<ul style="padding-left:18px;margin:0;display:flex;flex-direction:column;gap:6px">
-    <li><b>Planta de diseño:</b> 1.700 t/h de mineral a 0,6 % Cu, unos 155 t/día de cátodo. Del mismo orden que el balance del capítulo 6 del curso.</li>
-    <li><b>Lixiviación:</b> curva de recuperación de óxidos ajustada a 64,6 % a 90 días, dato operacional de ENAMI (Saldaña y otros, <i>Minerals</i> 9(7) 421, 2019). Riego de 10 L/h/m² dentro del rango de 5 a 15 de León y otros (<i>Processes</i> 13, 1513, 2025).</li>
-    <li><b>PLS y electrolito:</b> Cu 3,2 g/L, pH 1,9, Fe 5,8 g/L en el PLS; electrolito de 37 a 48 g/L de Cu y 183 g/L de ácido; extractante al 15,4 % vol; promedios sudamericanos de la encuesta de Sole y otros a 27 plantas de SX (datos de 2012).</li>
-    <li><b>SX:</b> equilibrio con liberación de ácido etapa por etapa, el mismo modelo del capítulo 4.</li>
-    <li><b>EW:</b> ley de Faraday (1,1855 g/Ah), voltaje de celda cercano a 2 V y unos 2 kWh/kg (Cifuentes y otros, Universidad de Chile), 160 celdas de 60 cátodos de 1 m² por cara.</li>
-    <li><b>Calidad:</b> límites del cobre grado A de la LME (BS EN 1978:2022, Cu-CATH-1).</li>
-    <li><b>Vibraciones:</b> zonas de ISO 10816-3, grupo 1, base rígida (2,3 · 4,5 · 7,1 mm/s RMS).</li>
-    <li><b>Alarmas:</b> prioridades, estados, inhibición y tasas de referencia según ISA-18.2. Pantallas con criterios de ISA-101 y tags según ISA-5.1.</li>
-    <li><b>Energía:</b> cobre a US$ 6,5/lb y energía a US$ 100/MWh.</li></ul>`;
 
   /* =================== bucle de tiempo =================== */
   let last = performance.now(), acc = 0, lastUI = 0;
@@ -595,7 +816,7 @@
     if (now - lastUI > 250) { lastUI = now; refresh(); }
     requestAnimationFrame(loop);
   };
-  addEventListener('resize', () => { drawTrends(); drawMaint(); drawMgmt(); });
+  addEventListener('resize', () => { drawTrends(); drawMaint(); drawMgmt(); drawFpTrend(); });
   show();
   requestAnimationFrame(loop);
   window.__plant = () => P;
