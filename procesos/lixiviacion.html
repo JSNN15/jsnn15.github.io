@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lixiviación en pilas</title>
+<meta name="description" content="Capítulo 3 de Procesos del cobre para ingenieros eléctricos: química de la pila, curvas de recuperación con datos de ENAMI y balance del PLS con datos reales de plantas.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
+:root{
+  --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
+  --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.top{background:var(--ink);color:#e9eef2}
+.top .in{padding-block:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.top a{color:#e9eef2;text-decoration:none}
+.in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+header.ch{padding-block:48px 8px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+article{padding-block:16px 40px}
+.prose{max-width:68ch}
+h2{font-size:1.45rem;font-weight:600;margin:52px 0 6px;line-height:1.25;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:.85rem;color:var(--copper);display:block;letter-spacing:.08em;margin-bottom:4px}
+p{margin:0 0 14px}
+.analogy{border-left:3px solid var(--copper-2);background:var(--soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.analogy b{color:var(--copper)}
+.eq{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.92rem;margin:14px 0}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0;display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:24px}
+@media (max-width:46rem){.lab{grid-template-columns:1fr}}
+.lab h3{grid-column:1/-1;margin:0;font-size:1rem;font-weight:600}
+.lab h3 small{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--copper)}
+.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+button{font:inherit;font-size:.86rem;padding:7px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--copper)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--soft)}
+.ro .l{font-size:.72rem;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.ro .v.bad{color:var(--bad)} .ro .v.ok{color:var(--ok)}
+canvas{display:block;width:100%}
+.msg{font-size:.88rem;padding:8px 10px;border-radius:6px;background:var(--soft);border:1px solid var(--line)}
+.msg.bad{border-color:var(--bad)} .msg.ok{border-color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+.tbl{overflow-x:auto}
+.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:12px;margin:16px 0}
+.inst div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.inst b{display:block;font-size:.95rem}
+.inst span{font-size:.87rem;color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.src li{margin-bottom:6px}
+.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;margin-top:40px}
+.next a{text-decoration:none;font-weight:600}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="./">← Procesos del cobre para ingenieros eléctricos</a><a href="../">jsnn15.github.io</a></div></div>
+<div class="in">
+  <header class="ch">
+    <div class="kick">Capítulo 3</div>
+    <h1>Lixiviación en pilas</h1>
+    <p class="lede">Una pila de cientos de miles de toneladas que se riega durante meses con solución ácida. El cobre sale disuelto por abajo, a pocos gramos por litro. Lento, barato y, para el instrumentista, un problema de caudales y concentraciones.</p>
+  </header>
+
+  <article>
+    <div class="prose">
+      <h2><span class="n">01</span>Qué pasa dentro de la pila</h2>
+      <p>El mineral aglomerado se apila sobre una carpeta impermeable (geomembrana) con tuberías de drenaje. Arriba se instala una red de goteros o aspersores que riega una solución ácida, normalmente el <b>refino</b> que vuelve de SX con poco cobre y algo de ácido. La solución percola, disuelve el cobre y sale por abajo como <b>PLS</b> (<i>pregnant leach solution</i>, solución rica).</p>
+      <p>Según el mineral, la química cambia:</p>
+      <div class="inst">
+        <div><b>Óxidos</b><span>Crisocola, atacamita, brochantita. Se disuelven con ácido sulfúrico directamente. Rápido: buena parte del cobre sale en las primeras semanas.</span></div>
+        <div><b>Sulfuros secundarios</b><span>Calcosina y covelina. El ácido solo no basta: hace falta un oxidante, el ion férrico (Fe³⁺), que se regenera con aire y bacterias. Más lento: meses.</span></div>
+      </div>
+      <div class="eq">Óxido:   CuO + H₂SO₄ → CuSO₄ + H₂O<br>Sulfuro secundario:   Cu₂S + 2 Fe₂(SO₄)₃ → 2 CuSO₄ + 4 FeSO₄ + S</div>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> en los sulfuros, el férrico funciona como una batería que se descarga al oxidar el mineral (Fe³⁺ pasa a Fe²⁺) y que el aire y las bacterias vuelven a cargar. El potencial redox (ORP) que viste en el <a href="quimica.html">capítulo 0</a> es el indicador de carga de esa batería: si el ORP de la solución cae, se está quedando sin oxidante.</div>
+
+    <div class="prose">
+      <h2><span class="n">02</span>La curva de recuperación</h2>
+      <p>La recuperación es el porcentaje del cobre de la pila que ya salió en el PLS. Sube rápido al principio y después se aplana. La pregunta de operación es cuándo dejar de regar un módulo para pasar al siguiente, y no tiene una respuesta química: es económica.</p>
+      <p>Los valores de referencia de este laboratorio son reales. Saldaña, Toro y otros (2019) publicaron datos operacionales de pilas de ENAMI en Chile, con la recuperación a 90 días para cuatro condiciones. La forma de la curva es didáctica (una subida rápida y otra lenta), ajustada para pasar por esos valores.</p>
+    </div>
+
+    <section class="lab" aria-label="Curva de recuperación de cobre">
+      <h3>Laboratorio 1 · Cuánto cobre sale y cuándo<small>Elige el tipo de mineral y el tiempo de riego. El punto a 90 días es el dato publicado.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="cond">Mineral y solución</label>
+          <select id="cond"></select></div>
+        <div class="f"><label for="days">Días de riego <b id="days-v"></b></label><input id="days" type="range" min="5" max="90" step="1" value="60"></div>
+        <div class="f"><label for="ton">Mineral en el módulo <b id="ton-v"></b></label><input id="ton" type="range" min="50000" max="500000" step="10000" value="200000"></div>
+        <div class="f"><label for="grade">Ley de cobre <b id="grade-v"></b></label><input id="grade" type="range" min="0.2" max="1.5" step="0.05" value="0.6"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Recuperación</div><div class="v" id="r-rec"></div></div>
+          <div class="ro"><div class="l">Cobre recuperado</div><div class="v" id="r-cu"></div></div>
+          <div class="ro"><div class="l">Cobre que queda en la pila</div><div class="v" id="r-left"></div></div>
+          <div class="ro"><div class="l">Cobre del último día</div><div class="v" id="r-day"></div></div>
+        </div>
+        <canvas id="cv-rec" height="250" aria-label="Recuperación de cobre en el tiempo"></canvas>
+        <div class="msg" id="m-rec"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <p>Fíjate en el cobre del último día: con óxidos, después de unas semanas cada día de riego entrega mucho menos que al principio. Ese número, comparado con el costo del ácido, el bombeo y el espacio que ocupa el módulo, es lo que decide el ciclo. En el caso de los sulfuros secundarios, los datos de ENAMI muestran además que agregar cloruro a la solución subió la recuperación a 90 días de 40,5 % a 58,1 %.</p>
+
+      <h2><span class="n">03</span>El balance: caudal por concentración</h2>
+      <p>Toda la pila, para la sala de control, se reduce a una multiplicación. El cobre que sale por hora es el caudal de PLS por la diferencia de concentración que SX logra sacarle:</p>
+      <div class="eq">cobre [kg/h] = caudal de PLS [m³/h] × (Cu en PLS − Cu en refino) [g/L]</div>
+      <p>El caudal lo fija el riego: área bajo riego por tasa de riego. Una tasa del orden de 10 litros por hora por metro cuadrado es típica, y es la que se usa en ensayos de columna. Las concentraciones vienen de una encuesta a plantas reales de SX (Sole y otros, datos de 2012).</p>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> es la potencia. El caudal es la corriente, la concentración es la tensión y el cobre por hora es P = V·I. Y como en un medidor de energía, un error de 5 % en el transformador de corriente (aquí, el flujómetro) es un error de 5 % en todo lo que se factura.</div>
+
+    <section class="lab" aria-label="Balance de cobre del PLS">
+      <h3>Laboratorio 2 · De litros por metro cuadrado a toneladas de cátodo<small>Valores iniciales: promedio sudamericano de la encuesta de Sole y otros. Agrega un error al flujómetro y mira cuánto cobre "desaparece" en el balance.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="area">Área bajo riego <b id="area-v"></b></label><input id="area" type="range" min="20000" max="400000" step="5000" value="150000"></div>
+        <div class="f"><label for="rate">Tasa de riego <b id="rate-v"></b></label><input id="rate" type="range" min="4" max="20" step="0.5" value="10"></div>
+        <div class="f"><label for="pls">Cobre en el PLS <b id="pls-v"></b></label><input id="pls" type="range" min="0.5" max="8" step="0.1" value="3.2"></div>
+        <div class="f"><label for="ext">Extracción en SX <b id="ext-v"></b></label><input id="ext" type="range" min="80" max="99" step="0.1" value="94.2"></div>
+        <div class="f"><label for="err">Error del flujómetro de PLS <b id="err-v"></b></label><input id="err" type="range" min="-10" max="10" step="0.5" value="0"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Caudal de PLS</div><div class="v" id="r-q"></div></div>
+          <div class="ro"><div class="l">Cu en refino</div><div class="v" id="r-raf"></div></div>
+          <div class="ro"><div class="l">Cobre a SX</div><div class="v" id="r-kgh"></div></div>
+          <div class="ro"><div class="l">Producción anual equivalente</div><div class="v" id="r-tpa"></div></div>
+        </div>
+        <svg id="sv-bal" viewBox="0 0 640 170" role="img" aria-label="Diagrama del balance de la pila a SX"></svg>
+        <div class="msg" id="m-bal"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <p>Dos simplificaciones: no todo lo que se riega sale como PLS (parte se evapora y parte queda retenida en la pila, sobre todo al comienzo) y regar más no aumenta el cobre en la misma proporción, porque diluye el PLS. Por eso las plantas miden el caudal a la entrada y a la salida, y analizan el cobre en las dos corrientes.</p>
+
+      <h2><span class="n">04</span>Cómo es un PLS real</h2>
+      <p>Promedios de las plantas de SX que respondieron la encuesta de 2012. El PLS no trae solo cobre: el hierro, el manganeso, el cloruro y los sólidos en suspensión son los que después complican SX y el cátodo.</p>
+    </div>
+    <div class="tbl"><table><thead><tr><th>Región</th><th>Cu (g/L)</th><th>pH</th><th>Fe (g/L)</th><th>Mn (g/L)</th><th>Cl (mg/L)</th><th>Sólidos (mg/L)</th></tr></thead>
+      <tbody>
+        <tr><td>Sudamérica</td><td>3,2</td><td>1,9</td><td>5,8</td><td>1,01</td><td>870</td><td>44</td></tr>
+        <tr><td>Norteamérica</td><td>1,1</td><td>2,1</td><td>1,8</td><td>0,98</td><td>62</td><td>33</td></tr>
+        <tr><td>África</td><td>17,3</td><td>1,7</td><td>3,4</td><td>0,90</td><td>n/d</td><td>137</td></tr>
+      </tbody></table></div>
+    <div class="prose">
+      <p class="src">Fuente: Sole y otros, tabla 1. En el norte de Chile, la atacamita (un cloruro de cobre) puede llevar el cloruro del PLS a entre 1 y 30 g/L, según la misma encuesta.</p>
+
+      <h2>Lo que vas a encontrar instrumentado</h2>
+      <div class="inst">
+        <div><b>Caudal por módulo</b><span>Flujómetros magnéticos y válvulas en cada sector de riego. Es el lazo más repetido de la pila.</span></div>
+        <div><b>Presión en la red de riego</b><span>Detecta goteros tapados o roturas. Una caída de presión es una fuga; una subida, una obstrucción.</span></div>
+        <div><b>pH y ORP</b><span>En el refino que se riega y en el PLS. El ORP dice si queda oxidante para los sulfuros.</span></div>
+        <div><b>Análisis de cobre</b><span>Muestreo con laboratorio o analizadores en línea en PLS y refino. Sin esto no hay balance.</span></div>
+        <div><b>Nivel en piscinas</b><span>Piscinas de PLS, de solución intermedia y de refino. Radar o ultrasonido; el nivel es el "condensador" que amortigua el proceso.</span></div>
+        <div><b>Bombas y variadores</b><span>Impulsión de refino y PLS. Corriente, presión de descarga y horas de operación.</span></div>
+      </div>
+
+      <h2>Fuentes</h2>
+      <ul class="src">
+        <li>Saldaña, M., Toro, N. y otros (2019). Optimization of the Heap Leaching Process through Changes in Modes of Operation and Discrete Event Simulation. <i>Minerals</i>, 9(7), 421. <a href="https://www.mdpi.com/2075-163X/9/7/421">mdpi.com/2075-163X/9/7/421</a>. Licencia CC BY 4.0. Recuperaciones a 90 días de su tabla 4.</li>
+        <li>Sole, K. C., Zárate, G., Steeples, J., Tinkler, O. y Robinson, T. G. Global survey of copper solvent extraction operations and practices (datos de plantas de 2012). <a href="https://www.researchgate.net/publication/292140218_Global_survey_of_copper_solvent_extraction_operations_and_practices">ResearchGate</a>. Composición del PLS (tabla 1) y extracción promedio de 94,2 %.</li>
+        <li>Schlesinger, M. E. y otros, <i>Extractive Metallurgy of Copper</i>, Elsevier: química de lixiviación de óxidos y sulfuros secundarios, práctica de riego.</li>
+        <li>La forma de las curvas, el tamaño del módulo y la ley son didácticos. Solo los valores a 90 días y la composición del PLS vienen de las fuentes.</li>
+      </ul>
+      <div class="next"><a href="chancado.html">← Capítulo 2: Chancado y aglomeración</a><a href="./">Índice del curso →</a></div>
+    </div>
+  </article>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nf = (d) => new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d});
+  const f0 = nf(0), f1 = nf(1), f2 = nf(2);
+  const setup = (cv, H) => { const d = devicePixelRatio || 1, W = cv.clientWidth; cv.width = W * d; cv.height = H * d; cv.style.height = H + 'px'; const x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, W, H); x.font = `11px ${css('--mono')}`; return [x, W]; };
+
+  // R90: recuperación a 90 días, Saldaña et al. (2019), Minerals 9(7) 421, tabla 4 (datos operacionales ENAMI).
+  // Forma didáctica: fracción rápida a con k1 y fracción lenta con k2, normalizada para pasar por R90.
+  const C = [
+    {id: 'ox', name: 'Óxidos · ácido sulfúrico', r90: 64.6, a: .40, k1: .0844, k2: .0055},
+    {id: 's0', name: 'Sulfuros secundarios · ácido sulfúrico', r90: 40.5, a: .22, k1: .06, k2: .004},
+    {id: 's20', name: 'Sulfuros secundarios · cloruro 20 g/L', r90: 46.5, a: .26, k1: .06, k2: .0045},
+    {id: 's50', name: 'Sulfuros secundarios · cloruro 50 g/L', r90: 58.1, a: .32, k1: .06, k2: .005}
+  ];
+  const g = (c, t) => 1 - c.a * Math.exp(-c.k1 * t) - (1 - c.a) * Math.exp(-c.k2 * t);
+  const R = (c, t) => c.r90 * g(c, t) / g(c, 90);
+  const sel = $('cond'); C.forEach((c) => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.name; sel.appendChild(o); });
+
+  const recRender = () => {
+    const c = C.find((k) => k.id === sel.value), t = +$('days').value, ton = +$('ton').value, gr = +$('grade').value;
+    $('days-v').textContent = t + ' días'; $('ton-v').textContent = f0.format(ton) + ' t'; $('grade-v').textContent = f2.format(gr) + ' % Cu';
+    const cuTot = ton * gr / 100, rec = R(c, t), rec1 = R(c, t - 1);
+    const perDay = cuTot * (rec - rec1) / 100, firstWeek = cuTot * R(c, 7) / 100 / 7;
+    $('r-rec').textContent = f1.format(rec) + ' %';
+    $('r-cu').textContent = f0.format(cuTot * rec / 100) + ' t';
+    $('r-left').textContent = f0.format(cuTot * (1 - rec / 100)) + ' t';
+    const rd = $('r-day'); rd.textContent = f2.format(perDay) + ' t/día';
+    const ratio = perDay / firstWeek;
+    rd.className = 'v ' + (ratio < .2 ? 'bad' : 'ok');
+    const m = $('m-rec');
+    m.className = 'msg' + (ratio < .2 ? ' bad' : '');
+    m.textContent = `El día ${t} entrega ${f0.format(ratio * 100)} % del cobre diario que entregaba en promedio la primera semana. ` +
+      (ratio < .2 ? 'Cada día extra de riego rinde poco: aquí se discute si conviene pasar al módulo siguiente.' : 'El módulo todavía está entregando una fracción importante del cobre por día.');
+
+    const cv = $('cv-rec'), H = 250, [x, W] = setup(cv, H), mg = {l: 44, r: 16, t: 14, b: 28};
+    const X = (d) => mg.l + (W - mg.l - mg.r) * d / 90, Y = (r) => mg.t + (H - mg.t - mg.b) * (1 - r / 80);
+    x.strokeStyle = css('--line'); x.fillStyle = css('--muted'); x.lineWidth = 1;
+    for (let r = 0; r <= 80; r += 20) { x.beginPath(); x.moveTo(mg.l, Y(r)); x.lineTo(W - mg.r, Y(r)); x.stroke(); x.textAlign = 'right'; x.fillText(r + ' %', mg.l - 6, Y(r) + 4); }
+    x.textAlign = 'center'; for (let d = 0; d <= 90; d += 15) x.fillText(d + ' d', X(d), H - 8);
+    C.forEach((k) => {
+      const on = k === c; x.strokeStyle = on ? css('--copper') : css('--muted'); x.globalAlpha = on ? 1 : .35; x.lineWidth = on ? 2.4 : 1.2;
+      x.beginPath(); for (let d = 0; d <= 90; d += .5) { const y = Y(R(k, d)); d ? x.lineTo(X(d), y) : x.moveTo(X(d), y); } x.stroke();
+      x.fillStyle = on ? css('--copper') : css('--muted'); x.beginPath(); x.arc(X(90), Y(k.r90), on ? 4.5 : 3, 0, 7); x.fill();
+      x.globalAlpha = 1;
+    });
+    // día elegido
+    x.strokeStyle = css('--fg'); x.setLineDash([4, 4]); x.beginPath(); x.moveTo(X(t), mg.t); x.lineTo(X(t), H - mg.b); x.stroke(); x.setLineDash([]);
+    x.fillStyle = css('--fg'); x.beginPath(); x.arc(X(t), Y(rec), 4, 0, 7); x.fill();
+    x.fillStyle = css('--copper'); x.textAlign = 'right'; x.fillText(`dato ENAMI a 90 d: ${f1.format(c.r90)} %`, X(90) - 8, Y(c.r90) - 8);
+  };
+  ['cond', 'days', 'ton', 'grade'].forEach((id) => $(id).addEventListener('input', recRender));
+
+  // ---------- Balance pila → SX ----------
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, at, txt) => { const e = document.createElementNS(NS, tag); Object.entries(at).forEach(([k, v]) => e.setAttribute(k, v)); if (txt != null) e.textContent = txt; return e; };
+  const balRender = () => {
+    const area = +$('area').value, rate = +$('rate').value, pls = +$('pls').value, ext = +$('ext').value / 100, err = +$('err').value / 100;
+    $('area-v').textContent = f0.format(area) + ' m²'; $('rate-v').textContent = f1.format(rate) + ' L/h/m²'; $('pls-v').textContent = f1.format(pls) + ' g/L';
+    $('ext-v').textContent = f1.format(ext * 100) + ' %'; $('err-v').textContent = (err > 0 ? '+' : '') + f1.format(err * 100) + ' %';
+    const q = area * rate / 1000;            // m³/h
+    const raf = pls * (1 - ext);             // g/L
+    const kgh = q * (pls - raf);             // kg/h  (m³/h × g/L = kg/h)
+    const tpa = kgh * 24 * 365 / 1000;       // t/año
+    const qm = q * (1 + err), tpaM = qm * (pls - raf) * 24 * 365 / 1000;
+    $('r-q').textContent = f0.format(q) + ' m³/h';
+    $('r-raf').textContent = f2.format(raf) + ' g/L';
+    $('r-kgh').textContent = f0.format(kgh) + ' kg/h';
+    $('r-tpa').textContent = f1.format(tpa / 1000) + ' kt/año';
+    const m = $('m-bal'), gap = tpaM - tpa;
+    if (Math.abs(err) < 1e-9) { m.className = 'msg ok'; m.textContent = `${f0.format(q)} m³/h × (${f1.format(pls)} − ${f2.format(raf)}) g/L = ${f0.format(kgh)} kg/h de cobre hacia SX. Es la misma cuenta que P = V·I.`; }
+    else { m.className = 'msg bad'; m.textContent = `El flujómetro marca ${f0.format(qm)} m³/h. El balance diría ${f0.format(tpaM)} t/año: ${gap > 0 ? 'sobran' : 'faltan'} ${f0.format(Math.abs(gap))} t de cobre que nunca existieron o que nadie sabe dónde quedaron. Antes de buscar pérdidas en el proceso, se calibra el instrumento.`; }
+
+    const sv = $('sv-bal'); sv.replaceChildren();
+    const fg = css('--fg'), mu = css('--muted'), cu = css('--copper'), bl = css('--blue'), ln = css('--line'), cd = css('--card');
+    const box = (x0, y0, w, h, t1, t2, col) => { sv.append(el('rect', {x: x0, y: y0, width: w, height: h, rx: 6, fill: cd, stroke: col, 'stroke-width': 1.5}), el('text', {x: x0 + w / 2, y: y0 + h / 2 - 4, 'text-anchor': 'middle', fill: fg, 'font-size': 14, 'font-weight': 600}, t1), el('text', {x: x0 + w / 2, y: y0 + h / 2 + 14, 'text-anchor': 'middle', fill: mu, 'font-size': 11}, t2)); };
+    sv.append(el('defs', {})); sv.firstChild.append(Object.assign(el('marker', {id: 'ar', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse'}), {}));
+    sv.querySelector('marker').append(el('path', {d: 'M0,0 L10,5 L0,10 z', fill: mu}));
+    // pila (trapecio)
+    sv.append(el('path', {d: 'M30,128 L80,50 L190,50 L240,128 Z', fill: cd, stroke: cu, 'stroke-width': 1.5}));
+    sv.append(el('text', {x: 135, y: 96, 'text-anchor': 'middle', fill: fg, 'font-size': 14, 'font-weight': 600}, 'Pila'));
+    sv.append(el('text', {x: 135, y: 114, 'text-anchor': 'middle', fill: mu, 'font-size': 11}, f0.format(area / 10000) + ' ha regadas'));
+    box(430, 58, 170, 64, 'Planta SX', 'extracción ' + f1.format(ext * 100) + ' %', bl);
+    // PLS: de la pila a SX (abajo)
+    sv.append(el('path', {d: 'M240,118 L430,104', stroke: cu, 'stroke-width': 3, fill: 'none', 'marker-end': 'url(#ar)'}));
+    sv.append(el('text', {x: 335, y: 136, 'text-anchor': 'middle', fill: cu, 'font-size': 12, 'font-weight': 600}, `PLS ${f0.format(q)} m³/h · ${f1.format(pls)} g/L`));
+    // refino: de SX de vuelta al riego (arriba)
+    sv.append(el('path', {d: 'M430,72 L330,40 L110,40 L110,48', stroke: bl, 'stroke-width': 2, fill: 'none', 'marker-end': 'url(#ar)'}));
+    sv.append(el('text', {x: 330, y: 28, 'text-anchor': 'middle', fill: bl, 'font-size': 12}, `refino ${f2.format(raf)} g/L → riego ${f1.format(rate)} L/h/m²`));
+    // cobre a electrolito
+    sv.append(el('path', {d: 'M600,90 L630,90', stroke: mu, 'stroke-width': 2, fill: 'none'}));
+    sv.append(el('text', {x: 515, y: 150, 'text-anchor': 'middle', fill: fg, 'font-size': 12, 'font-weight': 600}, `${f0.format(kgh)} kg Cu/h al electrolito`));
+    // flujómetro
+    sv.append(el('circle', {cx: 300, cy: 113, r: 11, fill: cd, stroke: Math.abs(err) > 1e-9 ? css('--bad') : fg, 'stroke-width': 1.5}));
+    sv.append(el('text', {x: 300, y: 117, 'text-anchor': 'middle', fill: fg, 'font-size': 10, 'font-weight': 600}, 'FT'));
+    sv.querySelectorAll('text').forEach((t) => t.setAttribute('font-family', css('--sans')));
+    sv.querySelectorAll('rect').forEach((r) => r.setAttribute('stroke', r.getAttribute('stroke') || ln));
+  };
+  ['area', 'rate', 'pls', 'ext', 'err'].forEach((id) => $(id).addEventListener('input', balRender));
+
+  const all = () => { recRender(); balRender(); };
+  addEventListener('resize', recRender); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', all); all();
+})();
+</script>
+</body>
+</html>

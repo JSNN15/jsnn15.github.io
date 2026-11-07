@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chancado y aglomeración</title>
+<meta name="description" content="Capítulo 2 de Procesos del cobre para ingenieros eléctricos: chancado, aglomeración, curado ácido y el lazo de control de razón que dosifica el ácido.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
+:root{
+  --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
+  --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.top{background:var(--ink);color:#e9eef2}
+.top .in{padding-block:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.top a{color:#e9eef2;text-decoration:none}
+.in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+header.ch{padding-block:48px 8px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+article{padding-block:16px 40px}
+.prose{max-width:68ch}
+h2{font-size:1.45rem;font-weight:600;margin:52px 0 6px;line-height:1.25;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:.85rem;color:var(--copper);display:block;letter-spacing:.08em;margin-bottom:4px}
+p{margin:0 0 14px}
+.analogy{border-left:3px solid var(--copper-2);background:var(--soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.analogy b{color:var(--copper)}
+.eq{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.92rem;margin:14px 0}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0;display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:24px}
+@media (max-width:46rem){.lab{grid-template-columns:1fr}}
+.lab h3{grid-column:1/-1;margin:0;font-size:1rem;font-weight:600}
+.lab h3 small{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--copper)}
+.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+button{font:inherit;font-size:.86rem;padding:7px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--copper)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--soft)}
+.ro .l{font-size:.72rem;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.ro .v.bad{color:var(--bad)} .ro .v.ok{color:var(--ok)}
+canvas{display:block;width:100%}
+.msg{font-size:.88rem;padding:8px 10px;border-radius:6px;background:var(--soft);border:1px solid var(--line)}
+.msg.bad{border-color:var(--bad)} .msg.ok{border-color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+.tbl{overflow-x:auto}
+.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:12px;margin:16px 0}
+.inst div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.inst b{display:block;font-size:.95rem}
+.inst span{font-size:.87rem;color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.src li{margin-bottom:6px}
+.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;margin-top:40px}
+.next a{text-decoration:none;font-weight:600}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="./">← Procesos del cobre para ingenieros eléctricos</a><a href="../">jsnn15.github.io</a></div></div>
+<div class="in">
+  <header class="ch">
+    <div class="kick">Capítulo 2</div>
+    <h1>Chancado y aglomeración</h1>
+    <p class="lede">Antes de lixiviar, la roca se rompe y se "cura" con ácido. Es la etapa más parecida a una planta eléctrica: correas, pesómetros, motores y un lazo de control de razón.</p>
+  </header>
+
+  <article>
+    <div class="prose">
+      <h2><span class="n">01</span>Romper sin hacer polvo</h2>
+      <p>El mineral de la mina viene en bolones de hasta un metro. Para que el ácido llegue al cobre hay que reducirlo, normalmente en tres etapas de chancado (primario, secundario y terciario), hasta unos pocos centímetros. En lixiviación en pilas es habitual trabajar con un tamaño en que el 80 % del material pasa por una malla de alrededor de 12 a 19 mm; se le llama P80.</p>
+      <p>Hay un compromiso. Más fino significa más superficie expuesta y una lixiviación más rápida. Pero los finos tapan los espacios entre partículas, el líquido deja de percolar por la pila y se forman canales y charcos. Por eso no se muele como en una concentradora: se chanca y después se aglomera.</p>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> una pila de mineral es una red de resistencias hidráulicas. Los finos son como bajar la sección de los conductores: la "corriente" de solución busca los caminos de menor resistencia y deja zonas sin regar, igual que una corriente que se concentra en una rama de un circuito paralelo.</div>
+
+    <div class="prose">
+      <h2><span class="n">02</span>Aglomerar y curar</h2>
+      <p>En un tambor rotatorio se agrega al mineral ácido sulfúrico concentrado y agua (o solución de refino). Los finos se pegan a las partículas gruesas y forman glomérulos estables, y el ácido empieza a atacar los minerales oxidados. Después el mineral reposa algunos días antes de regarlo: es el <b>curado ácido</b>.</p>
+      <p>Dos variables mandan, y las dos son <b>razones</b> respecto del mineral que pasa:</p>
+      <div class="inst">
+        <div><b>Dosis de ácido</b><span>Kilogramos de ácido por tonelada de mineral. Depende de la mineralogía y de cuánto ácido consume la ganga.</span></div>
+        <div><b>Humedad final</b><span>Porcentaje de agua en el aglomerado. Poca agua no aglomera; demasiada forma barro.</span></div>
+      </div>
+      <p>Si el mineral que entra cambia de 1.200 a 1.800 t/h y el caudal de ácido queda fijo, la dosis cambia en la misma proporción. Por eso el ácido no se controla por caudal, sino por razón: el caudal de ácido sigue al tonelaje.</p>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> el pesómetro de la correa calcula toneladas por hora multiplicando dos señales, la carga sobre la correa (kg por metro, de las celdas de carga) y la velocidad (m/s, del tacómetro), igual que un vatímetro multiplica tensión por corriente. El controlador de razón es un multiplicador que usa esa señal como consigna del caudal de ácido.</div>
+
+    <section class="lab" aria-label="Control de razón de ácido">
+      <h3>Laboratorio 1 · El lazo de razón del tambor aglomerador<small>El tonelaje de la correa varía. Compara un caudal de ácido fijo con un control de razón, y mira qué pasa con el retardo de la correa.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="mode">Cómo se controla el ácido</label>
+          <select id="mode"><option value="fijo">Caudal fijo (operador)</option><option value="razon">Control de razón</option><option value="razon-ret">Control de razón con retardo compensado</option></select></div>
+        <div class="f"><label for="dose">Dosis objetivo <b id="dose-v"></b></label><input id="dose" type="range" min="5" max="40" step="1" value="20"></div>
+        <div class="f"><label for="var">Variabilidad del tonelaje <b id="var-v"></b></label><input id="var" type="range" min="0" max="40" step="1" value="20"></div>
+        <div class="f"><label for="delay">Retardo pesómetro → tambor <b id="delay-v"></b></label><input id="delay" type="range" min="0" max="120" step="5" value="45"></div>
+        <div class="f"><label for="tol">Tolerancia aceptable de la dosis <b id="tol-v"></b></label><input id="tol" type="range" min="2" max="20" step="1" value="10"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Tonelaje ahora</div><div class="v" id="r-tph"></div></div>
+          <div class="ro"><div class="l">Caudal de ácido</div><div class="v" id="r-acid"></div></div>
+          <div class="ro"><div class="l">Dosis real</div><div class="v" id="r-dose"></div></div>
+          <div class="ro"><div class="l">Tiempo fuera de tolerancia</div><div class="v" id="r-out"></div></div>
+        </div>
+        <canvas id="cv-ratio" height="240" aria-label="Tonelaje y dosis de ácido en el tiempo"></canvas>
+        <div class="msg" id="m-ratio"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <p>El retardo importa porque el pesómetro está aguas arriba: mide el mineral segundos antes de que llegue al tambor. Si el controlador aplica el ácido según lo que mide ahora, se lo echa a un mineral que todavía no llega. Compensarlo es retrasar la señal el mismo tiempo que tarda la correa. Es el mismo problema que alinear dos señales en un registrador de fallas.</p>
+
+      <h2>Lo que vas a encontrar instrumentado</h2>
+      <div class="inst">
+        <div><b>Pesómetro de correa</b><span>Celdas de carga y tacómetro. Entrega t/h y toneladas totalizadas.</span></div>
+        <div><b>Caudal de ácido</b><span>Flujómetro másico o magnético en la línea de ácido concentrado, con válvula de control resistente a la corrosión.</span></div>
+        <div><b>Caudal de agua o refino</b><span>Segundo lazo de razón para la humedad.</span></div>
+        <div><b>Granulometría</b><span>Análisis de imagen sobre la correa, o muestreo y tamizado en laboratorio.</span></div>
+        <div><b>Motores y variadores</b><span>Chancadores, correas y tambor: corriente, potencia, vibración y temperatura de rodamientos.</span></div>
+        <div><b>Enclavamientos</b><span>Sin correa en movimiento no hay ácido: el permisivo de la válvula depende del estado de la correa y del tambor.</span></div>
+      </div>
+
+      <h2>Fuentes</h2>
+      <ul class="src">
+        <li>Schlesinger, M. E. y otros, <i>Extractive Metallurgy of Copper</i>, Elsevier: capítulos de lixiviación en pilas, preparación del mineral y aglomeración.</li>
+        <li>911Metallurgist, <a href="https://www.911metallurgist.com/blog/heap-leaching-oxide-sulfide-copper-ores/">Heap Leaching Oxide and Sulfide Copper Ores</a>: tamaños de chancado, aglomeración y curado en la práctica.</li>
+        <li>Los valores del laboratorio (tonelaje, dosis, retardo) son de orden típico y ajustables. No representan una planta en particular.</li>
+      </ul>
+      <div class="next"><a href="yacimiento.html">← Capítulo 1: El yacimiento</a><a href="lixiviacion.html">Capítulo 3: Lixiviación en pilas →</a></div>
+    </div>
+  </article>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nf = (d) => new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d});
+  const f0 = nf(0), f1 = nf(1);
+  const setup = (cv, H) => { const d = devicePixelRatio || 1, W = cv.clientWidth; cv.width = W * d; cv.height = H * d; cv.style.height = H + 'px'; const x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, W, H); x.font = `11px ${css('--mono')}`; return [x, W]; };
+
+  // serie de tonelaje reproducible (semilla fija): base 1.500 t/h, rampas y escalones como cambios de mineral
+  const N = 1800; // segundos simulados (30 min)
+  let seed = 11; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const shape = []; let v = 0;
+  for (let i = 0; i < N; i++) { v += (rnd() - .5) * .08; v *= .985; const step = (i > 420 && i < 760) ? .6 : (i > 1150 && i < 1400 ? -.7 : 0); shape.push(Math.max(-1, Math.min(1, v + step + Math.sin(i / 70) * .25))); }
+
+  const render = () => {
+    const mode = $('mode').value, dose = +$('dose').value, amp = +$('var').value / 100, delay = +$('delay').value, tol = +$('tol').value / 100;
+    $('dose-v').textContent = dose + ' kg/t'; $('var-v').textContent = '± ' + f0.format(amp * 100) + ' %'; $('delay-v').textContent = delay + ' s'; $('tol-v').textContent = '± ' + tol * 100 + ' %';
+    const base = 1500;
+    const scale = shape.map((s) => base * (1 + amp * s));                 // lo que mide el pesómetro
+    const drum = scale.map((_, i) => scale[Math.max(0, i - delay)]);        // lo que llega al tambor
+    const acid = scale.map((_, i) => {                                       // kg/h de ácido
+      if (mode === 'fijo') return dose * base;
+      if (mode === 'razon') return dose * scale[i];
+      return dose * scale[Math.max(0, i - delay)];
+    });
+    const real = acid.map((a, i) => a / drum[i]);                            // kg/t efectiva en el tambor
+    const outFrac = real.filter((d) => Math.abs(d / dose - 1) > tol).length / N;
+    const last = N - 1;
+    $('r-tph').textContent = f0.format(drum[last]) + ' t/h';
+    $('r-acid').textContent = f1.format(acid[last] / 1840) + ' m³/h';
+    const rd = $('r-dose'); rd.textContent = f1.format(real[last]) + ' kg/t'; rd.className = 'v ' + (Math.abs(real[last] / dose - 1) > tol ? 'bad' : 'ok');
+    const ro = $('r-out'); ro.textContent = f0.format(outFrac * 100) + ' %'; ro.className = 'v ' + (outFrac > .05 ? 'bad' : 'ok');
+    const m = $('m-ratio');
+    if (mode === 'fijo') { m.className = 'msg bad'; m.textContent = 'Con caudal fijo, cada variación del tonelaje se traduce en la misma variación de la dosis. Cuando baja el mineral, se sobredosifica ácido; cuando sube, el curado queda corto.'; }
+    else if (mode === 'razon' && delay > 0) { m.className = outFrac > .05 ? 'msg bad' : 'msg'; m.textContent = `El control de razón sigue al tonelaje, pero con ${delay} s de desfase: el ácido llega antes que el mineral que lo pidió. En los cambios bruscos la dosis se dispara para ambos lados.`; }
+    else { m.className = 'msg ok'; m.textContent = 'La consigna de ácido usa el tonelaje que realmente está entrando al tambor. La dosis queda pegada al objetivo aunque el mineral cambie.'; }
+
+    const cv = $('cv-ratio'), H = 240, [x, W] = setup(cv, H), mg = {l: 52, r: 52, t: 12, b: 26};
+    const X = (i) => mg.l + (W - mg.l - mg.r) * i / (N - 1);
+    const tmin = base * (1 - .45), tmax = base * (1 + .45), Yt = (t) => mg.t + (H - mg.t - mg.b) * (tmax - t) / (tmax - tmin);
+    const dmax = dose * 1.8, dmin = dose * 0.3, Yd = (d) => mg.t + (H - mg.t - mg.b) * (dmax - Math.min(dmax, Math.max(dmin, d))) / (dmax - dmin);
+    x.fillStyle = css('--soft'); x.fillRect(mg.l, Yd(dose * (1 + tol)), W - mg.l - mg.r, Yd(dose * (1 - tol)) - Yd(dose * (1 + tol)));
+    x.strokeStyle = css('--line'); x.fillStyle = css('--muted'); x.lineWidth = 1;
+    [0, .25, .5, .75, 1].forEach((k) => { const d = dmin + (dmax - dmin) * k, y = Yd(d); x.beginPath(); x.moveTo(mg.l, y); x.lineTo(W - mg.r, y); x.stroke(); x.textAlign = 'right'; x.fillText(f0.format(d), mg.l - 6, y + 4); const t = tmin + (tmax - tmin) * k; x.textAlign = 'left'; x.fillText(f0.format(t), W - mg.r + 6, Yt(t) + 4); });
+    x.textAlign = 'center'; for (let mn = 0; mn <= 30; mn += 5) x.fillText(mn + ' min', X(mn * 60 === N ? N - 1 : mn * 60), H - 8);
+    const plot = (arr, Y, col, w) => { x.strokeStyle = col; x.lineWidth = w; x.lineJoin = 'round'; x.beginPath(); arr.forEach((v2, i) => { const y = Y(v2); i ? x.lineTo(X(i), y) : x.moveTo(X(i), y); }); x.stroke(); };
+    plot(drum, Yt, css('--muted'), 1.2);
+    plot(real, Yd, css('--copper'), 2);
+    x.setLineDash([5, 4]); x.strokeStyle = css('--fg'); x.beginPath(); x.moveTo(mg.l, Yd(dose)); x.lineTo(W - mg.r, Yd(dose)); x.stroke(); x.setLineDash([]);
+    x.fillStyle = css('--copper'); x.textAlign = 'left'; x.fillText('dosis real (kg/t, eje izquierdo)', mg.l + 6, mg.t + 12);
+    x.fillStyle = css('--muted'); x.textAlign = 'right'; x.fillText('tonelaje al tambor (t/h, eje derecho)', W - mg.r - 6, mg.t + 12);
+  };
+  ['mode', 'dose', 'var', 'delay', 'tol'].forEach((id) => $(id).addEventListener('input', render));
+  addEventListener('resize', render); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render); render();
+})();
+</script>
+</body>
+</html>
