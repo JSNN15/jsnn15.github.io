@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Julián Neira Nova</title>
 <meta name="description" content="Ingeniero eléctrico. IA y datos aplicados a la operación real: simuladores, pruebas con datos reales y automatización del trabajo.">
-<meta property="og:title" content="Julián Neira Nova · IA y datos aplicados a la operación real">
-<meta property="og:description" content="Simuladores de procesos, pruebas con datos reales y herramientas de automatización. Proyectos personales, código abierto.">
-<meta property="og:image" content="https://jsnn15.github.io/img/ew.jpg">
+<meta property="og:title" content="Julián Neira Nova · Máquinas que resuelven dolores de operación">
+<meta property="og:description" content="Detección de casco en tiempo real, sala de control de una planta de cobre y agentes de IA: herramientas que funcionan y se pueden probar en el navegador.">
+<meta property="og:image" content="https://jsnn15.github.io/img/vigia.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -63,10 +63,10 @@ footer .in{padding-block:24px 48px;color:var(--muted);font-size:.85rem;border-to
   <canvas id="sig" aria-hidden="true"></canvas>
   <div class="in">
     <div class="kick">Julián Neira Nova · Ingeniero eléctrico · 10+ años en faena</div>
-    <h1>IA y datos</h1>
-    <div class="sub">aplicados a la operación real</div>
+    <h1>Máquinas</h1>
+    <div class="sub">que resuelven dolores de operación</div>
     <div class="rule"></div>
-    <p class="who">Construyo simuladores, pruebo modelos con datos reales y automatizo trabajo. Minería, industria y agro, desde la <b>instrumentación</b> hasta la <b>decisión</b>.</p>
+    <p class="who">IA, automatización e instrumentación para minería, industria y agro. No presentaciones: herramientas funcionando que puedes abrir, probar y <b>poner a trabajar</b>.</p>
     <div class="links">
       <a class="main" href="https://www.linkedin.com/in/julian-neira-nova/">Conversemos en LinkedIn</a>
       <a href="https://github.com/JSNN15">GitHub</a>
@@ -77,10 +77,19 @@ footer .in{padding-block:24px 48px;color:var(--muted);font-size:.85rem;border-to
 
 <main>
   <div class="in">
-    <section id="proyectos">
-      <h2>Proyectos</h2>
-      <p class="lead">Herramientas que se pueden abrir y usar en el navegador, con su código y sus fuentes a la vista.</p>
+    <section id="maquinas">
+      <h2>Pruébalas</h2>
+      <p class="lead">Herramientas que hacen un trabajo concreto en la operación. Ábrelas y úsalas: corren en el navegador.</p>
       <div class="projects">
+        <a class="proj" href="vigia/">
+          <img src="img/vigia.jpg" alt="Sala de control de Vigía EPP con cuatro cámaras de faena, detecciones de casco y alertas" loading="lazy">
+          <div class="b">
+            <h3>Vigía EPP · detección de casco en tiempo real</h3>
+            <p>Una máquina que mira las cámaras de la faena, avisa al supervisor y escribe el informe de turno. La IA corre en el equipo, sin nube. Pruébala con la cámara de tu celular.</p>
+            <div class="tags"><span>Producto</span><span>IA en el borde</span><span>Seguridad</span></div>
+            <span class="go">Probar Vigía →</span>
+          </div>
+        </a>
         <a class="proj" href="planta-virtual/">
           <img src="img/planta.jpg" alt="Sala de control de la planta virtual: nave de electroobtención con celdas en cortocircuito marcadas, analizadores y alarmas" loading="lazy">
           <div class="b">
@@ -90,6 +99,22 @@ footer .in{padding-block:24px 48px;color:var(--muted);font-size:.85rem;border-to
             <span class="go">Entrar a la sala de control →</span>
           </div>
         </a>
+        <a class="proj" href="https://github.com/JSNN15/prama-agent">
+          <img src="img/prama.jpg" alt="Menú de prama-agent con un equipo de agentes y su coordinador" loading="lazy">
+          <div class="b">
+            <h3>prama-agent</h3>
+            <p>Equipos de agentes de IA trabajando en paralelo en un servidor propio, que verifican lo que los agentes dicen haber hecho.</p>
+            <div class="tags"><span>Agentes de IA</span><span>Automatización del trabajo</span><span>Código abierto</span></div>
+            <span class="go">Ver en GitHub →</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section id="pruebas">
+      <h2>Pruebas y conocimiento</h2>
+      <p class="lead">Cómo sé que funcionan: pruebas con datos reales, simuladores y un curso abierto de procesos del cobre.</p>
+      <div class="projects">
         <a class="proj" href="ia-epp/">
           <img src="img/ia-epp.jpg" alt="Fotos de faena evaluadas por modelos de IA, con cascos marcados y conteos de cada modelo" loading="lazy">
           <div class="b">
@@ -124,15 +149,6 @@ footer .in{padding-block:24px 48px;color:var(--muted);font-size:.85rem;border-to
             <p>¿Puede un modelo adelantar al laboratorio? Prueba con datos reales de una planta, evaluada sin trampas, con sus resultados buenos y malos.</p>
             <div class="tags"><span>Datos reales</span><span>Machine learning</span><span>Agente de turno</span></div>
             <span class="go">Ver la prueba →</span>
-          </div>
-        </a>
-        <a class="proj" href="https://github.com/JSNN15/prama-agent">
-          <img src="img/prama.jpg" alt="Menú de prama-agent con un equipo de agentes y su coordinador" loading="lazy">
-          <div class="b">
-            <h3>prama-agent</h3>
-            <p>Equipos de agentes de IA trabajando en paralelo en un servidor propio, que verifican lo que los agentes dicen haber hecho.</p>
-            <div class="tags"><span>Agentes de IA</span><span>Automatización del trabajo</span><span>Código abierto</span></div>
-            <span class="go">Ver en GitHub →</span>
           </div>
         </a>
       </div>
