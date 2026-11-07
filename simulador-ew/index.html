@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de nave EW</title>
+<meta name="description" content="Simulador de una nave de electroobtención de cobre: corriente, producción, energía y el costo real de los cortocircuitos según cómo se detectan.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: consola de operación estilo HMI de alto desempeño (ISA-101): grises neutros, color solo para lo anormal. */
+:root{
+  --bg:#dcdee0; --panel:#eceeef; --panel-2:#f6f7f7; --line:#c4c8cc; --fg:#1d2226; --muted:#5a636b;
+  --cell:#9aa3ab; --cell-hi:#7f8a94; --copper:#b5652d; --alarm:#d1201a; --warn:#e8a317; --ok:#2f7d4f; --accent:#1f5f99;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1b1f23; --panel:#242a30; --panel-2:#2b3239; --line:#3a434c; --fg:#e4e8eb; --muted:#9aa5ae;
+  --cell:#5b6670; --cell-hi:#76838f; --copper:#d98a4f; --alarm:#ff5a4f; --warn:#f2b632; --ok:#55c08a; --accent:#6aa9e0; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1b1f23; --panel:#242a30; --panel-2:#2b3239; --line:#3a434c; --fg:#e4e8eb; --muted:#9aa5ae;
+  --cell:#5b6670; --cell-hi:#76838f; --copper:#d98a4f; --alarm:#ff5a4f; --warn:#f2b632; --ok:#55c08a; --accent:#6aa9e0; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px}
+.wrap{max-width:84rem;margin-inline:auto;padding-block:28px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header h1{font-size:1.75rem;font-weight:600;margin:0;letter-spacing:-.01em;text-wrap:balance}
+header p{margin:6px 0 0;color:var(--muted);max-width:68ch;line-height:1.5}
+.tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.grid{display:grid;grid-template-columns:20rem 1fr;gap:18px;align-items:start}
+@media (max-width:60rem){.grid{grid-template-columns:1fr}.grid > aside{order:2}.grid > .main{order:1}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.panel h2{font-size:.8rem;font-family:var(--mono);font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.ctl fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.ctl legend{font-weight:600;font-size:.9rem;margin-bottom:6px;padding:0}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--accent)}
+.f input[type=number],.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel-2);color:var(--fg)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:.88rem;padding:8px 12px;border-radius:4px;border:1px solid var(--line);background:var(--panel-2);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--cell-hi)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.danger{border-color:var(--alarm);color:var(--alarm)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,9.5rem),1fr));gap:10px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.kpi .l{font-size:.75rem;color:var(--muted)}
+.kpi .v{font-family:var(--mono);font-size:1.35rem;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi .u{font-size:.72rem;color:var(--muted);font-family:var(--mono)}
+.kpi.alarm{border-color:var(--alarm)} .kpi.alarm .v{color:var(--alarm)}
+.clock{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.clock .t{font-family:var(--mono);font-size:1rem}
+.house-wrap{position:relative}
+canvas{display:block;width:100%}
+#house{cursor:crosshair;border-radius:4px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.78rem;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-2px;margin-right:5px}
+.tip{position:absolute;pointer-events:none;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font-family:var(--mono);font-size:.75rem;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));gap:18px}
+.case{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:9.5rem 1fr 7.5rem;align-items:center;gap:8px;font-size:.85rem}
+.bar .track{height:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.bar .fill{height:100%;background:var(--cell-hi)}
+.bar .fill.bad{background:var(--alarm)}
+.bar .val{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:30rem){.bar{grid-template-columns:1fr 6.5rem}.bar .track{grid-column:1 / -1;grid-row:2}}
+.big{font-family:var(--mono);font-size:1.6rem;color:var(--ok)}
+.log{max-height:15rem;overflow:auto;font-family:var(--mono);font-size:.78rem;line-height:1.55;margin:0;padding:0;list-style:none}
+.log li{border-bottom:1px dashed var(--line);padding:3px 0}
+.log .a{color:var(--alarm)} .log .w{color:var(--warn)} .log .o{color:var(--ok)}
+details{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 16px}
+details summary{cursor:pointer;font-weight:600}
+details p,details li{color:var(--muted);line-height:1.55;max-width:80ch}
+code{font-family:var(--mono);font-size:.85em}
+footer{font-size:.8rem;color:var(--muted)}
+footer a{color:inherit}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="tag"><a href="../" style="text-decoration:none">← Portafolio</a> · Electroobtención de cobre · simulador</div>
+    <h1>Simulador de nave EW</h1>
+    <p>Una nave de electroobtención con sus celdas en serie. Ajusta el rectificador y mira la producción y la energía. Provoca cortocircuitos y compara cuánto cobre se pierde según cómo se detectan.</p>
+  </header>
+
+  <div class="grid">
+    <aside class="panel ctl" aria-label="Parámetros">
+      <fieldset>
+        <legend>Rectificador y celdas</legend>
+        <div class="f"><label for="I">Corriente del rectificador <b id="I-v"></b></label><input id="I" type="range" min="10" max="60" step="0.5" value="36"></div>
+        <div class="f"><label for="N">Celdas en serie <b id="N-v"></b></label><input id="N" type="range" min="20" max="200" step="2" value="120"></div>
+        <div class="f"><label for="nc">Cátodos por celda <b id="nc-v"></b></label><input id="nc" type="range" min="30" max="80" step="1" value="60"></div>
+        <div class="f"><label for="A">Área por cara de cátodo <b id="A-v"></b></label><input id="A" type="range" min="0.8" max="1.2" step="0.01" value="1"></div>
+        <div class="f"><label for="eta">Eficiencia de corriente sin cortocircuitos <b id="eta-v"></b></label><input id="eta" type="range" min="80" max="97" step="0.5" value="93"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Cortocircuitos</legend>
+        <div class="f"><label for="rate">Cortocircuitos nuevos por hora <b id="rate-v"></b></label><input id="rate" type="range" min="0" max="6" step="0.1" value="1.5"></div>
+        <div class="f"><label for="sev">Corriente que desvía cada uno <b id="sev-v"></b></label><input id="sev" type="range" min="1" max="6" step="0.5" value="3"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Detección</legend>
+        <div class="f"><label for="mode">Cómo se detectan</label>
+          <select id="mode"><option value="ronda">Ronda manual con gaussímetro</option><option value="continuo">Monitoreo continuo por celda</option></select></div>
+        <div class="f" id="f-ronda"><label for="H">Una ronda cada <b id="H-v"></b></label><input id="H" type="range" min="2" max="24" step="1" value="8"></div>
+        <div class="f" id="f-det" hidden><label for="det">El monitoreo detecta en <b id="det-v"></b></label><input id="det" type="range" min="1" max="60" step="1" value="10"></div>
+        <div class="f"><label for="fix">Tiempo para corregir una vez detectado <b id="fix-v"></b></label><input id="fix" type="range" min="10" max="120" step="5" value="30"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Precios</legend>
+        <div class="f"><label for="cu">Cobre (US$/lb)</label><input id="cu" type="number" min="1" max="20" step="0.05" value="6.5"></div>
+        <div class="f"><label for="pe">Energía (US$/MWh)</label><input id="pe" type="number" min="10" max="400" step="5" value="110"></div>
+      </fieldset>
+    </aside>
+
+    <div class="main">
+      <section class="panel">
+        <div class="clock">
+          <h2 style="margin:0">Nave en operación</h2>
+          <span class="t" id="clock">Día 1 · 00:00</span>
+        </div>
+        <div class="btns" style="margin:12px 0">
+          <button class="primary" id="run">Pausar</button>
+          <button id="speed">Velocidad ×1</button>
+          <button class="danger" id="inject">Provocar cortocircuito</button>
+          <button id="reset">Reiniciar</button>
+        </div>
+        <div class="house-wrap"><canvas id="house" height="230" aria-label="Vista en planta de la nave. Haz clic en una celda para provocar un cortocircuito."></canvas><div class="tip" id="tip" hidden></div></div>
+        <div class="legend">
+          <span><i style="background:var(--cell)"></i>Celda normal</span>
+          <span><i style="background:var(--alarm)"></i>Con cortocircuito, sin detectar</span>
+          <span><i style="background:var(--warn)"></i>Detectado, en corrección</span>
+          <span>Clic en una celda: provoca un cortocircuito en ella</span>
+        </div>
+      </section>
+
+      <section class="kpis" aria-label="Indicadores">
+        <div class="kpi"><div class="l">Densidad de corriente</div><div class="v" id="k-j"></div><div class="u">A/m²</div></div>
+        <div class="kpi"><div class="l">Voltaje de celda</div><div class="v" id="k-v"></div><div class="u">V promedio</div></div>
+        <div class="kpi"><div class="l">Producción ahora</div><div class="v" id="k-p"></div><div class="u">t Cu / día</div></div>
+        <div class="kpi" id="kk-e"><div class="l">Eficiencia real</div><div class="v" id="k-e"></div><div class="u">% de corriente</div></div>
+        <div class="kpi"><div class="l">Energía específica</div><div class="v" id="k-kwh"></div><div class="u">kWh / t Cu</div></div>
+        <div class="kpi" id="kk-s"><div class="l">Cortocircuitos activos</div><div class="v" id="k-s"></div><div class="u">ahora</div></div>
+        <div class="kpi"><div class="l">Cobre perdido</div><div class="v" id="k-lost"></div><div class="u">kg acumulados</div></div>
+        <div class="kpi"><div class="l">Valor perdido</div><div class="v" id="k-usd"></div><div class="u">US$ acumulados</div></div>
+      </section>
+
+      <section class="panel">
+        <h2>Últimas 24 horas</h2>
+        <canvas id="trend" height="180" aria-label="Producción y cortocircuitos activos en las últimas 24 horas"></canvas>
+        <div class="legend"><span><i style="background:var(--copper)"></i>Producción (t/día, eje izquierdo)</span><span><i style="background:var(--alarm)"></i>Cortocircuitos activos (eje derecho)</span><span><i style="background:none;border-top:2px dashed var(--muted);height:0;width:14px"></i>Producción sin cortocircuitos</span></div>
+      </section>
+
+      <div class="two">
+        <section class="panel case" aria-label="Caso de negocio">
+          <h2>Lo que cuesta detectar tarde, en un mes</h2>
+          <div class="bar"><span>Ronda cada <b id="c-H"></b></span><div class="track"><div class="fill bad" id="c-b1"></div></div><span class="val" id="c-v1"></span></div>
+          <div class="bar"><span>Monitoreo continuo</span><div class="track"><div class="fill" id="c-b2"></div></div><span class="val" id="c-v2"></span></div>
+          <div>Diferencia mensual<br><span class="big" id="c-diff"></span> <span class="u" id="c-diff-t" style="font-family:var(--mono);color:var(--muted);font-size:.8rem"></span></div>
+          <p style="margin:0;color:var(--muted);font-size:.82rem;line-height:1.5">Cálculo esperado con los parámetros de la izquierda: cortocircuitos al mes × horas que pasan sin corregir × cobre que deja de depositarse por hora. No depende de la simulación de arriba.</p>
+        </section>
+        <section class="panel">
+          <h2>Bitácora</h2>
+          <ul class="log" id="log"></ul>
+        </section>
+      </div>
+
+      <details>
+        <summary>Cómo calcula y qué supone</summary>
+        <ul>
+          <li><b>Producción por celda</b> (ley de Faraday): <code>m = η · I · t · M / (z · F)</code>, con M = 63,546 g/mol, z = 2, F = 96.485 C/mol. Equivale a 1,1855 g de cobre por amperio-hora al 100 %.</li>
+          <li><b>Densidad de corriente</b>: corriente de la celda dividida por el área activa, cátodos × 2 caras × área por cara.</li>
+          <li><b>Voltaje de celda</b> (modelo simple): <code>V = 1,45 + 0,0018 · j</code> V, que da cerca de 2,0 V a 300 A/m². Una celda con cortocircuito baja su voltaje, que es lo que mira el monitoreo continuo.</li>
+          <li><b>Cortocircuito</b>: una conexión entre ánodo y cátodo que deja pasar corriente sin depositar cobre. Aquí cada uno desvía el equivalente a la corriente de 1 a 6 cátodos; es un supuesto ajustable.</li>
+          <li><b>Detección</b>: con ronda manual, un cortocircuito se encuentra en la siguiente ronda. Con monitoreo continuo, en los minutos que indiques. En ambos casos se suma el tiempo de corrección.</li>
+          <li><b>Energía específica</b>: potencia del rectificador (corriente × suma de voltajes de celda) dividida por la producción real. No incluye pérdidas en barras ni en el rectificador.</li>
+          <li>Los valores por defecto son de orden típico para una nave mediana y los precios son editables. No representan una planta en particular.</li>
+        </ul>
+      </details>
+      <footer>Proyecto personal de Julián Neira Nova, ingeniero eléctrico · <a href="https://www.linkedin.com/in/julian-neira-nova/">LinkedIn</a> · <a href="https://github.com/JSNN15/jsnn15.github.io/tree/main/simulador-ew">Código en GitHub</a>.</footer>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nf = (d) => new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d});
+  const f0 = nf(0), f1 = nf(1), f2 = nf(2);
+  const G_PER_AH = 63.546 / (2 * 96485) * 3600;     // 1,1855 g/Ah
+  const LB_PER_KG = 2.20462;
+  const MIN_PER_STEP = 1;                            // 1 minuto simulado por paso
+
+  const P = () => ({
+    I: +$('I').value * 1000, N: +$('N').value, nc: +$('nc').value, A: +$('A').value, eta: +$('eta').value / 100,
+    rate: +$('rate').value, sev: +$('sev').value, mode: $('mode').value, H: +$('H').value, det: +$('det').value,
+    fix: +$('fix').value, cu: +$('cu').value || 0, pe: +$('pe').value || 0
+  });
+  const jOf = (p) => p.I / (p.nc * 2 * p.A);
+  const vOf = (p) => 1.45 + 0.0018 * jOf(p);
+  // corriente desviada por un cortocircuito, en A (no puede exceder la corriente de la celda)
+  const divOf = (p) => Math.min(p.I, p.sev * p.I / p.nc);
+
+  // estado
+  let S;
+  const reset = () => {
+    S = {t: 0, shorts: [], lostKg: 0, prodKg: 0, energyKWh: 0, hist: [], log: [], nextRound: null, id: 0};
+    $('log').replaceChildren();
+    addLog('Inicio de turno. Nave en régimen.', 'o');
+  };
+  const hhmm = (min) => { const d = Math.floor(min / 1440) + 1, h = Math.floor(min % 1440 / 60), m = Math.floor(min % 60); return `Día ${d} · ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`; };
+  const addLog = (txt, cls) => {
+    const li = document.createElement('li'); li.className = cls || '';
+    li.textContent = `${hhmm(S.t).replace('Día ', 'D')}  ${txt}`;
+    $('log').prepend(li); while ($('log').children.length > 80) $('log').lastChild.remove();
+  };
+
+  const inject = (cell) => {
+    const p = P(); if (cell == null) cell = Math.floor(Math.random() * p.N);
+    if (cell >= p.N) return;
+    const s = {id: ++S.id, cell, start: S.t, detected: null, fixAt: null, lost: 0};
+    if (p.mode === 'continuo') s.detected = S.t + p.det;
+    S.shorts.push(s);
+    addLog(`Cortocircuito en celda ${cell + 1}.`, 'a');
+  };
+
+  const step = () => {
+    const p = P();
+    S.t += MIN_PER_STEP;
+    // nuevos cortocircuitos (proceso de Poisson)
+    let lam = p.rate * MIN_PER_STEP / 60;
+    while (lam > 0) { if (Math.random() < Math.min(lam, 1)) inject(null); lam -= 1; }
+    // rondas manuales: a la hora múltiplo de H
+    if (p.mode === 'ronda' && S.t % (p.H * 60) === 0) {
+      const found = S.shorts.filter((s) => s.detected == null);
+      found.forEach((s) => { s.detected = S.t; });
+      addLog(found.length ? `Ronda: ${found.length} cortocircuito(s) encontrado(s).` : 'Ronda: sin cortocircuitos.', found.length ? 'w' : 'o');
+    }
+    S.shorts.forEach((s) => { if (s.detected != null && s.fixAt == null && S.t >= s.detected) { s.fixAt = s.detected + p.fix; if (p.mode === 'continuo') addLog(`Monitoreo: alarma de voltaje en celda ${s.cell + 1}.`, 'w'); } });
+    // balance del minuto
+    const div = divOf(p), hours = MIN_PER_STEP / 60;
+    const lostKg = S.shorts.length * div * hours * G_PER_AH * p.eta / 1000;
+    const idealKg = p.N * p.I * hours * G_PER_AH * p.eta / 1000;
+    S.shorts.forEach((s) => { s.lost += div * hours * G_PER_AH * p.eta / 1000; });
+    S.lostKg += lostKg; S.prodKg += idealKg - lostKg;
+    const vShort = (n) => Math.max(0.4, vOf(p) * (1 - 0.08 * n));
+    const counts = cellCounts(p);
+    let vSum = 0; for (let c = 0; c < p.N; c++) vSum += counts[c] ? vShort(counts[c]) : vOf(p);
+    S.energyKWh += p.I * vSum * hours / 1000;
+    // corregidos
+    const done = S.shorts.filter((s) => s.fixAt != null && S.t >= s.fixAt);
+    done.forEach((s) => addLog(`Celda ${s.cell + 1} corregida. Estuvo ${f1.format((S.t - s.start) / 60)} h y dejó de producir ${f0.format(s.lost)} kg.`, 'o'));
+    S.shorts = S.shorts.filter((s) => !(s.fixAt != null && S.t >= s.fixAt));
+    S.hist.push({t: S.t, prod: (idealKg - lostKg) / hours * 24 / 1000, n: S.shorts.length});
+    if (S.hist.length > 24 * 60) S.hist.shift();
+  };
+  const cellCounts = (p) => { const c = new Array(p.N).fill(0); S.shorts.forEach((s) => { if (s.cell < p.N) c[s.cell]++; }); return c; };
+
+  // ---- dibujo de la nave
+  const house = $('house'), hx = house.getContext('2d');
+  let layout = null;
+  const drawHouse = () => {
+    const p = P(), dpr = window.devicePixelRatio || 1, W = house.clientWidth, H = 230;
+    house.width = W * dpr; house.height = H * dpr; house.style.height = H + 'px'; hx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    hx.clearRect(0, 0, W, H);
+    const rows = 2, perRow = Math.ceil(p.N / rows), pad = 8, gapY = 34;
+    const cw = Math.max(3, (W - 2 * pad) / perRow), ch = (H - 2 * pad - gapY) / rows;
+    layout = {rows, perRow, pad, gapY, cw, ch, W, H};
+    // barra colectora
+    hx.fillStyle = css('--copper'); hx.globalAlpha = .55;
+    hx.fillRect(pad, pad + ch + gapY / 2 - 2, W - 2 * pad, 4); hx.globalAlpha = 1;
+    hx.fillStyle = css('--muted'); hx.font = `11px ${css('--mono')}`; hx.textBaseline = 'middle';
+    hx.fillText(`Rectificador ${f1.format(p.I / 1000)} kA →`, pad, pad + ch + gapY / 2 - 12 > 0 ? pad + ch + gapY / 2 + 12 : 12);
+    const counts = cellCounts(p), det = new Set(S.shorts.filter((s) => s.detected != null && S.t >= s.detected).map((s) => s.cell));
+    for (let c = 0; c < p.N; c++) {
+      const r = Math.floor(c / perRow), i = c % perRow, x = pad + i * cw, y = pad + r * (ch + gapY);
+      hx.fillStyle = counts[c] ? (det.has(c) ? css('--warn') : css('--alarm')) : css('--cell');
+      hx.fillRect(x + (cw > 6 ? 1 : 0.3), y, Math.max(1.5, cw - (cw > 6 ? 2 : 0.6)), ch);
+      if (counts[c] && cw > 9) { hx.fillStyle = '#fff'; hx.textAlign = 'center'; hx.fillText(counts[c], x + cw / 2, y + ch / 2); hx.textAlign = 'left'; }
+    }
+  };
+  const cellAt = (ev) => {
+    if (!layout) return null; const r = house.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top, L = layout;
+    const i = Math.floor((x - L.pad) / L.cw); if (i < 0 || i >= L.perRow) return null;
+    let row = -1; for (let k = 0; k < L.rows; k++) { const y0 = L.pad + k * (L.ch + L.gapY); if (y >= y0 && y <= y0 + L.ch) row = k; }
+    if (row < 0) return null; const c = row * L.perRow + i; return c < P().N ? c : null;
+  };
+  house.addEventListener('click', (ev) => { const c = cellAt(ev); if (c != null) { inject(c); render(); } });
+  house.addEventListener('pointermove', (ev) => {
+    const c = cellAt(ev), tip = $('tip'); if (c == null) { tip.hidden = true; return; }
+    const p = P(), n = cellCounts(p)[c], v = n ? Math.max(0.4, vOf(p) * (1 - 0.08 * n)) : vOf(p);
+    tip.textContent = `Celda ${c + 1} · ${f2.format(v)} V · ${n ? n + ' cortocircuito(s)' : 'normal'}`;
+    tip.hidden = false; const r = house.getBoundingClientRect(), tw = tip.offsetWidth;
+    tip.style.left = Math.max(0, Math.min(r.width - tw, ev.clientX - r.left + 12)) + 'px'; tip.style.top = Math.max(0, ev.clientY - r.top - 30) + 'px';
+  });
+  house.addEventListener('pointerleave', () => { $('tip').hidden = true; });
+
+  // ---- tendencia
+  const trend = $('trend'), tx = trend.getContext('2d');
+  const drawTrend = () => {
+    const dpr = window.devicePixelRatio || 1, W = trend.clientWidth, H = 180, m = {l: 50, r: 34, t: 10, b: 22};
+    trend.width = W * dpr; trend.height = H * dpr; trend.style.height = H + 'px'; tx.setTransform(dpr, 0, 0, dpr, 0, 0); tx.clearRect(0, 0, W, H);
+    const h = S.hist; const p = P();
+    const ideal = p.N * p.I * 24 * G_PER_AH * p.eta / 1e6;
+    const pmin = h.length ? Math.min(...h.map((d) => d.prod)) : ideal;
+    const ymax = ideal * 1.002, ymin = Math.min(pmin, ideal * 0.99) - ideal * 0.002, nmax = Math.max(4, ...h.map((d) => d.n));
+    const x = (t) => (W - m.r) - (W - m.l - m.r) * (S.t - t) / (24 * 60);
+    const y = (v) => H - m.b - (H - m.t - m.b) * (v - ymin) / (ymax - ymin), y2 = (n) => H - m.b - (H - m.t - m.b) * n / nmax;
+    tx.font = `11px ${css('--mono')}`; tx.fillStyle = css('--muted'); tx.strokeStyle = css('--line'); tx.lineWidth = 1;
+    for (let k = 0; k <= 4; k++) { const v = ymin + (ymax - ymin) * k / 4, yy = y(v); tx.beginPath(); tx.moveTo(m.l, yy); tx.lineTo(W - m.r, yy); tx.stroke(); tx.textAlign = 'right'; tx.fillText(f1.format(v), m.l - 6, yy + 4); }
+    tx.setLineDash([4, 4]); tx.strokeStyle = css('--muted'); tx.beginPath(); tx.moveTo(m.l, y(ideal)); tx.lineTo(W - m.r, y(ideal)); tx.stroke(); tx.setLineDash([]); tx.strokeStyle = css('--line');
+    tx.textAlign = 'left'; for (let k = 0; k <= nmax; k += Math.ceil(nmax / 4)) tx.fillText(k, W - m.r + 6, y2(k) + 4);
+    tx.textAlign = 'center'; for (let k = 0; k <= 24; k += 6) tx.fillText((k - 24) + ' h', m.l + (W - m.l - m.r) * k / 24, H - 6);
+    if (h.length < 2) return;
+    tx.lineJoin = 'round'; tx.lineCap = 'round';
+    tx.strokeStyle = css('--alarm'); tx.lineWidth = 1.5; tx.beginPath(); h.forEach((d, i) => { const X = x(d.t), Y = y2(d.n); i ? tx.lineTo(X, Y) : tx.moveTo(X, Y); }); tx.stroke();
+    tx.strokeStyle = css('--copper'); tx.lineWidth = 2; tx.beginPath(); h.forEach((d, i) => { const X = x(d.t), Y = y(d.prod); i ? tx.lineTo(X, Y) : tx.moveTo(X, Y); }); tx.stroke();
+  };
+
+  // ---- caso de negocio (esperado, analítico)
+  const businessCase = () => {
+    const p = P(), perMonth = p.rate * 24 * 30, kgPerH = divOf(p) * G_PER_AH * p.eta / 1000;
+    const hManual = p.H / 2 + p.fix / 60, hCont = p.det / 60 + p.fix / 60;
+    const usd = (h) => perMonth * h * kgPerH * LB_PER_KG * p.cu;
+    const a = usd(hManual), b = usd(hCont), mx = Math.max(a, b, 1);
+    $('c-H').textContent = p.H + ' h';
+    $('c-v1').textContent = 'US$ ' + f0.format(a); $('c-v2').textContent = 'US$ ' + f0.format(b);
+    $('c-b1').style.width = (a / mx * 100) + '%'; $('c-b2').style.width = (b / mx * 100) + '%';
+    $('c-diff').textContent = 'US$ ' + f0.format(a - b);
+    $('c-diff-t').textContent = `(${f1.format(perMonth * (hManual - hCont) * kgPerH / 1000)} t de cobre)`;
+  };
+
+  // ---- indicadores
+  const render = () => {
+    const p = P();
+    $('I-v').textContent = f1.format(p.I / 1000) + ' kA'; $('N-v').textContent = p.N; $('nc-v').textContent = p.nc;
+    $('A-v').textContent = f2.format(p.A) + ' m²'; $('eta-v').textContent = f1.format(p.eta * 100) + ' %';
+    $('rate-v').textContent = f1.format(p.rate) + ' /h'; $('sev-v').textContent = f1.format(p.sev) + ' cátodos';
+    $('H-v').textContent = p.H + ' h'; $('det-v').textContent = p.det + ' min'; $('fix-v').textContent = p.fix + ' min';
+    $('f-ronda').hidden = p.mode !== 'ronda'; $('f-det').hidden = p.mode !== 'continuo';
+    const div = divOf(p), active = S.shorts.length;
+    const effNow = Math.max(0, p.eta * (1 - active * div / (p.N * p.I)));
+    const prodNow = p.N * p.I * 24 * G_PER_AH * effNow / 1e6;
+    $('k-j').textContent = f0.format(jOf(p)); $('k-v').textContent = f2.format(vOf(p));
+    $('k-p').textContent = f1.format(prodNow); $('k-e').textContent = f1.format(effNow * 100);
+    $('k-kwh').textContent = S.prodKg > 0 ? f0.format(S.energyKWh / (S.prodKg / 1000)) : f0.format(vOf(p) / (G_PER_AH * p.eta) * 1000);
+    $('k-s').textContent = active; $('kk-s').classList.toggle('alarm', active > 0); $('kk-e').classList.toggle('alarm', effNow < p.eta - 0.005);
+    $('k-lost').textContent = f0.format(S.lostKg); $('k-usd').textContent = f0.format(S.lostKg * LB_PER_KG * p.cu);
+    $('clock').textContent = hhmm(S.t);
+    drawHouse(); drawTrend(); businessCase();
+  };
+
+  // ---- bucle
+  const speeds = [1, 5, 20], perSec = 10; // minutos simulados por segundo, ×velocidad
+  let si = 0, running = true, acc = 0, last = performance.now();
+  const loop = (now) => {
+    const dt = Math.min(0.5, (now - last) / 1000); last = now;
+    if (running) { acc += dt * perSec * speeds[si]; let n = 0; while (acc >= 1 && n < 400) { step(); acc -= 1; n++; } render(); }
+    requestAnimationFrame(loop);
+  };
+  $('run').addEventListener('click', () => { running = !running; $('run').textContent = running ? 'Pausar' : 'Correr'; });
+  $('speed').addEventListener('click', () => { si = (si + 1) % speeds.length; $('speed').textContent = 'Velocidad ×' + speeds[si]; });
+  $('inject').addEventListener('click', () => { inject(null); render(); });
+  $('reset').addEventListener('click', () => { reset(); render(); });
+  document.querySelectorAll('input,select').forEach((el) => el.addEventListener('input', () => {
+    if (el.id === 'mode') { const p = P(); S.shorts.forEach((s) => { if (s.detected == null && p.mode === 'continuo') s.detected = S.t + p.det; }); addLog(p.mode === 'continuo' ? 'Se activa el monitoreo continuo.' : 'Se vuelve a rondas manuales.', 'o'); }
+    render();
+  }));
+  window.addEventListener('resize', render);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+  reset(); render(); requestAnimationFrame(loop);
+  window.__ew = {P, jOf, vOf, divOf, G_PER_AH, get S() { return S; }, step};
+})();
+</script>
+</body>
+</html>
