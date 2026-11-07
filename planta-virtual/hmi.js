@@ -366,6 +366,8 @@
     const s = state.sel;
     const h = P.L[s] ? fpLoop(s) : (P.M[s] || s === 'RT-401') ? fpMotor(s) : s.startsWith('BRK:') ? fpBreaker(s.slice(4)) : s.startsWith('CELL:') ? fpCell(+s.slice(5)) : s === 'SEQ' ? fpSeq() : '';
     $('fpw-t').textContent = fpTitle(s); $('fpw-b').innerHTML = h; fpw.hidden = false;
+    // si el contenido creció (p. ej. al pedir confirmación), subir la ventana para que no quede cortada
+    if (window.innerWidth >= 760) { const r = fpw.getBoundingClientRect(); if (r.bottom > innerHeight - 8) fpw.style.top = Math.max(8, innerHeight - r.height - 8) + 'px'; }
     drawFpTrend();
   };
   const openFp = (id, ev) => {
