@@ -1,0 +1,172 @@
+{
+ "models": [
+  {
+   "n": 200,
+   "acc": 0.875,
+   "prec": 0.8,
+   "rec": 1.0,
+   "f1": 0.888888888888889,
+   "tp": 100,
+   "fp": 25,
+   "tn": 75,
+   "fn": 0,
+   "mae_sin": 0.895,
+   "mae_con": 0.98,
+   "exact_sin": 0.58,
+   "lat_med": 1.5060007572174072,
+   "lat_p90": 3.0817105770111084,
+   "tok": 376.13,
+   "invalid": 0,
+   "key": "nemotron-super-vl",
+   "name": "Nemotron 3.5 Super VL 120B",
+   "kind": "vlm"
+  },
+  {
+   "n": 200,
+   "acc": 0.91,
+   "prec": 0.8596491228070176,
+   "rec": 0.98,
+   "f1": 0.9158878504672898,
+   "tp": 98,
+   "fp": 16,
+   "tn": 84,
+   "fn": 2,
+   "mae_sin": 1.195,
+   "mae_con": 1.3,
+   "exact_sin": 0.625,
+   "lat_med": 13.748891592025757,
+   "lat_p90": 114.71302056312561,
+   "tok": 4011.57,
+   "invalid": 16,
+   "key": "nemotron-omni",
+   "name": "Nemotron 3 Nano Omni 30B (razonamiento)",
+   "kind": "vlm"
+  },
+  {
+   "n": 200,
+   "acc": 0.755,
+   "prec": 0.6917293233082706,
+   "rec": 0.92,
+   "f1": 0.7896995708154506,
+   "tp": 92,
+   "fp": 41,
+   "tn": 59,
+   "fn": 8,
+   "mae_sin": 1.97,
+   "mae_con": 2.18,
+   "exact_sin": 0.405,
+   "lat_med": 0.7599791288375854,
+   "lat_p90": 0.9392890930175781,
+   "tok": 362.03,
+   "invalid": 0,
+   "key": "nemotron-bolt",
+   "name": "Nemotron 3.5 Bolt E4B",
+   "kind": "vlm"
+  }
+ ],
+ "probe": {
+  "full": {
+   "acc": 0.855,
+   "prec": 0.8817204301075269,
+   "rec": 0.82,
+   "f1": 0.8497409326424871
+  },
+  "crop_person": {
+   "n": 1316.0,
+   "acc": 0.9278115501519757,
+   "prec": 0.9225037257824144,
+   "rec": 0.9350453172205438,
+   "f1": 0.9287321830457614
+  },
+  "crop_image": {
+   "acc": 0.9,
+   "prec": 0.8571428571428571,
+   "rec": 0.96,
+   "f1": 0.9056603773584906
+  },
+  "crop_count_mae": 0.435,
+  "crop_count_exact": 0.715,
+  "learning_curve": [
+   [
+    20,
+    0.8493920972644377
+   ],
+   [
+    50,
+    0.8840425531914894
+   ],
+   [
+    100,
+    0.9012158054711247
+   ],
+   [
+    200,
+    0.9104863221884498
+   ],
+   [
+    500,
+    0.9159574468085105
+   ],
+   [
+    1000,
+    0.9224924012158053
+   ],
+   [
+    1914,
+    0.9278115501519757
+   ]
+  ]
+ },
+ "n_test": 200,
+ "n_train_img": 300,
+ "n_train_crops": 1914,
+ "n_test_crops": 1316,
+ "dataset_n": 5000,
+ "dataset_prev": 0.184,
+ "incomplete": [
+  {
+   "key": "llama-90b-vision",
+   "name": "Llama 3.2 90B Vision",
+   "n": 8,
+   "lat_med": 64.78858840465546
+  }
+ ],
+ "triage": {
+  "nemotron-super-vl": {
+   "tpr": 1.0,
+   "fpr": 0.25
+  },
+  "nemotron-omni": {
+   "tpr": 0.98,
+   "fpr": 0.16
+  },
+  "nemotron-bolt": {
+   "tpr": 0.92,
+   "fpr": 0.41
+  },
+  "probe_full": {
+   "tpr": 0.82,
+   "fpr": 0.11
+  },
+  "probe_crop": {
+   "tpr": 0.96,
+   "fpr": 0.16
+  },
+  "vl_or_probe": {
+   "tpr": 1.0,
+   "fpr": 0.32
+  },
+  "vl_and_probe": {
+   "tpr": 0.82,
+   "fpr": 0.04
+  }
+ },
+ "audit": {
+  "fp_reviewed": 25,
+  "label_misses_clear": [
+   "hard_hat_workers1386.png",
+   "hard_hat_workers3675.png",
+   "hard_hat_workers4717.png"
+  ]
+ }
+}
