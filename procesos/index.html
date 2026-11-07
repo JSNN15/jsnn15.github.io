@@ -79,7 +79,7 @@ code{font-family:var(--mono);font-size:.88em}
 <div class="top"><div class="in"><a href="../">← jsnn15.github.io</a><span>Curso abierto</span></div></div>
 <div class="in">
   <header class="ch">
-    <div class="kick">Curso abierto · en construcción</div>
+    <div class="kick">Curso abierto · 7 capítulos</div>
     <h1>Procesos del cobre para ingenieros eléctricos</h1>
     <p class="lede">Del mineral al cátodo de 99,99 %, explicado para quien viene de la electricidad, la instrumentación o la automatización y necesita entender la química del proceso sin hacer un magíster en metalurgia.</p>
   </header>
@@ -88,7 +88,7 @@ code{font-family:var(--mono);font-size:.88em}
     <div class="prose">
       <p>Muchos trabajamos en la frontera entre un proceso químico y su automatización: configuramos lazos, instrumentos y sistemas de datos para procesos que nadie nos explicó desde cero. Este curso recorre la ruta hidrometalúrgica del cobre, la que produce cátodos directamente en la mina, con tres reglas:</p>
       <div class="inst">
-        <div><b>Analogías eléctricas</b><span>El pH es un voltaje, un balance de masa es la ley de Kirchhoff y una celda de electroobtención es una carga en serie.</span></div>
+        <div><b>Analogías eléctricas</b><span>El pH es un voltaje, un balance de masa es la ley de Kirchhoff y una celda de electroobtención es una batería que se está cargando.</span></div>
         <div><b>Simuladores en cada capítulo</b><span>Mueves una variable y ves qué pasa. Todo corre en el navegador.</span></div>
         <div><b>Fuentes a la vista</b><span>Datos públicos y referencias citadas en cada página. Solo procesos que hoy se usan en la industria.</span></div>
       </div>
@@ -108,7 +108,7 @@ code{font-family:var(--mono);font-size:.88em}
         <li><a href="lixiviacion.html"><b>3 · Lixiviación en pilas</b></a><span>Riego, ácido y oxidante. Curvas de recuperación con datos operacionales de ENAMI y composición real de PLS de plantas de SX. Dos simuladores.</span></li>
         <li><a href="sx.html"><b>4 · Extracción por solventes (SX)</b></a><span>El transformador del proceso: concentra el cobre y deja atrás las impurezas. Diagrama de McCabe-Thiele y balance de hierro y cloruro con datos de 27 plantas reales.</span></li>
         <li><a href="ew.html"><b>5 · Electroobtención (EW)</b></a><span>Faraday, el voltaje de celda como batería + diodos + resistencia, eficiencia de corriente y qué exige la norma del cátodo grado A. Incluye el <a href="../simulador-ew/">simulador de nave</a>.</span></li>
-        <li class="soon"><b>6 · Del mineral al cátodo</b><span>El balance completo, de toneladas de roca a toneladas de cátodo y su pureza. En preparación.</span></li>
+        <li><a href="balance.html"><b>6 · Del mineral al cátodo</b></a><span>El balance completo en un simulador: roca por tonelada de cátodo, dónde se pierde el cobre, tamaño de la nave y cómo sube la pureza de 0,6 % a 99,99 %.</span></li>
       </ol>
       <p class="src">Proyecto personal de Julián Neira Nova, ingeniero eléctrico. Contenido didáctico basado en fuentes públicas; no representa a ninguna operación ni empleador. Si encuentras un error, escríbeme por <a href="https://www.linkedin.com/in/julian-neira-nova/">LinkedIn</a>.</p>
     </div>
@@ -135,7 +135,8 @@ code{font-family:var(--mono);font-size:.88em}
     ['Chancado y aglomeración', 'Partículas de pocos cm + ácido', 'chancado.html', 'Cap. 2'],
     ['Lixiviación', 'Solución rica: pocos g/L de Cu', 'lixiviacion.html', 'Cap. 3'],
     ['SX', 'Electrolito: 35–50 g/L de Cu', 'sx.html', 'Cap. 4'],
-    ['Electroobtención', 'Cátodo 99,99 % Cu', 'ew.html', 'Cap. 5']
+    ['Electroobtención', 'Cátodo 99,99 % Cu', 'ew.html', 'Cap. 5'],
+    ['Balance completo', 'Roca → cátodo grado A', 'balance.html', 'Cap. 6']
   ];
   const f = document.getElementById('flow');
   ST.forEach(([t, p, href, k], i) => {

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Del mineral al cátodo</title>
+<meta name="description" content="Capítulo 6 de Procesos del cobre para ingenieros eléctricos: el balance completo de la ruta hidrometalúrgica, de toneladas de roca a cátodo grado A.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
+:root{
+  --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
+  --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.top{background:var(--ink);color:#e9eef2}
+.top .in{padding-block:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.top a{color:#e9eef2;text-decoration:none}
+.in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+header.ch{padding-block:48px 8px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+article{padding-block:16px 40px}
+.prose{max-width:68ch}
+h2{font-size:1.45rem;font-weight:600;margin:52px 0 6px;line-height:1.25;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:.85rem;color:var(--copper);display:block;letter-spacing:.08em;margin-bottom:4px}
+p{margin:0 0 14px}
+.analogy{border-left:3px solid var(--copper-2);background:var(--soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.analogy b{color:var(--copper)}
+.eq{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.92rem;margin:14px 0}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0;display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:24px}
+@media (max-width:46rem){.lab{grid-template-columns:1fr}}
+.lab h3{grid-column:1/-1;margin:0;font-size:1rem;font-weight:600}
+.lab h3 small{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--copper)}
+.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+button{font:inherit;font-size:.86rem;padding:7px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--copper)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--soft)}
+.ro .l{font-size:.72rem;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.ro .v.bad{color:var(--bad)} .ro .v.ok{color:var(--ok)}
+canvas{display:block;width:100%}
+.msg{font-size:.88rem;padding:8px 10px;border-radius:6px;background:var(--soft);border:1px solid var(--line)}
+.msg.bad{border-color:var(--bad)} .msg.ok{border-color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+.tbl{overflow-x:auto}
+.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:12px;margin:16px 0}
+.inst div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.inst b{display:block;font-size:.95rem}
+.inst span{font-size:.87rem;color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.src li{margin-bottom:6px}
+.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;margin-top:40px}
+.next a{text-decoration:none;font-weight:600}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="./">← Procesos del cobre para ingenieros eléctricos</a><a href="../">jsnn15.github.io</a></div></div>
+<div class="in">
+  <header class="ch">
+    <div class="kick">Capítulo 6</div>
+    <h1>Del mineral al cátodo</h1>
+    <p class="lede">Los cinco capítulos anteriores, encadenados en un solo balance: cuántas toneladas de roca hacen falta para una tonelada de cátodo, por dónde se pierde el cobre, cuánta corriente necesita la nave y cómo la pureza sube de 0,6 % a 99,99 %.</p>
+  </header>
+
+  <article>
+    <div class="prose">
+      <h2><span class="n">01</span>Un circuito cerrado, no una línea</h2>
+      <p>La ruta parece lineal (mina, pila, SX, EW), pero las soluciones dan vueltas. El refino que sale de SX con el cobre que no se extrajo vuelve a regar la pila; el electrolito pobre vuelve de EW a SX; el sangrado vuelve al refino. Por eso una extracción de SX de 93 % no significa perder 7 % del cobre: ese cobre vuelve a la pila y se extrae en la vuelta siguiente.</p>
+      <p>El cobre se pierde de verdad en pocos lugares: el que queda en la pila al terminar el riego (el más grande, lejos), las fugas de solución y lo que se va con el orgánico arrastrado. Todo lo demás circula.</p>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> es un circuito con realimentación. Las corrientes de solución circulan por mallas cerradas, y por la ley de Kirchhoff, en régimen permanente, el cobre que sale como cátodo es igual al que entra disuelto desde la pila menos las fugas. La extracción de SX cambia cuánto circula, no cuánto sale.</div>
+
+    <section class="lab" aria-label="Balance completo de mineral a cátodo">
+      <h3>Laboratorio 1 · La planta completa<small>Recuperación calibrada con los datos de ENAMI a 90 días (capítulo 3), PLS y electrolito de la encuesta de Sole y otros (capítulo 4), Faraday y voltaje de celda del capítulo 5. Las demás cifras son supuestos de orden típico.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="ore">Mineral a la pila <b id="ore-v"></b></label><input id="ore" type="range" min="5000" max="120000" step="1000" value="40000"></div>
+        <div class="f"><label for="gr">Ley de cobre <b id="gr-v"></b></label><input id="gr" type="range" min="0.2" max="1.5" step="0.05" value="0.6"></div>
+        <div class="f"><label for="cond">Mineral y solución</label><select id="cond"></select></div>
+        <div class="f"><label for="cyc">Ciclo de riego <b id="cyc-v"></b></label><input id="cyc" type="range" min="20" max="90" step="1" value="90"></div>
+        <div class="f"><label for="sl">Pérdidas de solución <b id="sl-v"></b></label><input id="sl" type="range" min="0" max="5" step="0.1" value="1"></div>
+        <div class="f"><label for="pls">Cobre en el PLS <b id="pls-v"></b></label><input id="pls" type="range" min="1" max="8" step="0.1" value="3.2"></div>
+        <div class="f"><label for="ext">Extracción en SX <b id="ext-v"></b></label><input id="ext" type="range" min="80" max="99" step="0.5" value="93"></div>
+        <div class="f"><label for="jj">Densidad de corriente <b id="jj-v"></b></label><input id="jj" type="range" min="200" max="400" step="5" value="300"></div>
+        <div class="f"><label for="ce">Eficiencia de corriente <b id="ce-v"></b></label><input id="ce" type="range" min="80" max="98" step="0.5" value="92"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Cátodo por día</div><div class="v" id="r-cat"></div></div>
+          <div class="ro"><div class="l">Cátodo por año</div><div class="v" id="r-yr"></div></div>
+          <div class="ro"><div class="l">Roca por tonelada de cátodo</div><div class="v" id="r-rock"></div></div>
+          <div class="ro"><div class="l">Recuperación global</div><div class="v" id="r-glob"></div></div>
+        </div>
+        <div class="route" id="route"></div>
+        <div class="msg" id="m-bal"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <p>Dos pruebas que vale la pena hacer. Baja la extracción de SX de 93 % a 85 %: el cátodo casi no cambia, pero el caudal de PLS que hay que bombear sube. Después acorta el ciclo de riego de 90 a 45 días: ahí sí cae la producción, porque el cobre se queda en la pila. Y si bajas la eficiencia de corriente, el cátodo tampoco cambia: lo que cambia es la corriente y la energía que hay que pagar para obtenerlo.</p>
+
+      <h2><span class="n">02</span>La pureza, etapa por etapa</h2>
+      <p>Cada etapa saca una parte de lo que no es cobre. Con los datos reales de los capítulos anteriores se puede ver cuánto: en la roca, el cobre es menos del 1 %; en el PLS, un tercio de los metales disueltos; en el electrolito, 98 %; en el cátodo, al menos 99,9935 %. SX y EW eliminan cada una entre uno y tres órdenes de magnitud de impurezas, por eso el gráfico usa escala logarítmica. (Roca y PLS no se comparan exactamente igual: en la roca se cuenta toda la masa, y en las soluciones solo los metales disueltos principales.)</p>
+    </div>
+
+    <section class="lab" aria-label="Pureza a lo largo de la ruta" style="grid-template-columns:1fr">
+      <h3>Laboratorio 2 · Lo que no es cobre, de la roca al cátodo<small>Escala logarítmica. Roca: ley del laboratorio 1. PLS y electrolito: promedios sudamericanos de Sole y otros (Cu, Fe y Mn). Cátodo: máximo de impurezas permitido por la LME para grado A.</small></h3>
+      <canvas id="cv-pur" height="260" aria-label="Fracción que no es cobre en cada etapa"></canvas>
+      <div class="msg" id="m-pur"></div>
+    </section>
+
+    <div class="prose">
+      <h2><span class="n">03</span>Lo que ya sabes ahora</h2>
+      <div class="inst">
+        <div><b>Capítulo 0 · Química</b><span>pH y ORP son voltajes. Un balance de masa es Kirchhoff.</span></div>
+        <div><b>Capítulo 1 · Yacimiento</b><span>Óxidos arriba, sulfuros secundarios en medio, primarios abajo. La ley manda la cantidad de roca.</span></div>
+        <div><b>Capítulo 2 · Aglomeración</b><span>El ácido se dosifica por razón con el tonelaje, compensando el retardo de la correa.</span></div>
+        <div><b>Capítulo 3 · Lixiviación</b><span>La recuperación se aplana con el tiempo; el ciclo se decide por economía. Cobre = caudal × concentración.</span></div>
+        <div><b>Capítulo 4 · SX</b><span>Un transformador que concentra quince veces y aísla las impurezas. Las etapas se ven en McCabe-Thiele.</span></div>
+        <div><b>Capítulo 5 · EW</b><span>Batería, diodos y resistencia. La eficiencia de corriente cuesta energía; las impurezas cuestan el grado A.</span></div>
+      </div>
+      <p>Lo que une todo es que cada etapa tiene una variable que se mide con un instrumento y un lazo que la controla. Si conoces la química detrás de ese lazo, puedes discutir con el metalurgista en su idioma, y él contigo en el tuyo.</p>
+
+      <h2>Fuentes</h2>
+      <ul class="src">
+        <li>Saldaña, M., Toro, N. y otros (2019). <i>Minerals</i>, 9(7), 421. <a href="https://www.mdpi.com/2075-163X/9/7/421">mdpi.com/2075-163X/9/7/421</a>. CC BY 4.0. Recuperaciones a 90 días.</li>
+        <li>Sole, K. C. y otros. Global survey of copper solvent extraction operations and practices (datos de 2012). <a href="https://www.researchgate.net/publication/292140218_Global_survey_of_copper_solvent_extraction_operations_and_practices">ResearchGate</a>. PLS y electrolito.</li>
+        <li>London Metal Exchange, <a href="https://www.lme.com/-/media/Files/Physical-services/Brands/Chemical-composition/Chemical-composition-Copper.pdf">Special Contract Rules for Copper Grade A</a> (BS EN 1978:2022).</li>
+        <li>Supuestos didácticos: pérdidas de solución, tasa de riego de 10 L/h/m² (dentro del rango de 5 a 15 L/h/m² de León y otros, 2025), cátodos de 1 m² por cara y 60 por celda, todas las celdas en una sola serie (en la práctica se reparten en varios circuitos, cada uno con su rectificador), voltaje de celda del modelo del capítulo 5. El balance supone régimen permanente: cada día entra a riego un módulo nuevo y sale uno que cumplió su ciclo.</li>
+      </ul>
+      <div class="next"><a href="ew.html">← Capítulo 5: Electroobtención</a><a href="./">Índice del curso →</a></div>
+    </div>
+  </article>
+</div>
+<style>
+.route{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,9.5rem),1fr));gap:8px}
+.route div{border:1px solid var(--line);border-left:3px solid var(--copper);border-radius:6px;padding:8px 10px;background:var(--soft);display:flex;flex-direction:column;gap:2px;min-width:0}
+.route .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:var(--copper);text-transform:uppercase}
+.route .t{font-family:var(--mono);font-size:.95rem;color:var(--fg)}
+.route .p{font-size:.78rem;color:var(--muted)}
+.route div.loss{border-left-color:var(--bad)}
+.route div.loss .k{color:var(--bad)}
+</style>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nf = (d) => new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d});
+  const f0 = nf(0), f1 = nf(1), f2 = nf(2), f4 = nf(4);
+  const setup = (cv, H) => { const d = devicePixelRatio || 1, W = cv.clientWidth; cv.width = W * d; cv.height = H * d; cv.style.height = H + 'px'; const x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, W, H); x.font = `11px ${css('--mono')}`; return [x, W]; };
+
+  // Recuperación: misma curva didáctica del capítulo 3, calibrada a Saldaña et al. (2019), tabla 4, a 90 días.
+  const C = [
+    {id: 'ox', name: 'Óxidos · ácido sulfúrico', r90: 64.6, a: .40, k1: .0844, k2: .0055},
+    {id: 's0', name: 'Sulfuros secundarios · ácido sulfúrico', r90: 40.5, a: .22, k1: .06, k2: .004},
+    {id: 's20', name: 'Sulfuros secundarios · cloruro 20 g/L', r90: 46.5, a: .26, k1: .06, k2: .0045},
+    {id: 's50', name: 'Sulfuros secundarios · cloruro 50 g/L', r90: 58.1, a: .32, k1: .06, k2: .005}
+  ];
+  const g = (c, t) => 1 - c.a * Math.exp(-c.k1 * t) - (1 - c.a) * Math.exp(-c.k2 * t);
+  const R = (c, t) => c.r90 * g(c, t) / g(c, 90);
+  const sel = $('cond'); C.forEach((c) => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.name; sel.appendChild(o); });
+
+  // Voltaje de celda: modelo del capítulo 5 con sus valores por defecto (55 S/m, 4 cm, 150 mV a 300 A/m²).
+  const vcell = (j) => 0.89 + (0.62 + 0.12 * Math.log10(j / 300)) + Math.max(0, 0.08 + 0.06 * Math.log10(j / 300)) + j * 0.04 / 55 + 0.15 * j / 300;
+  const FAR = 1.1855e-3;           // kg de Cu por A·h
+  const RATE = 10, NCAT = 60, AFACE = 1;   // L/h/m², cátodos por celda, m² por cara (supuestos)
+  const ELEC = {spent: 37.0, adv: 47.9};   // g/L, Sole et al., tabla 2 (Sudamérica)
+
+  let lastGrade = 0.6;
+  const render = () => {
+    const ore = +$('ore').value, gr = +$('gr').value, c = C.find((k) => k.id === sel.value), cyc = +$('cyc').value, sl = +$('sl').value / 100;
+    const pls = +$('pls').value, ext = +$('ext').value / 100, j = +$('jj').value, ce = +$('ce').value / 100;
+    lastGrade = gr;
+    $('ore-v').textContent = f0.format(ore) + ' t/día'; $('gr-v').textContent = f2.format(gr) + ' % Cu'; $('cyc-v').textContent = cyc + ' días';
+    $('sl-v').textContent = f1.format(sl * 100) + ' %'; $('pls-v').textContent = f1.format(pls) + ' g/L'; $('ext-v').textContent = f1.format(ext * 100) + ' %';
+    $('jj-v').textContent = j + ' A/m²'; $('ce-v').textContent = f1.format(ce * 100) + ' %';
+
+    const cuIn = ore * gr / 100;                    // t/día de Cu que entra a la pila
+    const rec = R(c, cyc) / 100;                    // recuperación de la pila en el ciclo
+    const cuLeach = cuIn * rec;                     // t/día disueltas
+    const cuCat = cuLeach * (1 - sl);               // t/día de cátodo
+    const tailing = cuIn - cuLeach, lost = cuLeach - cuCat;
+    const kgh = cuCat * 1000 / 24;
+    const qPLS = kgh / (pls * ext);                 // m³/h (kg/h ÷ g/L extraídos)
+    const raf = pls * (1 - ext);
+    const area = qPLS * 1000 / RATE;                // m² bajo riego
+    const recirc = qPLS * raf * 24 / 1000;          // t/día de Cu que vuelve en el refino
+    const qElec = kgh / (ELEC.adv - ELEC.spent);    // m³/h de electrolito por la reextracción
+    const acid = cuCat * 98.08 / 63.55;             // t/día de H2SO4 regenerado en EW
+    const I = kgh / (FAR * ce);                     // A totales
+    const Icell = j * 2 * AFACE * NCAT;             // A por celda
+    const cells = Math.ceil(I / Icell), V = vcell(j);
+    const MW = Icell * cells * V / 1e6;             // potencia DC: corriente de la serie × (celdas × V de celda)
+    const MWh = I * V * 24 / 1e6;
+
+    $('r-cat').textContent = f0.format(cuCat) + ' t';
+    $('r-yr').textContent = f0.format(cuCat * 365 / 1000) + ' kt';
+    $('r-rock').textContent = f0.format(ore / cuCat) + ' t';
+    const gl = $('r-glob'); gl.textContent = f1.format(100 * cuCat / cuIn) + ' %';
+
+    const st = [
+      ['Mina', f0.format(ore) + ' t/día', `${f2.format(gr)} % Cu: ${f0.format(cuIn)} t de cobre`],
+      ['Pila', f1.format(rec * 100) + ' %', `recuperación en ${cyc} días: ${f0.format(cuLeach)} t/día`],
+      ['Queda en la pila', f0.format(tailing) + ' t/día', 'la pérdida más grande', 'loss'],
+      ['PLS', f0.format(qPLS) + ' m³/h', `${f1.format(pls)} g/L · ${f1.format(area / 1e4)} ha bajo riego`],
+      ['Refino a la pila', f0.format(recirc) + ' t/día', `${f2.format(raf)} g/L de cobre que circula`],
+      ['Fugas de solución', f1.format(lost) + ' t/día', `${f1.format(sl * 100)} % del cobre disuelto`, 'loss'],
+      ['Electrolito', f0.format(qElec) + ' m³/h', `${f1.format(ELEC.spent)} → ${f1.format(ELEC.adv)} g/L`],
+      ['Nave EW', cells + ' celdas', `en serie a ${f1.format(Icell / 1000)} kA · ${f0.format(cells * V)} V DC`],
+      ['Energía', f0.format(MWh) + ' MWh/día', `${f1.format(MW)} MW en corriente continua`],
+      ['Ácido regenerado', f0.format(acid) + ' t/día', 'vuelve por SX y el refino a la pila'],
+      ['Cátodo', f0.format(cuCat) + ' t/día', 'grado A: ≥ 99,9935 % Cu']
+    ];
+    const rt = $('route'); rt.replaceChildren();
+    st.forEach(([k, t, p, cls]) => { const d = document.createElement('div'); if (cls) d.className = cls; [['k', k], ['t', t], ['p', p]].forEach(([cl, tx]) => { const s = document.createElement('span'); s.className = cl; s.textContent = tx; d.appendChild(s); }); rt.appendChild(d); });
+
+    const m = $('m-bal');
+    m.className = 'msg';
+    m.textContent = `De cada 100 t de cobre que entran a la pila, ${f0.format(100 * cuCat / cuIn)} salen como cátodo, ${f0.format(100 * tailing / cuIn)} se quedan en la pila y ${f1.format(100 * lost / cuIn)} se pierden en soluciones. ` +
+      `Para producir una tonelada de cátodo se mueven ${f0.format(ore / cuCat)} t de roca y se gastan ${f0.format(MWh * 1000 / cuCat)} kWh en la nave.`;
+    purRender();
+  };
+
+  // ---------- Pureza a lo largo de la ruta (escala logarítmica de lo que no es cobre) ----------
+  const purRender = () => {
+    const gr = lastGrade / 100;
+    const plsCu = 3.2, plsOther = 5.8 + 1.01;              // g/L Cu, Fe + Mn (Sole et al., tabla 1)
+    const elCu = 47.9, elOther = (793 + 125) / 1000;       // g/L Cu, Fe + Mn (Sole et al., tabla 2)
+    const S = [
+      ['Roca', 1 - gr, `${f2.format(gr * 100)} % Cu`],
+      ['PLS', plsOther / (plsCu + plsOther), `Cu = ${f0.format(100 * plsCu / (plsCu + plsOther))} % de Cu+Fe+Mn`],
+      ['Electrolito', elOther / (elCu + elOther), `Cu = ${f1.format(100 * elCu / (elCu + elOther))} % de Cu+Fe+Mn`],
+      ['Cátodo', 65e-6, '≥ 99,9935 % Cu']
+    ];
+    const cv = $('cv-pur'), H = 260, [x, W] = setup(cv, H), mg = {l: 64, r: 16, t: 16, b: 44};
+    const lo = -5, hi = 0;  // 10^-5 a 10^0
+    const Y = (f) => mg.t + (H - mg.t - mg.b) * (hi - Math.log10(f)) / (hi - lo);
+    const bw = (W - mg.l - mg.r) / S.length;
+    x.strokeStyle = css('--line'); x.fillStyle = css('--muted'); x.lineWidth = 1; x.textAlign = 'right';
+    const lab = ['100 %', '10 %', '1 %', '0,1 %', '0,01 %', '0,001 %'];
+    for (let e = 0; e >= -5; e--) { const y = Y(10 ** e); x.beginPath(); x.moveTo(mg.l, y); x.lineTo(W - mg.r, y); x.stroke(); x.fillText(lab[-e], mg.l - 6, y + 4); }
+    S.forEach(([name, f, note], i) => {
+      const cx = mg.l + bw * i + bw / 2, w = Math.min(70, bw * .55), y = Y(f);
+      x.fillStyle = i === 3 ? css('--copper') : css('--muted'); x.globalAlpha = i === 3 ? 1 : .55;
+      x.fillRect(cx - w / 2, y, w, H - mg.b - y); x.globalAlpha = 1;
+      x.fillStyle = css('--fg'); x.textAlign = 'center'; x.fillText((f * 100 >= 0.1 ? f2.format(f * 100) : f4.format(f * 100)) + ' %', cx, y - 6);
+      x.font = `600 12px ${css('--sans')}`; x.fillText(name, cx, H - mg.b + 16); x.font = `10px ${css('--mono')}`; x.fillStyle = css('--muted'); x.fillText(note, cx, H - mg.b + 30); x.font = `11px ${css('--mono')}`;
+    });
+    $('m-pur').className = 'msg';
+    $('m-pur').textContent = `La barra es lo que no es cobre. De la roca al cátodo, la fracción de "otra cosa" baja de ${f1.format(S[0][1] * 100)} % a 0,0065 %: unas ${f0.format(S[0][1] / 65e-6)} veces menos. La pila separa el cobre de la roca, SX lo separa del hierro y el manganeso, y EW deja atrás casi todo lo demás.`;
+  };
+
+  ['ore', 'gr', 'cond', 'cyc', 'sl', 'pls', 'ext', 'jj', 'ce'].forEach((id) => $(id).addEventListener('input', render));
+  addEventListener('resize', purRender); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', purRender);
+  render();
+})();
+</script>
+</body>
+</html>
