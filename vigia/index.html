@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vigía EPP</title>
+<meta name="description" content="Vigía EPP detecta en tiempo real a las personas sin casco en las cámaras de una faena, avisa al supervisor y genera el informe de turno. La IA corre en el equipo, sin enviar imágenes a la nube.">
+<meta property="og:title" content="Vigía EPP · cada persona sin casco, detectada al instante">
+<meta property="og:description" content="IA que mira las cámaras de la faena, avisa al supervisor y escribe el informe de turno. Pruébala con la cámara de tu celular.">
+<meta property="og:image" content="https://jsnn15.github.io/img/vigia.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0a0d11;--ink2:#121820;--paper:#f4f5f6;--card:#fff;--line:#dde1e5;--fg:#161b21;--muted:#5b6570;--acc:#f5b301;--acc-ink:#8a6400;--bad:#e5362c;--ok:#1f9d55;--on:#e9eef2;--on-m:#a3afba;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;--sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#28313a;--fg:#e6eaee;--muted:#9aa5af;--acc-ink:#f5b301;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#28313a;--fg:#e6eaee;--muted:#9aa5af;--acc-ink:#f5b301;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.55}
+a{color:inherit}
+.in{max-width:72rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+nav.top{background:var(--ink);color:var(--on)}
+nav.top .in{display:flex;justify-content:space-between;align-items:center;padding-block:12px;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:600}
+.brand svg{width:28px;height:28px}
+nav.top a.s{font-family:var(--mono);font-size:.78rem;color:var(--on-m);text-decoration:none}
+.hero{background:var(--ink);color:var(--on);padding:30px 0 56px;position:relative;overflow:hidden}
+.hero .in{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:40px;align-items:center}
+@media (max-width:900px){.hero .in{grid-template-columns:1fr}}
+.kick{font-family:var(--mono);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+.hero h1{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(2.8rem,7.5vw,5.4rem);line-height:.9;margin:14px 0 16px;letter-spacing:.005em}
+.hero h1 em{font-style:normal;color:var(--acc)}
+.hero p.sub{font-size:1.15rem;color:var(--on-m);max-width:40ch;margin:0}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.ctas a{text-decoration:none;padding:12px 18px;border-radius:6px;font-weight:600;font-size:.98rem;border:1px solid #3a4550;color:var(--on)}
+.ctas a.p{background:var(--acc);border-color:var(--acc);color:#1a1300}
+.ctas a:hover{border-color:var(--acc)}
+.demo{position:relative;border-radius:12px;overflow:hidden;border:1px solid #2a3540;background:#000;box-shadow:0 20px 60px #0009}
+.demo canvas{display:block;width:100%;aspect-ratio:1/1}
+.demo .hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:8px 10px;font-family:var(--mono);font-size:.74rem;background:linear-gradient(#000b,#0000);color:#fff}
+.demo .alert{position:absolute;left:10px;right:10px;bottom:10px;background:#c62a22;color:#fff;font-weight:600;padding:10px 12px;border-radius:8px;font-size:.95rem;transform:translateY(140%);transition:transform .35s ease}
+.demo .alert.show{transform:none}
+.rec{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3b30;margin-right:6px;animation:b 1.2s steps(2,start) infinite}
+@keyframes b{to{visibility:hidden}}
+.demo .cap{position:absolute;right:10px;top:30px;font-family:var(--mono);font-size:.7rem;color:#ffffffb0}
+.stats{background:var(--ink2);color:var(--on)}
+.stats .in{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;padding-block:22px}
+@media (max-width:760px){.stats .in{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stats b{display:block;font-family:var(--display);font-size:2.3rem;line-height:1;color:var(--acc)}
+.stats span{font-size:.85rem;color:var(--on-m)}
+section.blk{padding:64px 0 10px}
+h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2rem,4.6vw,2.9rem);line-height:.95;margin:0 0 10px;letter-spacing:.01em}
+.lead{color:var(--muted);max-width:60ch;margin:0 0 26px;font-size:1.05rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+.card .n{font-family:var(--mono);font-size:.78rem;color:var(--acc-ink);letter-spacing:.08em}
+.card h3{margin:6px 0 6px;font-size:1.08rem}
+.card p{margin:0;color:var(--muted);font-size:.95rem}
+.pain .card{border-top:3px solid var(--bad)}
+.feat .card{border-top:3px solid var(--acc)}
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));gap:16px}
+.steps .card h3::before{counter-increment:s;content:counter(s);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#1a1300;font-family:var(--mono);font-size:.9rem;margin-right:10px}
+.proof{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.proof{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;font-size:.92rem;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+tr.me td{background:color-mix(in srgb,var(--acc) 14%,transparent);font-weight:600}
+.cta{background:var(--ink);color:var(--on);margin-top:70px;padding:56px 0}
+.cta .in{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:30px;align-items:center}
+@media (max-width:860px){.cta .in{grid-template-columns:1fr}}
+.cta h2{color:#fff}
+.cta p{color:var(--on-m);margin:0}
+footer{padding:22px 0 40px;font-size:.82rem;color:var(--muted)}
+footer .in{display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion:reduce){.rec{animation:none}.demo .alert{transition:none}}
+</style>
+</head>
+<body>
+<nav class="top"><div class="in">
+  <a class="brand" href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 19a11 11 0 0 1 22 0" fill="#f5b301"/><rect x="3" y="19" width="26" height="4" rx="2" fill="#f5b301"/><rect x="14" y="7" width="4" height="7" rx="1" fill="#0a0d11"/></svg>Vigía EPP</a>
+  <a class="s" href="../">Servicio y Soluciones Tecnológicas DelaCruz →</a>
+</div></nav>
+
+<header class="hero"><div class="in">
+  <div>
+    <div class="kick">Seguridad en faena · IA en el borde</div>
+    <h1>Cada persona sin casco, <em>detectada al instante</em></h1>
+    <p class="sub">Vigía mira las cámaras de tu faena, avisa al supervisor en segundos y escribe solo el informe de turno. La IA corre en el equipo de la faena: las imágenes no salen a la nube.</p>
+    <div class="ctas"><a class="p" href="app.html#vivo">Pruébalo con tu cámara</a><a href="app.html#sala">Ver la sala de control</a><a href="https://www.linkedin.com/in/julian-neira-nova/">Conversemos</a></div>
+  </div>
+  <div class="demo" aria-label="Demostración en vivo: el modelo analiza fotos de faena en este navegador">
+    <canvas id="hero" width="416" height="416"></canvas>
+    <div class="hud"><span><span class="rec"></span>CAM 02 · Losa nivel 3</span><span id="hclock"></span></div>
+    <div class="cap" id="hcap">cargando IA…</div>
+    <div class="alert" id="halert">⚠ Persona sin casco · aviso enviado al supervisor</div>
+  </div>
+</div></header>
+
+<div class="stats"><div class="in">
+  <div><b id="s1">—</b><span>de las infracciones detectadas en la prueba con fotos reales</span></div>
+  <div><b id="s2">—</b><span>por cuadro, analizado en este navegador</span></div>
+  <div><b>5.000</b><span>fotos reales de obras y faenas para entrenar</span></div>
+  <div><b>0</b><span>imágenes enviadas a la nube</span></div>
+</div></div>
+
+<main>
+<section class="blk pain"><div class="in">
+  <h2>El problema</h2>
+  <p class="lead">El casco es la regla más simple de la faena y una de las que más se rompe. No por mala fe: porque nadie puede mirar todo, todo el tiempo.</p>
+  <div class="cards">
+    <div class="card"><div class="n">01</div><h3>El supervisor no está en todas partes</h3><p>Un frente de trabajo tiene decenas de personas repartidas en cientos de metros. Las cámaras graban, pero nadie las mira en vivo.</p></div>
+    <div class="card"><div class="n">02</div><h3>Las infracciones se conocen tarde</h3><p>Se descubren en una inspección, en una auditoría o después de un accidente. Cuando ya no hay nada que corregir.</p></div>
+    <div class="card"><div class="n">03</div><h3>El reporte se arma a mano</h3><p>Al final del turno alguien junta fotos y anotaciones. Horas de trabajo administrativo que no mejoran la seguridad.</p></div>
+  </div>
+</div></section>
+
+<section class="blk feat"><div class="in">
+  <h2>Qué hace Vigía</h2>
+  <p class="lead">Una máquina que hace el trabajo repetitivo de mirar, y deja a las personas lo que importa: corregir.</p>
+  <div class="cards">
+    <div class="card"><div class="n">DETECTA</div><h3>En vivo, cuadro a cuadro</h3><p>Distingue cada cabeza con y sin casco en la imagen de la cámara, en menos de un segundo.</p></div>
+    <div class="card"><div class="n">AVISA</div><h3>Al responsable, con la foto</h3><p>El supervisor del sector recibe el aviso con la imagen y la cámara. Cada incidente queda con estado: nuevo, notificado o cerrado.</p></div>
+    <div class="card"><div class="n">PROTEGE</div><h3>La privacidad de los trabajadores</h3><p>Los rostros se pixelan automáticamente. Lo que importa es el casco, no la identidad.</p></div>
+    <div class="card"><div class="n">REPORTA</div><h3>El informe de turno, solo</h3><p>Cumplimiento por cámara, incidentes con foto y pendientes para el turno siguiente, listo para imprimir o enviar.</p></div>
+  </div>
+</div></section>
+
+<section class="blk"><div class="in proof">
+  <div>
+    <h2>Probado con datos reales</h2>
+    <p class="lead" style="margin-bottom:14px">El modelo de Vigía se entrenó con 4.500 fotos públicas de obras y faenas y se evaluó con 200 fotos que nunca vio: las mismas con las que probé a los modelos de visión de NVIDIA.</p>
+    <p style="margin:0"><a href="../ia-epp/" style="color:var(--acc-ink);font-weight:600">Ver la prueba completa →</a></p>
+  </div>
+  <div style="overflow-x:auto;min-width:0"><table id="t-proof"><thead><tr><th>Modelo</th><th>Infracciones detectadas</th><th>Falsas alarmas</th><th>Dónde corre</th></tr></thead><tbody></tbody></table></div>
+</div></section>
+
+<section class="blk"><div class="in">
+  <h2>Cómo se implementa</h2>
+  <p class="lead">Sin reemplazar cámaras ni comprar servidores grandes. Un piloto acotado, con resultados medibles antes de escalar.</p>
+  <div class="steps">
+    <div class="card"><h3>Diagnóstico</h3><p>Recorremos el frente: qué cámaras hay, dónde están los puntos críticos y cómo llega la señal.</p></div>
+    <div class="card"><h3>Piloto en un frente</h3><p>Vigía se ajusta con fotos de tu propia faena y opera junto al supervisor. Se mide cumplimiento antes y después.</p></div>
+    <div class="card"><h3>Escalamiento</h3><p>Más cámaras, más frentes y otros elementos de protección, con el mismo panel y el mismo informe.</p></div>
+  </div>
+</div></section>
+</main>
+
+<section class="cta"><div class="in">
+  <div><h2>¿Tienes un frente donde el casco es un problema?</h2><p>Muéstrame tu caso y vemos si Vigía calza. Sin compromiso.</p></div>
+  <div class="ctas" style="margin:0"><a class="p" href="https://www.linkedin.com/in/julian-neira-nova/">Escríbeme por LinkedIn</a><a href="app.html#sala">Abrir la consola</a></div>
+</div></section>
+
+<footer><div class="in">
+  <span>Vigía EPP es una demostración de Servicio y Soluciones Tecnológicas DelaCruz SpA · Julián Neira Nova.</span>
+  <span>Imágenes de demostración del conjunto público Hard Hat Workers (CC0), con rostros anonimizados. Detector entrenado con Ultralytics YOLOv8 (AGPL-3.0) y ejecutado con ONNX Runtime Web.</span>
+</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js"></script>
+<script src="det.js"></script>
+<script>
+(async () => {
+  const M = {"vigia": {"tp": 93, "fp": 2, "acc": 0.955, "mae": 0.62}, "rows": [{"name": "Vigía EPP (modelo propio)", "tp": 93, "fp": 2, "where": "En el equipo de la faena, sin internet", "me": true}, {"name": "Nemotron 3.5 Super VL 120B", "tp": 100, "fp": 25, "where": "Nube de NVIDIA, 1,5 s por foto"}, {"name": "Nemotron 3 Nano Omni 30B (razonamiento)", "tp": 98, "fp": 16, "where": "Nube de NVIDIA, 13,7 s por foto"}], "heroFrames": ["f00.jpg", "f01.jpg", "f05.jpg", "f09.jpg", "f03.jpg", "f12.jpg", "f14.jpg", "f06.jpg", "f16.jpg", "f20.jpg", "f08.jpg", "f24.jpg", "f27.jpg", "f11.jpg", "f28.jpg", "f29.jpg", "f15.jpg", "f30.jpg", "f31.jpg", "f18.jpg", "f32.jpg", "f38.jpg", "f21.jpg", "f39.jpg", "f23.jpg", "f26.jpg", "f34.jpg", "f36.jpg", "f40.jpg", "f42.jpg", "f44.jpg", "f46.jpg"]};
+  const $ = (id) => document.getElementById(id);
+  $('s1').textContent = M.vigia.tp + ' de 100';
+  $('t-proof').querySelector('tbody').innerHTML = M.rows.map((r) => `<tr class="${r.me ? 'me' : ''}"><td>${r.name}</td><td class="num">${r.tp} de 100</td><td class="num">${r.fp} de 100</td><td>${r.where}</td></tr>`).join('');
+  setInterval(() => { $('hclock').textContent = new Date().toLocaleTimeString('es-CL'); }, 1000);
+  const FR = await (await fetch('frames.json')).json();
+  const order = M.heroFrames && M.heroFrames.length ? M.heroFrames : FR;
+  try { await Vigia.load(); } catch (e) { $('hcap').textContent = 'este navegador no pudo cargar la IA'; return; }
+  const cv = $('hero'), ctx = cv.getContext('2d'); let k = 0, msAvg = 0;
+  const tick = async () => {
+    if (!document.hidden) {
+      const img = await new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = 'frames/' + order[k++ % order.length]; });
+      const r = await Vigia.detect(img);
+      Vigia.render(ctx, img, r.boxes, {W: 416, H: 416});
+      msAvg = msAvg ? msAvg * 0.7 + r.ms * 0.3 : r.ms;
+      $('s2').textContent = Math.round(msAvg) + ' ms';
+      $('hcap').textContent = `IA en tu navegador · ${Math.round(r.ms)} ms`;
+      $('halert').classList.toggle('show', r.boxes.some((b) => b.cls === 1));
+    }
+    setTimeout(tick, 2200);
+  };
+  tick();
+})();
+</script>
+</body>
+</html>
