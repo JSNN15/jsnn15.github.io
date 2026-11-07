@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Julián Neira Nova</title>
+<meta name="description" content="Ingeniero eléctrico. IA y datos aplicados a la operación real: simuladores, pruebas con datos reales y automatización del trabajo.">
+<meta property="og:title" content="Julián Neira Nova · IA y datos aplicados a la operación real">
+<meta property="og:description" content="Simuladores de procesos, pruebas con datos reales y herramientas de automatización. Proyectos personales, código abierto.">
+<meta property="og:image" content="https://jsnn15.github.io/img/ew.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: una banda oscura de presentación (misma familia visual que el banner de LinkedIn) y una grilla de proyectos sobre papel. */
+:root{
+  --ink:#0b0f14; --ink-2:#141a21; --paper:#f4f5f6; --card:#ffffff; --line:#dde1e5; --fg:#161b21; --muted:#5b6570;
+  --copper:#e08a4a; --copper-ink:#b4642c; --on-ink:#e9eef2; --on-ink-muted:#a9b4be;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#28313a;--fg:#e6eaee;--muted:#9aa5af;--copper-ink:#e8975a;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#28313a;--fg:#e6eaee;--muted:#9aa5af;--copper-ink:#e8975a;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.55}
+a{color:inherit}
+.in{max-width:70rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+.hero{background:var(--ink);color:var(--on-ink);position:relative;overflow:hidden}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+.hero .in{position:relative;padding-block:72px 64px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--on-ink-muted)}
+.hero h1{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(3rem,9vw,6rem);line-height:.9;letter-spacing:.01em;margin:14px 0 0}
+.hero .sub{font-size:clamp(1.15rem,2.6vw,1.6rem);margin:10px 0 0;color:var(--on-ink)}
+.rule{width:64px;height:3px;background:var(--copper);margin:26px 0 18px}
+.hero p.who{max-width:46ch;color:var(--on-ink-muted);margin:0}
+.hero p.who b{color:var(--on-ink);font-weight:500}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.links a{font-size:.92rem;text-decoration:none;padding:9px 14px;border:1px solid #3a4550;border-radius:4px;color:var(--on-ink)}
+.links a:hover{border-color:var(--copper)}
+.links a.main{background:var(--copper);border-color:var(--copper);color:#1a0f07;font-weight:600}
+main .in{padding-block:56px 24px;display:flex;flex-direction:column;gap:56px}
+h2{font-family:var(--display);text-transform:uppercase;font-size:2rem;letter-spacing:.02em;margin:0 0 6px;line-height:1}
+.lead{color:var(--muted);margin:0 0 24px;max-width:62ch}
+.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:22px}
+.proj{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;transition:transform .2s ease,border-color .2s ease}
+.proj:hover{transform:translateY(-3px);border-color:var(--copper)}
+.proj img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid var(--line)}
+.proj .b{padding:18px 18px 20px;display:flex;flex-direction:column;gap:8px;flex:1}
+.proj h3{margin:0;font-size:1.15rem;font-weight:600;line-height:1.3}
+.proj p{margin:0;color:var(--muted);font-size:.95rem}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:8px}
+.tags span{font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;color:var(--copper-ink);border:1px solid var(--line);border-radius:3px;padding:2px 6px}
+.go{font-size:.88rem;font-weight:600;color:var(--copper-ink)}
+.svc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:22px}
+.svc div{border-top:2px solid var(--copper);padding-top:12px}
+.svc h3{margin:0 0 6px;font-size:1.02rem;font-weight:600}
+.svc p{margin:0;color:var(--muted);font-size:.95rem}
+footer .in{padding-block:24px 48px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){.proj{transition:none}.hero canvas{display:none}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <canvas id="sig" aria-hidden="true"></canvas>
+  <div class="in">
+    <div class="kick">Julián Neira Nova · Ingeniero eléctrico · 10+ años en faena</div>
+    <h1>IA y datos</h1>
+    <div class="sub">aplicados a la operación real</div>
+    <div class="rule"></div>
+    <p class="who">Construyo simuladores, pruebo modelos con datos reales y automatizo trabajo. Minería, industria y agro, desde la <b>instrumentación</b> hasta la <b>decisión</b>.</p>
+    <div class="links">
+      <a class="main" href="https://www.linkedin.com/in/julian-neira-nova/">Conversemos en LinkedIn</a>
+      <a href="https://github.com/JSNN15">GitHub</a>
+      <a href="https://www.linkedin.com/company/systdelacruzspa/">Servicio y Soluciones Tecnológicas DelaCruz</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="in">
+    <section id="proyectos">
+      <h2>Proyectos</h2>
+      <p class="lead">Herramientas que se pueden abrir y usar en el navegador, con su código y sus fuentes a la vista.</p>
+      <div class="projects">
+        <a class="proj" href="simulador-ew/">
+          <img src="img/ew.jpg" alt="Vista del simulador: nave de celdas, cortocircuitos en rojo, indicadores de producción y energía" loading="lazy">
+          <div class="b">
+            <h3>Simulador de nave de electroobtención</h3>
+            <p>Rectificador, celdas en serie y ley de Faraday. Provoca cortocircuitos y mira cuánto cobre se pierde según cómo se detectan.</p>
+            <div class="tags"><span>Electroobtención</span><span>Simulación</span><span>Instrumentación</span></div>
+            <span class="go">Abrir simulador →</span>
+          </div>
+        </a>
+        <a class="proj" href="/lab-virtual-flotacion/">
+          <img src="img/flotacion.jpg" alt="Gráficos de la prueba: sílice real, último análisis y estimación del modelo" loading="lazy">
+          <div class="b">
+            <h3>Laboratorio virtual de flotación</h3>
+            <p>¿Puede un modelo adelantar al laboratorio? Prueba con datos reales de una planta, evaluada sin trampas, con sus resultados buenos y malos.</p>
+            <div class="tags"><span>Datos reales</span><span>Machine learning</span><span>Agente de turno</span></div>
+            <span class="go">Ver la prueba →</span>
+          </div>
+        </a>
+        <a class="proj" href="https://github.com/JSNN15/prama-agent">
+          <img src="img/prama.jpg" alt="Menú de prama-agent con un equipo de agentes y su coordinador" loading="lazy">
+          <div class="b">
+            <h3>prama-agent</h3>
+            <p>Equipos de agentes de IA trabajando en paralelo en un servidor propio, que verifican lo que los agentes dicen haber hecho.</p>
+            <div class="tags"><span>Agentes de IA</span><span>Automatización del trabajo</span><span>Código abierto</span></div>
+            <span class="go">Ver en GitHub →</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section id="servicios">
+      <h2>Qué hago</h2>
+      <p class="lead">A través de Servicio y Soluciones Tecnológicas DelaCruz SpA.</p>
+      <div class="svc">
+        <div><h3>Asesoría en digitalización</h3><p>Qué medir, cómo conectarlo y dónde la IA aporta de verdad, y dónde no.</p></div>
+        <div><h3>Hardware para innovación</h3><p>Prototipos electrónicos, instrumentación, sensores inalámbricos y equipos automatizados.</p></div>
+        <div><h3>Proyectos eléctricos y digitales</h3><p>Diseño, armado de gabinetes, integración y puesta en marcha. Instalador SEC clase A.</p></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer><div class="in">Proyectos personales. Nada de lo publicado aquí proviene de clientes ni de empleadores. Los datos y fuentes de cada proyecto están citados en su página.</div></footer>
+
+<script>
+// Fondo: tres señales de proceso dibujadas como un registrador de tendencias.
+(() => {
+  const c = document.getElementById('sig'); if (!c || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const x = c.getContext('2d'); let W, H, t = 0;
+  const size = () => { const d = devicePixelRatio || 1; W = c.clientWidth; H = c.clientHeight; c.width = W * d; c.height = H * d; x.setTransform(d, 0, 0, d, 0, 0); };
+  const sig = (i, u) => Math.sin(u * 0.011 + i * 2) * 0.5 + Math.sin(u * 0.029 + i) * 0.25 + Math.sin(u * 0.071 + i * 3) * 0.12;
+  const draw = () => {
+    x.clearRect(0, 0, W, H);
+    [['rgba(224,138,74,.75)', .62], ['rgba(169,180,190,.35)', .74], ['rgba(169,180,190,.22)', .86]].forEach(([col, base], i) => {
+      x.strokeStyle = col; x.lineWidth = i ? 1 : 1.5; x.beginPath();
+      for (let px = W * 0.38; px <= W; px += 3) { const y = H * base + sig(i, px + t) * H * 0.09; px === W * 0.38 ? x.moveTo(px, y) : x.lineTo(px, y); }
+      x.stroke();
+    });
+    t += 0.6; requestAnimationFrame(draw);
+  };
+  size(); addEventListener('resize', size); draw();
+})();
+</script>
+</body>
+</html>
