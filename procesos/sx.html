@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Extracción por solventes (SX)</title>
+<meta name="description" content="Capítulo 4 de Procesos del cobre para ingenieros eléctricos: química de la extracción, diagrama de McCabe-Thiele y balance de impurezas con datos de 27 plantas reales.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
+:root{
+  --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
+  --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.top{background:var(--ink);color:#e9eef2}
+.top .in{padding-block:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.top a{color:#e9eef2;text-decoration:none}
+.in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+header.ch{padding-block:48px 8px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+article{padding-block:16px 40px}
+.prose{max-width:68ch}
+h2{font-size:1.45rem;font-weight:600;margin:52px 0 6px;line-height:1.25;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:.85rem;color:var(--copper);display:block;letter-spacing:.08em;margin-bottom:4px}
+p{margin:0 0 14px}
+.analogy{border-left:3px solid var(--copper-2);background:var(--soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.analogy b{color:var(--copper)}
+.eq{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.92rem;margin:14px 0}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0;display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:24px}
+@media (max-width:46rem){.lab{grid-template-columns:1fr}}
+.lab h3{grid-column:1/-1;margin:0;font-size:1rem;font-weight:600}
+.lab h3 small{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--copper)}
+.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+button{font:inherit;font-size:.86rem;padding:7px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--copper)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--soft)}
+.ro .l{font-size:.72rem;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.ro .v.bad{color:var(--bad)} .ro .v.ok{color:var(--ok)}
+canvas{display:block;width:100%}
+.msg{font-size:.88rem;padding:8px 10px;border-radius:6px;background:var(--soft);border:1px solid var(--line)}
+.msg.bad{border-color:var(--bad)} .msg.ok{border-color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+.tbl{overflow-x:auto}
+.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:12px;margin:16px 0}
+.inst div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.inst b{display:block;font-size:.95rem}
+.inst span{font-size:.87rem;color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.src li{margin-bottom:6px}
+.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;margin-top:40px}
+.next a{text-decoration:none;font-weight:600}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="./">← Procesos del cobre para ingenieros eléctricos</a><a href="../">jsnn15.github.io</a></div></div>
+<div class="in">
+  <header class="ch">
+    <div class="kick">Capítulo 4</div>
+    <h1>Extracción por solventes (SX)</h1>
+    <p class="lede">La pila entrega una solución diluida y sucia. La electroobtención necesita una concentrada y limpia. SX es el equipo que hace el cambio, y se parece mucho a un transformador de aislación.</p>
+  </header>
+
+  <article>
+    <div class="prose">
+      <h2><span class="n">01</span>Por qué existe SX</h2>
+      <p>El PLS de una pila sudamericana típica trae unos 3 g/L de cobre y casi el doble de hierro. Si se electrolizara así, el cátodo saldría lento, impuro y con mucho gasto de energía. La electroobtención trabaja con un electrolito de 36 a 48 g/L de cobre y muy poco de lo demás.</p>
+      <p>SX resuelve las dos cosas a la vez: <b>concentra</b> el cobre unas quince veces y lo <b>separa</b> del hierro, el manganeso, el cloruro y los sólidos. Lo hace con un líquido orgánico (un extractante disuelto en un diluyente parecido a la parafina) que no se mezcla con el agua y que toma el cobre de una solución para entregarlo en otra.</p>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> es un transformador de aislación elevador. El primario es el PLS (baja "tensión": 3 g/L), el secundario es el electrolito (alta "tensión": 48 g/L), y entre ambos no hay contacto directo: el ruido del primario (el hierro, el cloruro) no pasa al secundario. El orgánico es el núcleo que transfiere la energía.</div>
+
+    <div class="prose">
+      <h2><span class="n">02</span>La reacción: el pH decide para dónde va el cobre</h2>
+      <div class="eq">2 RH (orgánico) + Cu²⁺ (acuoso)  ⇌  R₂Cu (orgánico) + 2 H⁺ (acuoso)</div>
+      <p>RH es el extractante. Hacia la derecha es la <b>extracción</b>: con poca acidez (el PLS, pH cercano a 2), el orgánico toma el cobre y suelta protones. Hacia la izquierda es la <b>reextracción</b>: con mucha acidez (el electrolito pobre que vuelve de EW, unos 180 g/L de ácido), el orgánico entrega el cobre y recupera los protones.</p>
+      <p>Hay un efecto que los eléctricos solemos pasar por alto: por cada kilo de cobre extraído se generan 1,54 kg de ácido sulfúrico en el refino (por estequiometría, 98,08 / 63,55). Ese ácido vuelve a la pila. SX no solo mueve cobre, también recicla el ácido.</p>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> el orgánico funciona como un convertidor de condensador conmutado. Se carga de cobre en extracción, se descarga en reextracción y vuelve. El cobre que mueve por hora es el caudal de orgánico por la diferencia entre cargado y descargado, igual que I = f · C · ΔV. Y el pH es la tensión de control que decide si el condensador carga o descarga.</div>
+
+    <div class="prose">
+      <h2><span class="n">03</span>McCabe-Thiele: cuántas etapas hacen falta</h2>
+      <p>Una etapa de SX es un mezclador (donde se agitan las dos fases unos 3 minutos) y un decantador (donde se separan por densidad). Una sola etapa no basta, porque el orgánico se satura y el ácido que se libera frena la reacción. Por eso se ponen etapas en contracorriente: el PLS entra por la etapa 1 y el orgánico descargado por la última.</p>
+      <p>El diagrama de McCabe-Thiele lo muestra con dos curvas. La <b>isoterma</b> (cobre) es el equilibrio químico: cuánto cobre puede tener el orgánico para cada concentración del acuoso. La <b>línea de operación</b> (azul) es el balance de masa: lo que pierde el acuoso lo gana el orgánico, con pendiente A/O. Cada escalón entre las dos es una etapa.</p>
+    </div>
+
+    <section class="lab" aria-label="Diagrama de McCabe-Thiele de extracción">
+      <h3>Laboratorio 1 · El diagrama de McCabe-Thiele<small>Valores iniciales: promedios sudamericanos de la encuesta de Sole y otros (PLS de 3,2 g/L y pH 1,9; extractante al 15,4 % vol). El equilibrio es un modelo didáctico.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="nst">Etapas de extracción <b id="nst-v"></b></label><input id="nst" type="range" min="1" max="3" step="1" value="2"></div>
+        <div class="f"><label for="oa">Razón orgánico / acuoso (O/A) <b id="oa-v"></b></label><input id="oa" type="range" min="0.4" max="2" step="0.05" value="0.9"></div>
+        <div class="f"><label for="vol">Extractante en el orgánico <b id="vol-v"></b></label><input id="vol" type="range" min="3" max="35" step="0.1" value="15.4"></div>
+        <div class="f"><label for="cu">Cobre en el PLS <b id="cu-v"></b></label><input id="cu" type="range" min="0.5" max="8" step="0.1" value="3.2"></div>
+        <div class="f"><label for="ph">pH del PLS <b id="ph-v"></b></label><input id="ph" type="range" min="1.3" max="2.5" step="0.1" value="1.9"></div>
+        <div class="f"><label for="ys">Cobre en el orgánico descargado <b id="ys-v"></b></label><input id="ys" type="range" min="0.5" max="6" step="0.1" value="2.3"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Extracción</div><div class="v" id="r-ext"></div></div>
+          <div class="ro"><div class="l">Cu en el refino</div><div class="v" id="r-raf"></div></div>
+          <div class="ro"><div class="l">Orgánico cargado</div><div class="v" id="r-yl"></div></div>
+          <div class="ro"><div class="l">Transferencia neta (g/L por % vol)</div><div class="v" id="r-net"></div></div>
+        </div>
+        <canvas id="cv-mt" height="300" aria-label="Isoterma, línea de operación y etapas"></canvas>
+        <div class="msg" id="m-mt"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <p>Prueba tres cosas. Baja a una etapa y mira cómo el refino se queda con mucho cobre. Baja el pH del PLS: la isoterma se aplana, porque el ácido empuja la reacción hacia atrás. Y sube el cobre del orgánico descargado: la línea de operación sube, queda poco espacio para los escalones y la extracción cae. Ese último valor lo fija la reextracción. Según la encuesta, más ácido en el electrolito descarga mejor el orgánico, pero también degrada el extractante, así que siempre es un compromiso.</p>
+      <p class="src">Modelo del laboratorio: equilibrio K = [R₂Cu]·[H⁺]² / ([Cu²⁺]·[RH]²) con K = 4, capacidad máxima de 0,6 g/L de cobre por cada 1 % vol de extractante y el ácido liberado en cada etapa. Es una simplificación con orden de magnitud realista; las isotermas de diseño se miden en laboratorio para cada extractante y cada PLS.</p>
+
+      <h2><span class="n">04</span>Lo que se cuela: hierro, cloruro y sangrado</h2>
+      <p>El extractante prefiere el cobre por mucho, pero algo de hierro se coextrae químicamente. Además, el orgánico cargado arrastra gotitas de PLS que no alcanzaron a decantar (arrastre acuoso en orgánico), y con ellas pasan hierro y cloruro tal cual. En el electrolito, el hierro baja la eficiencia de corriente de EW y el cloruro ataca las placas de acero inoxidable.</p>
+      <p>Lo que entra al electrolito y no sale en el cátodo se acumula. La única salida es un <b>sangrado</b>: se saca un poco de electrolito y se devuelve al refino. En el norte de Chile, donde la atacamita aporta mucho cloruro, la encuesta reporta que lo habitual es agregar una etapa de lavado del orgánico antes de la reextracción.</p>
+    </div>
+
+    <section class="lab" aria-label="Balance de impurezas del electrolito">
+      <h3>Laboratorio 2 · El aislamiento del transformador<small>PLS sudamericano promedio (Cu 3,2 g/L, Fe 5,8 g/L, Cl 0,87 g/L) y salto de cobre del electrolito de 37,0 a 47,9 g/L, de la encuesta. Arrastre y selectividad son supuestos ajustables.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="q">Caudal de PLS <b id="q-v"></b></label><input id="q" type="range" min="200" max="4000" step="50" value="1500"></div>
+        <div class="f"><label for="ext2">Extracción <b id="ext2-v"></b></label><input id="ext2" type="range" min="80" max="99" step="0.5" value="93"></div>
+        <div class="f"><label for="oa2">Razón O/A <b id="oa2-v"></b></label><input id="oa2" type="range" min="0.4" max="2" step="0.05" value="0.9"></div>
+        <div class="f"><label for="ent">Arrastre de acuoso en el orgánico <b id="ent-v"></b></label><input id="ent" type="range" min="0" max="1000" step="10" value="200"></div>
+        <div class="f"><label for="wash">Eficiencia de la etapa de lavado <b id="wash-v"></b></label><input id="wash" type="range" min="0" max="95" step="5" value="0"></div>
+        <div class="f"><label for="sel">Selectividad Cu : Fe del extractante <b id="sel-v"></b></label><input id="sel" type="range" min="500" max="5000" step="100" value="2000"></div>
+        <div class="f"><label for="clp">Cloruro en el PLS <b id="clp-v"></b></label><input id="clp" type="range" min="0.1" max="30" step="0.1" value="0.87"></div>
+        <div class="f"><label for="fet">Hierro máximo en el electrolito <b id="fet-v"></b></label><input id="fet" type="range" min="400" max="2000" step="10" value="800"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Relación de concentración</div><div class="v" id="r-ratio"></div></div>
+          <div class="ro"><div class="l">Hierro que entra</div><div class="v" id="r-fe"></div></div>
+          <div class="ro"><div class="l">Sangrado necesario</div><div class="v" id="r-bleed"></div></div>
+          <div class="ro"><div class="l">Cloruro en el electrolito</div><div class="v" id="r-cl"></div></div>
+          <div class="ro"><div class="l">Cobre que se recircula</div><div class="v" id="r-recir"></div></div>
+        </div>
+        <div class="msg" id="m-imp"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <p>Sube el cloruro a 20 g/L, como en un PLS con mucha atacamita, y mira el cloruro del electrolito. Después activa el lavado. Ahí se ve por qué en Chile casi todas las plantas lo tienen y en otras regiones no.</p>
+
+      <h2><span class="n">05</span>El electrolito real</h2>
+      <p>Promedios de la encuesta de 2012. El electrolito varía muy poco entre regiones porque la electroobtención exige casi lo mismo en todas partes.</p>
+    </div>
+    <div class="tbl"><table><thead><tr><th>Región</th><th>Pobre: Cu (g/L)</th><th>Pobre: H₂SO₄ (g/L)</th><th>Pobre: Co (mg/L)</th><th>Rico: Cu (g/L)</th><th>Rico: Fe (mg/L)</th><th>Rico: Mn (mg/L)</th></tr></thead>
+      <tbody>
+        <tr><td>Sudamérica</td><td>37,0</td><td>183</td><td>169</td><td>47,9</td><td>793</td><td>125</td></tr>
+        <tr><td>Norteamérica</td><td>36,1</td><td>182</td><td>125</td><td>46,3</td><td>1.780</td><td>57</td></tr>
+        <tr><td>África</td><td>35,3</td><td>187</td><td>1.890</td><td>50,9</td><td>407</td><td>91</td></tr>
+      </tbody></table></div>
+    <div class="prose">
+      <p class="src">Fuente: Sole y otros, tabla 2. "Pobre" es el electrolito que vuelve de EW; "rico" (advance) el que va hacia EW. El promedio global sube de 36,1 a 48,0 g/L de cobre en la reextracción, con 183 g/L de ácido. En América el cobalto se agrega a propósito para proteger los ánodos (capítulo 5); en África llega por arrastre desde un PLS con cobalto.</p>
+
+      <h2>Lo que vas a encontrar instrumentado</h2>
+      <div class="inst">
+        <div><b>Caudal de orgánico</b><span>El orgánico casi no conduce electricidad, así que un flujómetro magnético no sirve. Se usan Coriolis, vórtex o ultrasónicos. Con los caudales de acuoso se controla la razón O/A.</span></div>
+        <div><b>Nivel de interfase</b><span>En cada decantador hay una capa de orgánico de unos 27 cm en promedio (entre 10 y 50 cm según la encuesta). Medir dónde está la interfase y la borra (<i>crud</i>) es clave.</span></div>
+        <div><b>Continuidad de fase</b><span>Una sonda de conductividad en el mezclador dice qué fase es la continua: si conduce, es acuosa; si no, orgánica. Cambia el arrastre y las pérdidas.</span></div>
+        <div><b>Motores de mezcladores</b><span>Agitadores de 7,5 a 134 kW en las plantas encuestadas, con variador para ajustar la mezcla.</span></div>
+        <div><b>Electricidad estática y fuego</b><span>Un líquido poco conductor acumula carga. Puesta a tierra, velocidades limitadas en cañerías y detección de incendio son parte del diseño; las plantas nuevas usan acero inoxidable por resistencia al fuego.</span></div>
+        <div><b>Análisis de cobre y arrastre</b><span>Cu en PLS, refino y electrolito. El arrastre es difícil de medir bien; la encuesta advierte que los valores reportados son poco confiables y que el mejor indicador es el consumo de extractante.</span></div>
+      </div>
+
+      <h2>Fuentes</h2>
+      <ul class="src">
+        <li>Sole, K. C., Zárate, G., Steeples, J., Tinkler, O. y Robinson, T. G. Global survey of copper solvent extraction operations and practices (datos de plantas de 2012). <a href="https://www.researchgate.net/publication/292140218_Global_survey_of_copper_solvent_extraction_operations_and_practices">ResearchGate</a>. Tablas 1 a 3, extracción promedio de 94,2 %, configuraciones 2E+2S y 2E+1S, extractante de 3 a 35 % vol, tiempos de mezcla, decantadores y lavado en Chile.</li>
+        <li>Schlesinger, M. E. y otros, <i>Extractive Metallurgy of Copper</i>, Elsevier: química de la extracción con oximas y método de McCabe-Thiele.</li>
+        <li>La constante de equilibrio, la capacidad del extractante, el arrastre y la selectividad del laboratorio son supuestos didácticos, no datos de un extractante comercial.</li>
+      </ul>
+      <div class="next"><a href="lixiviacion.html">← Capítulo 3: Lixiviación en pilas</a><a href="./">Índice del curso →</a></div>
+    </div>
+  </article>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nf = (d) => new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d});
+  const f0 = nf(0), f1 = nf(1), f2 = nf(2);
+  const setup = (cv, H) => { const d = devicePixelRatio || 1, W = cv.clientWidth; cv.width = W * d; cv.height = H * d; cv.style.height = H + 'px'; const x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, W, H); x.font = `11px ${css('--mono')}`; return [x, W]; };
+
+  // ---------- Modelo didáctico de equilibrio ----------
+  // 2 RH(org) + Cu2+(aq) <-> R2Cu(org) + 2 H+(aq);  K = y·h² / (c·(R − 2y)²), concentraciones en mol/L.
+  // Supuestos: K = 4 y capacidad máxima de 0,6 g/L de Cu por cada 1 % en volumen de extractante.
+  // Cada mol de Cu extraído libera 2 mol de H+ en el acuoso: h = h0 + 2·(c0 − c).
+  const MW = 63.55, K = 4, CAP = 0.6;
+  const yeq = (c, h, R) => { if (c <= 0) return 0; let lo = 0, hi = R / 2; for (let i = 0; i < 50; i++) { const m = (lo + hi) / 2; (K * c * (R - 2 * m) ** 2 - m * h * h > 0) ? lo = m : hi = m; } return (lo + hi) / 2; };
+
+  // Cascada en contracorriente: dado el Cu del refino, se recorre de la última etapa a la primera.
+  const cascade = (p) => {
+    const R = 2 * p.vol * CAP / MW, c0 = p.pls / MW, h0 = 10 ** -p.pH, ys = p.ys / MW;
+    const h = (c) => h0 + 2 * (c0 - c);
+    const walk = (cN) => { const st = []; let c = cN; for (let n = p.N; n >= 1; n--) { const y = yeq(c, h(c), R); st.unshift({c, y}); c = cN + p.oa * (y - ys); } return {c0calc: c, st}; };
+    let lo = 0, hi = c0;
+    for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; (walk(m).c0calc > c0) ? hi = m : lo = m; }
+    const {st} = walk((lo + hi) / 2);
+    return {R, c0, h, ys, st, craf: st[st.length - 1].c, yL: st[0].y};
+  };
+
+  const mtRender = () => {
+    const p = {vol: +$('vol').value, oa: +$('oa').value, N: +$('nst').value, pls: +$('cu').value, pH: +$('ph').value, ys: +$('ys').value};
+    $('vol-v').textContent = f1.format(p.vol) + ' % vol'; $('oa-v').textContent = f2.format(p.oa); $('nst-v').textContent = p.N + (p.N > 1 ? ' etapas' : ' etapa');
+    $('cu-v').textContent = f1.format(p.pls) + ' g/L'; $('ph-v').textContent = f1.format(p.pH); $('ys-v').textContent = f1.format(p.ys) + ' g/L';
+    const r = cascade(p), max = p.vol * CAP;
+    const ext = 100 * (r.c0 - r.craf) / r.c0, yL = r.yL * MW, net = (yL - p.ys) / p.vol;
+    const e = $('r-ext'); e.textContent = f1.format(ext) + ' %'; e.className = 'v ' + (ext < 90 ? 'bad' : 'ok');
+    $('r-raf').textContent = f2.format(r.craf * MW) + ' g/L';
+    $('r-yl').textContent = f2.format(yL) + ' g/L';
+    $('r-net').textContent = f2.format(net);
+    const m = $('m-mt');
+    if (p.ys >= yL - 0.05) { m.className = 'msg bad'; m.textContent = 'El orgánico llega casi tan cargado como sale: no tiene capacidad libre para tomar cobre. Hay que descargarlo mejor en la reextracción (más ácido en el electrolito) o subir el extractante.'; }
+    else if (ext < 90) { m.className = 'msg bad'; m.textContent = `Se escapan ${f2.format(r.craf * MW)} g/L de cobre en el refino. Prueba más etapas, más orgánico (O/A) o más extractante, y mira cómo cambian los escalones.`; }
+    else { m.className = 'msg ok'; m.textContent = `Extracción de ${f1.format(ext)} %. El orgánico usa ${f0.format(100 * yL / max)} % de su capacidad máxima (${f1.format(max)} g/L). Promedio de plantas sudamericanas en la encuesta: 94,2 % de extracción y 0,28 g/L de transferencia neta por % vol.`; }
+
+    // diagrama
+    const cv = $('cv-mt'), H = 300, [x, W] = setup(cv, H), mg = {l: 46, r: 14, t: 14, b: 34};
+    const cmax = Math.max(p.pls * 1.08, 1), ymax = max * 1.05;
+    const X = (c) => mg.l + (W - mg.l - mg.r) * (c * MW) / cmax, Y = (y) => mg.t + (H - mg.t - mg.b) * (1 - (y * MW) / ymax);
+    x.strokeStyle = css('--line'); x.fillStyle = css('--muted'); x.lineWidth = 1;
+    const stepC = cmax > 5 ? 1 : 0.5, stepY = ymax > 12 ? 4 : 2;
+    for (let v = 0; v <= ymax; v += stepY) { const yy = Y(v / MW); x.beginPath(); x.moveTo(mg.l, yy); x.lineTo(W - mg.r, yy); x.stroke(); x.textAlign = 'right'; x.fillText(f0.format(v), mg.l - 6, yy + 4); }
+    x.textAlign = 'center'; for (let v = 0; v <= cmax; v += stepC) x.fillText(f1.format(v), X(v / MW), H - 18);
+    x.fillText('Cu en el acuoso (g/L)', mg.l + (W - mg.l - mg.r) / 2, H - 3);
+    x.save(); x.translate(11, mg.t + (H - mg.t - mg.b) / 2); x.rotate(-Math.PI / 2); x.fillText('Cu en el orgánico (g/L)', 0, 0); x.restore();
+    // isoterma
+    x.strokeStyle = css('--copper'); x.lineWidth = 2.2; x.beginPath();
+    for (let i = 0; i <= 120; i++) { const c = r.c0 * i / 120, yy = Y(yeq(c, r.h(c), r.R)); i ? x.lineTo(X(c), yy) : x.moveTo(X(c), yy); } x.stroke();
+    // capacidad máxima
+    x.setLineDash([2, 4]); x.strokeStyle = css('--muted'); x.beginPath(); x.moveTo(mg.l, Y(max / MW)); x.lineTo(W - mg.r, Y(max / MW)); x.stroke(); x.setLineDash([]);
+    // línea de operación
+    x.strokeStyle = css('--blue'); x.lineWidth = 1.8; x.beginPath(); x.moveTo(X(r.craf), Y(r.ys)); x.lineTo(X(r.c0), Y(r.yL)); x.stroke();
+    // escalones
+    x.strokeStyle = css('--fg'); x.lineWidth = 1.3; x.beginPath();
+    let cx = r.c0, cy = r.yL; x.moveTo(X(cx), Y(cy));
+    r.st.forEach((s, i) => { x.lineTo(X(s.c), Y(s.y)); const nx = i < r.st.length - 1 ? r.st[i + 1].y : r.ys; x.lineTo(X(s.c), Y(nx)); });
+    x.stroke();
+    x.fillStyle = css('--fg'); x.textAlign = 'left';
+    r.st.forEach((s, i) => { x.beginPath(); x.arc(X(s.c), Y(s.y), 3.5, 0, 7); x.fill(); x.fillText('E' + (i + 1), X(s.c) + 6, Y(s.y) - 6); });
+    { const cl = r.c0 * 0.72; x.fillStyle = css('--copper'); x.textAlign = 'right'; x.fillText('isoterma (equilibrio)', W - mg.r - 4, Y(yeq(cl, r.h(cl), r.R)) + 18); }
+    x.fillStyle = css('--blue'); x.textAlign = 'left'; x.fillText('línea de operación (balance)', X(r.craf) + 8, Y(r.ys) + 14);
+    x.fillStyle = css('--muted'); x.fillText('capacidad máxima', mg.l + 6, Y(max / MW) - 5);
+  };
+  ['vol', 'oa', 'nst', 'cu', 'ph', 'ys'].forEach((id) => $(id).addEventListener('input', mtRender));
+
+  // ---------- Balance de impurezas y sangrado ----------
+  const impRender = () => {
+    const Q = +$('q').value, ext = +$('ext2').value / 100, oa = +$('oa2').value, ent = +$('ent').value, wash = +$('wash').value / 100, sel = +$('sel').value, feT = +$('fet').value, clP = +$('clp').value;
+    $('q-v').textContent = f0.format(Q) + ' m³/h'; $('ext2-v').textContent = f1.format(ext * 100) + ' %'; $('oa2-v').textContent = f2.format(oa);
+    $('ent-v').textContent = f0.format(ent) + ' ppm'; $('wash-v').textContent = f0.format(wash * 100) + ' %'; $('sel-v').textContent = f0.format(sel) + ' : 1'; $('fet-v').textContent = f0.format(feT) + ' mg/L'; $('clp-v').textContent = f2.format(clP) + ' g/L';
+    const PLS = {cu: 3.2, fe: 5.8, cl: clP};             // g/L, Sole et al., tabla 1 (Sudamérica); Cl ajustable
+    const dE = 47.9 - 37.0;                             // g/L, Sole et al., tabla 2 (Sudamérica)
+    const cuKgH = Q * PLS.cu * ext;                     // kg/h transferidos
+    const qE = cuKgH / dE;                              // m³/h de electrolito que circula por la reextracción
+    const aqIn = Q * oa * ent * 1e-6 * (1 - wash);      // m³/h de PLS arrastrado hacia el electrolito
+    const feEnt = aqIn * PLS.fe * 24, feChem = cuKgH / sel * 24, feDay = feEnt + feChem;   // kg/día
+    const bleed = feDay / (feT / 1000);                 // m³/día para mantener el Fe objetivo
+    const clDay = aqIn * PLS.cl * 24, clSS = clDay / bleed * 1000; // mg/L de Cl en régimen
+    const cuRec = bleed * 47.9 / 1000, cuDay = cuKgH * 24 / 1000;
+    $('r-ratio').textContent = f0.format(47.9 / PLS.cu) + ' : 1';
+    $('r-fe').textContent = f0.format(feDay) + ' kg/día';
+    $('r-bleed').textContent = f0.format(bleed) + ' m³/día';
+    const c = $('r-cl'); c.textContent = f0.format(clSS) + ' mg/L';
+    $('r-recir').textContent = f1.format(100 * cuRec / cuDay) + ' %';
+    const m = $('m-imp');
+    m.className = 'msg' + (feEnt > feChem ? ' bad' : '');
+    m.textContent = `Entran ${f0.format(feDay)} kg de hierro por día: ${f0.format(feEnt)} por arrastre de gotitas de PLS y ${f0.format(feChem)} por coextracción química. ` +
+      `Para mantener ${f0.format(feT)} mg/L hay que sangrar ${f0.format(bleed)} m³/día de electrolito, que vuelven al refino con ${f1.format(cuRec)} t de cobre que habrá que extraer de nuevo. ` +
+      (feEnt > feChem ? 'Aquí manda el arrastre: el problema es físico (separación de fases), no químico.' : 'Aquí manda la coextracción química, que depende del extractante y del pH.');
+  };
+  ['q', 'ext2', 'oa2', 'ent', 'wash', 'sel', 'fet', 'clp'].forEach((id) => $(id).addEventListener('input', impRender));
+
+  addEventListener('resize', mtRender); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', mtRender);
+  mtRender(); impRender();
+})();
+</script>
+</body>
+</html>
