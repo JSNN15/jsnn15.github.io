@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Procesos del cobre</title>
+<meta name="description" content="Curso abierto: del mineral al cátodo de cobre, explicado para ingenieros eléctricos y de automatización. Simuladores y fuentes públicas.">
+<meta property="og:title" content="Procesos del cobre para ingenieros eléctricos">
+<meta property="og:description" content="Del mineral al cátodo de 99,99 %, con analogías eléctricas, simuladores y fuentes públicas.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
+:root{
+  --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
+  --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.top{background:var(--ink);color:#e9eef2}
+.top .in{padding-block:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.top a{color:#e9eef2;text-decoration:none}
+.in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+header.ch{padding-block:48px 8px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+article{padding-block:16px 40px}
+.prose{max-width:68ch}
+h2{font-size:1.45rem;font-weight:600;margin:52px 0 6px;line-height:1.25;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:.85rem;color:var(--copper);display:block;letter-spacing:.08em;margin-bottom:4px}
+p{margin:0 0 14px}
+.analogy{border-left:3px solid var(--copper-2);background:var(--soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.analogy b{color:var(--copper)}
+.eq{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.92rem;margin:14px 0}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0;display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:24px}
+@media (max-width:46rem){.lab{grid-template-columns:1fr}}
+.lab h3{grid-column:1/-1;margin:0;font-size:1rem;font-weight:600}
+.lab h3 small{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--copper)}
+.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+button{font:inherit;font-size:.86rem;padding:7px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--copper)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--soft)}
+.ro .l{font-size:.72rem;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.ro .v.bad{color:var(--bad)} .ro .v.ok{color:var(--ok)}
+canvas{display:block;width:100%}
+.msg{font-size:.88rem;padding:8px 10px;border-radius:6px;background:var(--soft);border:1px solid var(--line)}
+.msg.bad{border-color:var(--bad)} .msg.ok{border-color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+.tbl{overflow-x:auto}
+.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:12px;margin:16px 0}
+.inst div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.inst b{display:block;font-size:.95rem}
+.inst span{font-size:.87rem;color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.src li{margin-bottom:6px}
+.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;margin-top:40px}
+.next a{text-decoration:none;font-weight:600}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="../">← jsnn15.github.io</a><span>Curso abierto</span></div></div>
+<div class="in">
+  <header class="ch">
+    <div class="kick">Curso abierto · en construcción</div>
+    <h1>Procesos del cobre para ingenieros eléctricos</h1>
+    <p class="lede">Del mineral al cátodo de 99,99 %, explicado para quien viene de la electricidad, la instrumentación o la automatización y necesita entender la química del proceso sin hacer un magíster en metalurgia.</p>
+  </header>
+
+  <article>
+    <div class="prose">
+      <p>Muchos trabajamos en la frontera entre un proceso químico y su automatización: configuramos lazos, instrumentos y sistemas de datos para procesos que nadie nos explicó desde cero. Este curso recorre la ruta hidrometalúrgica del cobre, la que produce cátodos directamente en la mina, con tres reglas:</p>
+      <div class="inst">
+        <div><b>Analogías eléctricas</b><span>El pH es un voltaje, un balance de masa es la ley de Kirchhoff y una celda de electroobtención es una carga en serie.</span></div>
+        <div><b>Simuladores en cada capítulo</b><span>Mueves una variable y ves qué pasa. Todo corre en el navegador.</span></div>
+        <div><b>Fuentes a la vista</b><span>Datos públicos y referencias citadas en cada página. Solo procesos que hoy se usan en la industria.</span></div>
+      </div>
+    </div>
+
+    <section class="lab" aria-label="Ruta del proceso" style="grid-template-columns:1fr">
+      <h3>La ruta<small>Haz clic en una etapa para ir a su capítulo.</small></h3>
+      <div class="flow" id="flow"></div>
+    </section>
+
+    <div class="prose">
+      <h2>Capítulos</h2>
+      <ol class="chapters">
+        <li><a href="quimica.html"><b>0 · Química para eléctricos</b></a><span>pH y potencial redox como voltajes, concentración y balances de masa. Tres simuladores.</span></li>
+        <li><a href="yacimiento.html"><b>1 · El yacimiento</b></a><span>Pórfidos de cobre, perfil supérgeno, minerales y datos reales de ley y tonelaje (USGS).</span></li>
+        <li class="soon"><b>2 · Chancado y aglomeración</b><span>Tamaño de partícula, curado ácido y los lazos de razón que lo controlan. En preparación.</span></li>
+        <li class="soon"><b>3 · Lixiviación en pilas</b><span>Riego, ácido, oxidante y la curva de recuperación, con datos de columnas reales del U.S. Bureau of Mines. En preparación.</span></li>
+        <li class="soon"><b>4 · Extracción por solventes (SX)</b><span>Cómo el cobre cambia de solución y deja atrás las impurezas. Datos de 27 plantas reales. En preparación.</span></li>
+        <li class="soon"><b>5 · Electroobtención (EW)</b><span>Faraday, rectificador y calidad del cátodo. Incluye el <a href="../simulador-ew/">simulador de nave</a>. En preparación.</span></li>
+        <li class="soon"><b>6 · Del mineral al cátodo</b><span>El balance completo, de toneladas de roca a toneladas de cátodo y su pureza. En preparación.</span></li>
+      </ol>
+      <p class="src">Proyecto personal de Julián Neira Nova, ingeniero eléctrico. Contenido didáctico basado en fuentes públicas; no representa a ninguna operación ni empleador. Si encuentras un error, escríbeme por <a href="https://www.linkedin.com/in/julian-neira-nova/">LinkedIn</a>.</p>
+    </div>
+  </article>
+</div>
+<style>
+.chapters{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.chapters li{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 16px;display:flex;flex-direction:column;gap:2px}
+.chapters li a{text-decoration:none;color:var(--fg)}
+.chapters li a b{color:var(--copper)}
+.chapters li span{color:var(--muted);font-size:.92rem}
+.chapters li.soon{opacity:.7}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.flow a,.flow span.st{flex:1 1 8.5rem;min-width:0;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--soft);display:flex;flex-direction:column;gap:2px;position:relative}
+.flow a:hover{border-color:var(--copper)}
+.flow .k{font-family:var(--mono);font-size:.7rem;color:var(--copper);letter-spacing:.06em}
+.flow .t{font-weight:600;font-size:.95rem}
+.flow .p{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+</style>
+<script>
+(() => {
+  const ST = [
+    ['Mina', 'Mineral 0,3–1 % Cu', 'yacimiento.html', 'Cap. 1'],
+    ['Chancado y aglomeración', 'Partículas de pocos cm + ácido', null, 'Cap. 2'],
+    ['Lixiviación', 'Solución rica: pocos g/L de Cu', null, 'Cap. 3'],
+    ['SX', 'Electrolito: 35–50 g/L de Cu', null, 'Cap. 4'],
+    ['Electroobtención', 'Cátodo 99,99 % Cu', '../simulador-ew/', 'Cap. 5']
+  ];
+  const f = document.getElementById('flow');
+  ST.forEach(([t, p, href, k], i) => {
+    const e = document.createElement(href ? 'a' : 'span'); if (href) e.href = href; else e.className = 'st';
+    const a = document.createElement('span'); a.className = 'k'; a.textContent = k + (href ? '' : ' · pronto');
+    const b = document.createElement('span'); b.className = 't'; b.textContent = (i + 1) + '. ' + t;
+    const c = document.createElement('span'); c.className = 'p'; c.textContent = p;
+    e.append(a, b, c); f.appendChild(e);
+  });
+})();
+</script>
+</body>
+</html>

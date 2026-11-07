@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Química para eléctricos</title>
+<meta name="description" content="Capítulo 0 de Procesos del cobre para ingenieros eléctricos: pH, potencial redox y balances de masa explicados como voltajes y corrientes, con simuladores.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
+:root{
+  --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
+  --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.top{background:var(--ink);color:#e9eef2}
+.top .in{padding-block:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.top a{color:#e9eef2;text-decoration:none}
+.in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+header.ch{padding-block:48px 8px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+article{padding-block:16px 40px}
+.prose{max-width:68ch}
+h2{font-size:1.45rem;font-weight:600;margin:52px 0 6px;line-height:1.25;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:.85rem;color:var(--copper);display:block;letter-spacing:.08em;margin-bottom:4px}
+p{margin:0 0 14px}
+.analogy{border-left:3px solid var(--copper-2);background:var(--soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.analogy b{color:var(--copper)}
+.eq{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.92rem;margin:14px 0}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0;display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:24px}
+@media (max-width:46rem){.lab{grid-template-columns:1fr}}
+.lab h3{grid-column:1/-1;margin:0;font-size:1rem;font-weight:600}
+.lab h3 small{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--copper)}
+.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+button{font:inherit;font-size:.86rem;padding:7px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--copper)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--soft)}
+.ro .l{font-size:.72rem;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.ro .v.bad{color:var(--bad)} .ro .v.ok{color:var(--ok)}
+canvas{display:block;width:100%}
+.msg{font-size:.88rem;padding:8px 10px;border-radius:6px;background:var(--soft);border:1px solid var(--line)}
+.msg.bad{border-color:var(--bad)} .msg.ok{border-color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+.tbl{overflow-x:auto}
+.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:12px;margin:16px 0}
+.inst div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.inst b{display:block;font-size:.95rem}
+.inst span{font-size:.87rem;color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.src li{margin-bottom:6px}
+.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;margin-top:40px}
+.next a{text-decoration:none;font-weight:600}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="./">← Procesos del cobre para ingenieros eléctricos</a><a href="../">jsnn15.github.io</a></div></div>
+<div class="in">
+  <header class="ch">
+    <div class="kick">Capítulo 0</div>
+    <h1>Química para eléctricos</h1>
+    <p class="lede">Lo mínimo de química que necesitas para entender una planta de lixiviación, SX y electroobtención, explicado con voltajes, corrientes y nodos.</p>
+  </header>
+
+  <article>
+    <div class="prose">
+      <p>Si vienes de la electricidad o la automatización, ya sabes más química de lo que crees. En una planta hidrometalúrgica, casi todo lo que se mide termina siendo un voltaje, y casi todo lo que se controla es un flujo que entra y sale de un nodo. Este capítulo traduce cuatro ideas que vas a escuchar todos los días.</p>
+
+      <h2><span class="n">01</span>El pH es un voltaje</h2>
+      <p>El pH mide cuánta acidez tiene una solución. En la planta importa porque el ácido sulfúrico es el que disuelve el cobre en la lixiviación, y porque la extracción por solventes (SX) funciona solo dentro de un rango de pH.</p>
+      <p>El sensor es un electrodo de vidrio. La membrana de vidrio desarrolla un voltaje que depende de la acidez a cada lado. Frente a un electrodo de referencia, entrega una diferencia de potencial que sigue la ecuación de Nernst:</p>
+      <div class="eq">E = E₀ − S · (pH − 7)      con  S = 2,303 · R · T / F = 0,1984 · T  [mV por unidad de pH, T en kelvin]</div>
+      <p>A 25 °C la pendiente es 59,16 mV por unidad de pH. En pH 7 el electrodo ideal entrega 0 mV; en pH 4, unos +177 mV; en pH 1, unos +355 mV.</p>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> el electrodo es una fuente de voltaje con una resistencia interna enorme, del orden de cientos de megaohms. Por eso el transmisor necesita una entrada de altísima impedancia y por eso el cable del electrodo es corto y blindado.</div>
+
+    <section class="lab" aria-label="Laboratorio del electrodo de pH">
+      <h3>Laboratorio 1 · Un electrodo de pH en la línea<small>Mueve el pH y la temperatura de la solución. Mira el voltaje del electrodo y lo que muestra el transmisor.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="ph">pH real de la solución <b id="ph-v"></b></label><input id="ph" type="range" min="0" max="14" step="0.05" value="1.8"></div>
+        <div class="f"><label for="tc">Temperatura de la solución <b id="tc-v"></b></label><input id="tc" type="range" min="5" max="70" step="1" value="45"></div>
+        <label class="chk"><input type="checkbox" id="comp" checked> Compensación de temperatura activa</label>
+        <div class="f"><label for="age">Estado del electrodo</label>
+          <select id="age"><option value="new">Nuevo (pendiente 100 %, sin desfase)</option><option value="old">Envejecido (pendiente 92 %, desfase +15 mV)</option></select></div>
+        <div class="f" id="cal-box"><label>Calibración del transmisor</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="cal">Calibrar con tampones pH 4 y 7</button><button id="uncal">Borrar calibración</button></div></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Voltaje del electrodo</div><div class="v" id="r-mv"></div></div>
+          <div class="ro"><div class="l">pH que muestra</div><div class="v" id="r-ph"></div></div>
+          <div class="ro"><div class="l">Error</div><div class="v" id="r-err"></div></div>
+          <div class="ro"><div class="l">Señal 4–20 mA (0–14 pH)</div><div class="v" id="r-ma"></div></div>
+        </div>
+        <canvas id="cv-ph" height="230" aria-label="Recta de voltaje del electrodo versus pH"></canvas>
+        <div class="msg" id="m-ph"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <p>Dos lecciones del laboratorio que valen oro en terreno. Primero, si el electrolito de electroobtención trabaja cerca de 45–50 °C y el transmisor no compensa temperatura, el pH leído se corre. Segundo, un electrodo envejecido pierde pendiente y se desplaza: sin calibración periódica con soluciones tampón, el lazo de control sigue con fe ciega a un sensor que miente.</p>
+
+      <h2><span class="n">02</span>El potencial redox también es un voltaje</h2>
+      <p>Oxidar es quitar electrones; reducir es entregarlos. En la lixiviación de sulfuros de cobre, el que quita los electrones es el ion férrico (Fe³⁺), que al hacerlo se convierte en ferroso (Fe²⁺). La razón entre ambos dice cuánta capacidad oxidante tiene la solución.</p>
+      <p>Esa razón se mide como un voltaje con un electrodo de platino: el potencial de óxido-reducción (ORP, o Eh si se refiere al electrodo de hidrógeno). También sigue a Nernst:</p>
+      <div class="eq">E = 0,771 V + 0,05916 · log₁₀( [Fe³⁺] / [Fe²⁺] )     (vs. electrodo de hidrógeno, 25 °C)</div>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> la solución es una batería cuyo voltaje indica su "estado de carga oxidante". Más férrico que ferroso, más voltaje. Los instrumentos usan una referencia de plata/cloruro de plata, que está unos 0,20 V sobre la del hidrógeno, así que el número del transmisor es más bajo que el Eh.</div>
+
+    <section class="lab" aria-label="Laboratorio de potencial redox">
+      <h3>Laboratorio 2 · ¿Cuánto oxidante queda en la solución?<small>Cambia la proporción de hierro férrico. El voltaje responde al logaritmo: cada factor 10 suma 59 mV.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="fe">Fracción del hierro como férrico (Fe³⁺) <b id="fe-v"></b></label><input id="fe" type="range" min="0.5" max="99.5" step="0.5" value="50"></div>
+        <div class="f"><label for="ref">Referencia del instrumento</label>
+          <select id="ref"><option value="she">Hidrógeno (Eh)</option><option value="ag">Plata/cloruro de plata (KCl saturado)</option></select></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Razón Fe³⁺/Fe²⁺</div><div class="v" id="r-rat"></div></div>
+          <div class="ro"><div class="l">Potencial medido</div><div class="v" id="r-orp"></div></div>
+        </div>
+        <canvas id="cv-orp" height="210" aria-label="Potencial versus fracción de hierro férrico"></canvas>
+      </div>
+    </section>
+
+    <div class="prose">
+      <h2><span class="n">03</span>Concentración: cuánto hay en cada litro</h2>
+      <p>En planta casi todo se expresa en gramos por litro (g/L): cobre en la solución rica, ácido libre, hierro. Para cálculos químicos se usa mol por litro (M): un mol de cobre pesa 63,55 g y uno de ácido sulfúrico 98,08 g. Una solución de lixiviación típica lleva unos pocos g/L de cobre; un electrolito de electroobtención, del orden de 35–50 g/L.</p>
+      <div class="eq">flujo de cobre [kg/h] = caudal [m³/h] × concentración [g/L]      (porque 1 g/L = 1 kg/m³)</div>
+      <div class="analogy"><b>En términos eléctricos:</b> el caudal es la corriente del "fluido" y la concentración es cuánto cobre lleva cada unidad. Su producto es el flujo de cobre, igual que corriente por tensión da potencia: dos variables que se miden por separado y se multiplican.</div>
+
+      <h2><span class="n">04</span>Un balance de masa es la ley de Kirchhoff</h2>
+      <p>En régimen permanente, lo que entra a un nodo es lo que sale. Vale para el agua, para el cobre y para el ácido, cada uno por separado. Si no cuadra, hay acumulación (un estanque que sube) o hay un instrumento que está midiendo mal. Esta segunda posibilidad es la razón por la que el balance es una herramienta de diagnóstico, no solo un cálculo.</p>
+    </div>
+
+    <section class="lab" aria-label="Laboratorio de balance de masa">
+      <h3>Laboratorio 3 · El nodo que no cuadra<small>Dos soluciones se mezclan en un estanque. Los flujómetros y el análisis de laboratorio deberían cerrar el balance de cobre.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="q1">Caudal A <b id="q1-v"></b></label><input id="q1" type="range" min="50" max="600" step="10" value="300"></div>
+        <div class="f"><label for="c1">Cobre en A <b id="c1-v"></b></label><input id="c1" type="range" min="0.5" max="8" step="0.1" value="4"></div>
+        <div class="f"><label for="q2">Caudal B <b id="q2-v"></b></label><input id="q2" type="range" min="50" max="600" step="10" value="200"></div>
+        <div class="f"><label for="c2">Cobre en B <b id="c2-v"></b></label><input id="c2" type="range" min="0.5" max="8" step="0.1" value="1.5"></div>
+        <div class="f"><label for="bias">Error del flujómetro de salida <b id="bias-v"></b></label><input id="bias" type="range" min="-15" max="15" step="1" value="0"></div>
+      </div>
+      <div class="out">
+        <canvas id="cv-kcl" height="200" aria-label="Diagrama del nodo de mezcla con flujos de cobre"></canvas>
+        <div class="readouts">
+          <div class="ro"><div class="l">Cobre que entra</div><div class="v" id="r-in"></div></div>
+          <div class="ro"><div class="l">Cobre que sale (medido)</div><div class="v" id="r-out"></div></div>
+          <div class="ro"><div class="l">Descuadre</div><div class="v" id="r-gap"></div></div>
+        </div>
+        <div class="msg" id="m-kcl"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <h2>Lo que vas a encontrar instrumentado</h2>
+      <div class="inst">
+        <div><b>pH</b><span>Electrodo de vidrio y referencia. Ácido en lixiviación y en la alimentación a SX.</span></div>
+        <div><b>ORP / Eh</b><span>Electrodo de platino. Capacidad oxidante de la solución, razón férrico/ferroso.</span></div>
+        <div><b>Caudal</b><span>Flujómetros electromagnéticos: funcionan por inducción en líquidos conductores, como las soluciones ácidas.</span></div>
+        <div><b>Densidad y nivel</b><span>Estanques, piscinas de solución y separación de fases en SX.</span></div>
+        <div><b>Conductividad y temperatura</b><span>Electrolito de electroobtención: afecta el voltaje de celda y la compensación del pH.</span></div>
+        <div><b>Análisis químico</b><span>Cobre, ácido y hierro en g/L. Laboratorio o analizadores en línea; es la variable que cierra los balances.</span></div>
+      </div>
+
+      <h2>Fuentes</h2>
+      <ul class="src">
+        <li>Ecuación de Nernst y pendiente del electrodo de vidrio: Bard, A. J. y Faulkner, L. R., <i>Electrochemical Methods</i>, 2.ª ed., Wiley, 2001. Constantes R y F según CODATA.</li>
+        <li>Potencial estándar Fe³⁺/Fe²⁺ (0,771 V) y referencia Ag/AgCl en KCl saturado (≈ +0,197 V): CRC <i>Handbook of Chemistry and Physics</i>.</li>
+        <li>Concentraciones típicas de soluciones de lixiviación y electrolito: Schlesinger, M. E. y otros, <i>Extractive Metallurgy of Copper</i>, Elsevier (capítulos de lixiviación, SX y electroobtención). Encuesta de 27 plantas SX: Sole, K. C. y otros, <a href="http://www.soleconsulting.co.za/publications/Cu5.pdf">Global survey of copper solvent extraction operations and practices</a>.</li>
+        <li>Masas molares: tabla de pesos atómicos IUPAC.</li>
+      </ul>
+
+      <div class="next"><a href="./">← Índice del curso</a><a href="yacimiento.html">Capítulo 1: El yacimiento →</a></div>
+    </div>
+  </article>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nf = (d) => new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d});
+  const f0 = nf(0), f1 = nf(1), f2 = nf(2);
+  const setup = (cv, H) => { const d = devicePixelRatio || 1, W = cv.clientWidth; cv.width = W * d; cv.height = H * d; cv.style.height = H + 'px'; const x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, W, H); x.font = `11px ${css('--mono')}`; return [x, W]; };
+  const slope = (tc) => 0.1984 * (tc + 273.15);           // mV por pH
+
+  // ---------- Lab 1: pH
+  let cal = null; // {k, s} ajustados por la calibracion
+  const elec = () => $('age').value === 'old' ? {eff: 0.92, off: 15} : {eff: 1, off: 0};
+  const mvAt = (ph, tc) => { const e = elec(); return e.off - e.eff * slope(tc) * (ph - 7); };
+  const readPh = (mv, tc) => {
+    const S = $('comp').checked ? slope(tc) : slope(25);
+    if (cal) return 7 - (mv - cal.off) / (cal.eff * S);
+    return 7 - mv / S;
+  };
+  $('cal').addEventListener('click', () => {
+    const tc = +$('tc').value; const m4 = mvAt(4, tc), m7 = mvAt(7, tc); const S = $('comp').checked ? slope(tc) : slope(25);
+    cal = {off: m7, eff: (m4 - m7) / (3 * S)}; renderPh();
+  });
+  $('uncal').addEventListener('click', () => { cal = null; renderPh(); });
+  const renderPh = () => {
+    const ph = +$('ph').value, tc = +$('tc').value, mv = mvAt(ph, tc), shown = readPh(mv, tc), err = shown - ph;
+    $('ph-v').textContent = f2.format(ph); $('tc-v').textContent = tc + ' °C';
+    $('r-mv').textContent = (mv >= 0 ? '+' : '') + f1.format(mv) + ' mV';
+    $('r-ph').textContent = f2.format(shown);
+    const e = $('r-err'); const ee = Math.abs(err) < 0.005 ? 0 : err; e.textContent = (ee > 0 ? '+' : '') + f2.format(ee); e.className = 'v ' + (Math.abs(err) > 0.1 ? 'bad' : 'ok');
+    const ma = 4 + 16 * Math.min(14, Math.max(0, shown)) / 14; $('r-ma').textContent = f2.format(ma) + ' mA';
+    const m = $('m-ph');
+    if (Math.abs(err) <= 0.1) { m.className = 'msg ok'; m.textContent = cal ? 'Calibrado: el transmisor corrige la pendiente y el desfase del electrodo.' : 'Lectura correcta: el transmisor y el electrodo están de acuerdo.'; }
+    else { m.className = 'msg bad'; m.textContent = (!$('comp').checked && Math.abs(tc - 25) > 2) ? `Sin compensación, el transmisor asume 59,2 mV/pH (25 °C), pero a ${tc} °C la pendiente real es ${f1.format(slope(tc))} mV/pH. Lejos de pH 7 el error crece.` : 'El electrodo perdió pendiente y se desplazó. Calibra con dos tampones para que el transmisor lo corrija.'; }
+    // grafico mV vs pH
+    const cv = $('cv-ph'), H = 230, [x, W] = setup(cv, H), m0 = {l: 52, r: 12, t: 10, b: 26};
+    const X = (p) => m0.l + (W - m0.l - m0.r) * p / 14, Y = (v) => m0.t + (H - m0.t - m0.b) * (500 - v) / 1000;
+    x.strokeStyle = css('--line'); x.fillStyle = css('--muted'); x.lineWidth = 1;
+    for (let v = -500; v <= 500; v += 250) { x.beginPath(); x.moveTo(m0.l, Y(v)); x.lineTo(W - m0.r, Y(v)); x.stroke(); x.textAlign = 'right'; x.fillText((v > 0 ? '+' : '') + v + ' mV', m0.l - 6, Y(v) + 4); }
+    x.textAlign = 'center'; for (let p = 0; p <= 14; p += 2) x.fillText('pH ' + p, X(p), H - 8);
+    const line = (fn, col, w, dash) => { x.strokeStyle = col; x.lineWidth = w; x.setLineDash(dash || []); x.beginPath(); for (let p = 0; p <= 14; p += .25) { const yy = Y(fn(p)); p ? x.lineTo(X(p), yy) : x.moveTo(X(p), yy); } x.stroke(); x.setLineDash([]); };
+    line((p) => -slope(25) * (p - 7), css('--muted'), 1.2, [5, 4]);
+    line((p) => mvAt(p, tc), css('--copper'), 2.2);
+    x.fillStyle = css('--copper'); x.beginPath(); x.arc(X(ph), Y(mv), 5, 0, 7); x.fill();
+    x.fillStyle = css('--muted'); x.textAlign = 'left'; x.fillText('punteada: electrodo ideal a 25 °C', m0.l + 6, m0.t + 12);
+  };
+  ['ph', 'tc', 'comp', 'age'].forEach((id) => $(id).addEventListener('input', renderPh));
+
+  // ---------- Lab 2: ORP
+  const renderOrp = () => {
+    const fr = +$('fe').value / 100, rat = fr / (1 - fr), off = $('ref').value === 'ag' ? 0.197 : 0;
+    const E = (r) => 0.771 + 0.05916 * Math.log10(r) - off;
+    $('fe-v').textContent = f1.format(fr * 100) + ' %';
+    $('r-rat').textContent = rat >= 10 ? f0.format(rat) : f2.format(rat);
+    $('r-orp').textContent = f0.format(E(rat) * 1000) + ' mV';
+    const cv = $('cv-orp'), H = 210, [x, W] = setup(cv, H), m0 = {l: 52, r: 12, t: 10, b: 26};
+    const lo = 0.6 - off, hi = 0.95 - off;
+    const X = (p) => m0.l + (W - m0.l - m0.r) * p / 100, Y = (v) => m0.t + (H - m0.t - m0.b) * (hi - v) / (hi - lo);
+    x.strokeStyle = css('--line'); x.fillStyle = css('--muted');
+    for (let k = 0; k <= 4; k++) { const v = lo + (hi - lo) * k / 4; x.beginPath(); x.moveTo(m0.l, Y(v)); x.lineTo(W - m0.r, Y(v)); x.stroke(); x.textAlign = 'right'; x.fillText(f0.format(v * 1000), m0.l - 6, Y(v) + 4); }
+    x.textAlign = 'center'; for (let p = 0; p <= 100; p += 25) x.fillText(p + ' % Fe³⁺', X(p), H - 8);
+    x.strokeStyle = css('--blue'); x.lineWidth = 2.2; x.beginPath();
+    for (let p = 0.5; p <= 99.5; p += 0.5) { const r = p / (100 - p), yy = Y(E(r)); p === 0.5 ? x.moveTo(X(p), yy) : x.lineTo(X(p), yy); } x.stroke();
+    x.fillStyle = css('--blue'); x.beginPath(); x.arc(X(fr * 100), Y(E(rat)), 5, 0, 7); x.fill();
+  };
+  ['fe', 'ref'].forEach((id) => $(id).addEventListener('input', renderOrp));
+
+  // ---------- Lab 3: balance
+  const renderKcl = () => {
+    const q1 = +$('q1').value, c1 = +$('c1').value, q2 = +$('q2').value, c2 = +$('c2').value, b = +$('bias').value / 100;
+    $('q1-v').textContent = q1 + ' m³/h'; $('q2-v').textContent = q2 + ' m³/h'; $('c1-v').textContent = f1.format(c1) + ' g/L'; $('c2-v').textContent = f1.format(c2) + ' g/L';
+    $('bias-v').textContent = (b >= 0 ? '+' : '') + f0.format(b * 100) + ' %';
+    const inA = q1 * c1, inB = q2 * c2, qo = q1 + q2, co = (inA + inB) / qo, qm = qo * (1 + b), out = qm * co, gap = out - (inA + inB);
+    $('r-in').textContent = f0.format(inA + inB) + ' kg/h'; $('r-out').textContent = f0.format(out) + ' kg/h';
+    const g = $('r-gap'); g.textContent = (gap >= 0 ? '+' : '') + f0.format(gap) + ' kg/h'; g.className = 'v ' + (Math.abs(gap) > 0.02 * (inA + inB) ? 'bad' : 'ok');
+    const m = $('m-kcl');
+    if (Math.abs(gap) <= 0.02 * (inA + inB)) { m.className = 'msg ok'; m.textContent = `Cuadra. La salida lleva ${f2.format(co)} g/L, el promedio de las entradas ponderado por caudal.`; }
+    else { m.className = 'msg bad'; m.textContent = `No cuadra por ${f0.format(Math.abs(gap))} kg/h de cobre (${f1.format(Math.abs(gap) * 24 / 1000)} t/día). Nadie está robando cobre: un instrumento está midiendo mal. Así se detecta un flujómetro descalibrado.`; }
+    // diagrama
+    const cv = $('cv-kcl'), H = 200, [x, W] = setup(cv, H);
+    const nx = W * 0.55, ny = H / 2, sc = (v) => 2 + 14 * v / 3000;
+    const arrow = (x0, y0, x1, y1, w, col, lab) => { x.strokeStyle = col; x.lineWidth = w; x.lineCap = 'round'; x.beginPath(); x.moveTo(x0, y0); x.lineTo(x1, y1); x.stroke();
+      const a = Math.atan2(y1 - y0, x1 - x0); x.fillStyle = col; x.beginPath(); x.moveTo(x1, y1); x.lineTo(x1 - 10 * Math.cos(a - .5), y1 - 10 * Math.sin(a - .5)); x.lineTo(x1 - 10 * Math.cos(a + .5), y1 - 10 * Math.sin(a + .5)); x.fill();
+      x.fillStyle = css('--fg'); x.textAlign = 'center'; x.fillText(lab, (x0 + x1) / 2, (y0 + y1) / 2 - w / 2 - 8); };
+    arrow(16, 30, nx - 28, ny - 10, sc(inA), css('--copper'), 'A: ' + f0.format(inA) + ' kg/h');
+    arrow(16, H - 30, nx - 28, ny + 10, sc(inB), css('--copper'), 'B: ' + f0.format(inB) + ' kg/h');
+    arrow(nx + 28, ny, W - 16, ny, sc(out), Math.abs(gap) > 0.02 * (inA + inB) ? css('--bad') : css('--copper'), 'Salida: ' + f0.format(out) + ' kg/h');
+    x.fillStyle = css('--soft'); x.strokeStyle = css('--muted'); x.lineWidth = 1.5; x.beginPath(); x.arc(nx, ny, 24, 0, 7); x.fill(); x.stroke();
+    x.fillStyle = css('--fg'); x.textAlign = 'center'; x.fillText('Σ', nx, ny + 4);
+  };
+  ['q1', 'c1', 'q2', 'c2', 'bias'].forEach((id) => $(id).addEventListener('input', renderKcl));
+
+  const all = () => { renderPh(); renderOrp(); renderKcl(); };
+  addEventListener('resize', all); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', all); all();
+})();
+</script>
+</body>
+</html>

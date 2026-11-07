@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El yacimiento</title>
+<meta name="description" content="Capítulo 1 de Procesos del cobre para ingenieros eléctricos: pórfidos de cobre, perfil supérgeno, minerales y datos reales de ley y tonelaje del USGS.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
+:root{
+  --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
+  --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.top{background:var(--ink);color:#e9eef2}
+.top .in{padding-block:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.top a{color:#e9eef2;text-decoration:none}
+.in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+header.ch{padding-block:48px 8px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+article{padding-block:16px 40px}
+.prose{max-width:68ch}
+h2{font-size:1.45rem;font-weight:600;margin:52px 0 6px;line-height:1.25;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:.85rem;color:var(--copper);display:block;letter-spacing:.08em;margin-bottom:4px}
+p{margin:0 0 14px}
+.analogy{border-left:3px solid var(--copper-2);background:var(--soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.analogy b{color:var(--copper)}
+.eq{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.92rem;margin:14px 0}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0;display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:24px}
+@media (max-width:46rem){.lab{grid-template-columns:1fr}}
+.lab h3{grid-column:1/-1;margin:0;font-size:1rem;font-weight:600}
+.lab h3 small{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--copper)}
+.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+button{font:inherit;font-size:.86rem;padding:7px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--copper)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--soft)}
+.ro .l{font-size:.72rem;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.ro .v.bad{color:var(--bad)} .ro .v.ok{color:var(--ok)}
+canvas{display:block;width:100%}
+.msg{font-size:.88rem;padding:8px 10px;border-radius:6px;background:var(--soft);border:1px solid var(--line)}
+.msg.bad{border-color:var(--bad)} .msg.ok{border-color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+.tbl{overflow-x:auto}
+.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:12px;margin:16px 0}
+.inst div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.inst b{display:block;font-size:.95rem}
+.inst span{font-size:.87rem;color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.src li{margin-bottom:6px}
+.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;margin-top:40px}
+.next a{text-decoration:none;font-weight:600}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="./">← Procesos del cobre para ingenieros eléctricos</a><a href="../">jsnn15.github.io</a></div></div>
+<div class="in">
+  <header class="ch">
+    <div class="kick">Capítulo 1</div>
+    <h1>El yacimiento</h1>
+    <p class="lede">De dónde sale el cobre, por qué viene en roca con menos de 1 % de cobre y por qué el mineral en que viene decide toda la planta que va después.</p>
+  </header>
+
+  <article>
+    <div class="prose">
+      <h2><span class="n">01</span>Un pórfido de cobre</h2>
+      <p>La mayor parte del cobre del mundo, y casi todo el de Chile, sale de yacimientos llamados <b>pórfidos cupríferos</b>. Se formaron cuando un magma se enfrió a unos kilómetros de profundidad y liberó fluidos calientes que dejaron minerales de cobre repartidos en un volumen enorme de roca. El resultado es un cuerpo gigante con poco cobre por tonelada: la <b>ley</b>, el porcentaje de cobre en la roca, suele estar entre 0,3 % y 1 %.</p>
+    </div>
+
+    <section class="lab" aria-label="Cuánto cobre hay en la roca">
+      <h3>Laboratorio 1 · ¿Cuánta roca hay que mover?<small>Con la ley y la recuperación de la planta, calcula cuánta roca se procesa por cada tonelada de cobre.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="ley">Ley del mineral <b id="ley-v"></b></label><input id="ley" type="range" min="0.2" max="2" step="0.05" value="0.6"></div>
+        <div class="f"><label for="rec">Recuperación de la planta <b id="rec-v"></b></label><input id="rec" type="range" min="40" max="95" step="1" value="80"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Cobre en 1 t de roca</div><div class="v" id="r-kg"></div></div>
+          <div class="ro"><div class="l">Roca por 1 t de cobre</div><div class="v" id="r-t"></div></div>
+          <div class="ro"><div class="l">Camiones de 300 t</div><div class="v" id="r-cam"></div></div>
+        </div>
+        <canvas id="cv-rock" height="120" aria-label="Proporción de cobre en la roca"></canvas>
+      </div>
+    </section>
+
+    <div class="prose">
+      <p>Por eso la minería del cobre es un negocio de volumen: cada décima de ley y cada punto de recuperación pesan mucho. Y por eso importa tanto saber <b>en qué mineral</b> viene el cobre, porque eso decide si se puede disolver con ácido o si hay que concentrarlo y fundirlo.</p>
+
+      <h2><span class="n">02</span>El perfil: lo que el agua y el aire le hicieron al yacimiento</h2>
+      <p>Cuando un pórfido queda cerca de la superficie, la lluvia y el oxígeno lo atacan desde arriba durante millones de años. La parte alta se oxida y pierde cobre, ese cobre baja disuelto y se vuelve a depositar más abajo, cerca del nivel del agua subterránea. En el norte de Chile el clima árido conservó estos perfiles, y por eso hay tanto mineral oxidado y enriquecido. Haz clic en cada zona.</p>
+    </div>
+
+    <section class="lab" aria-label="Perfil de un pórfido de cobre" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+      <h3>Laboratorio 2 · Corte de un pórfido con su perfil supérgeno<small>Esquema didáctico, no a escala. Las profundidades reales varían de un yacimiento a otro.</small></h3>
+      <div><svg id="profile" viewBox="0 0 360 420" width="100%" role="img" aria-label="Corte con cuatro zonas: cubierta lixiviada, óxidos, enriquecimiento secundario e hipógeno"></svg></div>
+      <div class="out" id="zone-info" aria-live="polite"></div>
+    </section>
+
+    <div class="prose">
+      <h2><span class="n">03</span>Los minerales de cobre, uno por uno</h2>
+      <p>El porcentaje de cobre de cada mineral no es un dato que haya que creer: sale de su fórmula química y de los pesos atómicos. Esta tabla lo calcula en tu navegador. La columna de comportamiento en ácido es la que decide la ruta.</p>
+    </div>
+    <div class="tbl"><table id="mins"><thead><tr><th>Mineral</th><th>Fórmula</th><th>% Cu</th><th>Zona</th><th>En ácido sulfúrico</th><th>Ruta habitual</th></tr></thead><tbody></tbody></table></div>
+
+    <div class="prose">
+      <h2><span class="n">04</span>Datos reales: los pórfidos del mundo</h2>
+      <p>El Servicio Geológico de Estados Unidos (USGS) publica una base de datos de pórfidos de cobre con el tonelaje y la ley de cada uno. Cada punto es un yacimiento. Chile está en naranjo. Pasa el cursor para ver el nombre.</p>
+    </div>
+    <section class="lab" aria-label="Ley versus tonelaje de los pórfidos" style="grid-template-columns:1fr">
+      <h3>Laboratorio 3 · Ley versus tonelaje<small>Ejes logarítmicos. Las líneas diagonales marcan millones de toneladas de cobre contenido.</small></h3>
+      <div class="ctl" style="flex-direction:row;flex-wrap:wrap;align-items:center">
+        <label class="chk"><input type="checkbox" id="only-cl"> Solo Chile</label>
+        <span class="src" id="n-dep" style="margin-left:auto"></span>
+      </div>
+      <div style="position:relative"><canvas id="cv-gt" height="380" aria-label="Gráfico de dispersión de ley versus tonelaje"></canvas><div id="gt-tip" class="msg" style="position:absolute;pointer-events:none;font-family:var(--mono);font-size:.78rem" hidden></div></div>
+      <div class="tbl"><table><thead><tr><th>Yacimiento chileno</th><th>Tonelaje (Mt)</th><th>Ley (% Cu)</th><th>Cobre contenido (Mt)</th></tr></thead><tbody id="top-cl"></tbody></table></div>
+    </section>
+    <div class="prose">
+      <p class="src">El tonelaje de esta base suma producción histórica, reservas y recursos hasta 2008. Las cifras actuales de cada mina son distintas; lo que vale aquí es el orden de magnitud y la comparación.</p>
+
+      <h2><span class="n">05</span>Por qué esto le importa a la automatización</h2>
+      <p>El mineral que llega a la planta cambia todos los días, y con él cambian los puntos de operación:</p>
+      <div class="inst">
+        <div><b>Consumo de ácido</b><span>Los carbonatos y otros minerales de la ganga consumen ácido sin entregar cobre. Más ganga reactiva, más ácido en la aglomeración y en el riego.</span></div>
+        <div><b>Necesidad de oxidante</b><span>Los sulfuros secundarios necesitan ion férrico. Ahí entran el control de ORP, la aireación de las pilas y las bacterias.</span></div>
+        <div><b>Cloruro</b><span>La atacamita aporta cloruro a la solución, que después corroe y afecta la SX y la electroobtención.</span></div>
+        <div><b>Variabilidad</b><span>El modelo de bloques de la mina dice qué mineral viene. Es la primera "señal anticipada" (feedforward) de la planta.</span></div>
+      </div>
+
+      <h2>Fuentes</h2>
+      <ul class="src">
+        <li>Singer, D. A., Berger, V. I. y Moring, B. C., 2008, <a href="https://pubs.usgs.gov/publication/ofr20081155"><i>Porphyry copper deposits of the world: database and grade and tonnage models</i></a>, USGS Open-File Report 2008-1155. Datos de dominio público.</li>
+        <li>Sillitoe, R. H., 2005, "Supergene oxidized and enriched porphyry copper and related deposits", <i>Economic Geology 100th Anniversary Volume</i>, p. 723–768. Perfil supérgeno y su preservación en climas áridos.</li>
+        <li>Fórmulas de minerales: <a href="https://www.mindat.org">mindat.org</a>. Pesos atómicos: IUPAC.</li>
+        <li>Comportamiento de los minerales en ácido y rutas de proceso: Schlesinger, M. E. y otros, <i>Extractive Metallurgy of Copper</i>, Elsevier.</li>
+      </ul>
+
+      <div class="next"><a href="quimica.html">← Capítulo 0: Química para eléctricos</a><a href="./">Índice del curso →</a></div>
+    </div>
+  </article>
+</div>
+<script type="application/json" id="porfidos">[["Agua Rica","Argentina",1761.0,0.42],["Bajo de la Alumbrera","Argentina",806.0,0.53],["Bajo El Durazno","Argentina",200.0,0.32],["Campana Mahuida","Argentina",194.0,0.49],["La Voluntad","Argentina",250.0,0.15],["Nevados de Famatina","Argentina",300.0,0.37],["Paramillos Norte","Argentina",186.0,0.58],["Paramillos Sur","Argentina",187.0,0.53],["San Jorge","Argentina",381.0,0.39],["Taca Taca Bajo","Argentina",553.0,0.54],["Agarak","Armenia",125.0,0.56],["Kadjaran","Armenia",1700.0,0.27],["Teghout","Armenia",450.0,0.36],["Cadia Hill/Ridgeway","Australia",1210.0,0.32],["Copper Hill","Australia",136.0,0.33],["Endeavour","Australia",130.6,1.1],["Marsden","Australia",115.0,0.5],["Coalstoun","Australia",85.0,0.29],["Coppin Gap","Australia",152.0,0.12],["Herzogenhugel","Belgium",20.0,0.17],["Chapada","Brazil",134.0,0.44],["Estrela","Brazil",30.0,0.5],["Assarel","Bulgaria",354.0,0.44],["Elatsite","Bulgaria",350.0,0.39],["Medet","Bulgaria",244.0,0.37],["Tsar Assen","Bulgaria",6.6,0.47],["Vlaykov Vruh","Bulgaria",9.8,0.46],["Afton","Canada",134.0,0.83],["Ajax","Canada",221.9,0.292],["Axe","Canada",116.7,0.43],["Bell Copper","Canada",495.0,0.36],["Berg","Canada",238.0,0.4],["Bethlehem","Canada",677.0,0.45],["Big Onion","Canada",94.4,0.42],["Brenda","Canada",227.0,0.16],["Bronson","Canada",102.0,0.15],["Catface","Canada",308.0,0.37],["Copper Canyon","Canada",164.8,0.35],["Copper Mountain","Canada",324.0,0.473],["Dorothy","Canada",45.0,0.26],["Eaglehead","Canada",29.0,0.41],["Fish Lake","Canada",1150.0,0.22],["Galaxy","Canada",5.4,0.59],["Galore Creek","Canada",540.7,0.554],["Gambier Island","Canada",114.0,0.29],["Giant Copper","Canada",245.0,0.27],["Gibraltar","Canada",1229.0,0.3],["Gnat Lake","Canada",30.4,0.39],["Granisle","Canada",85.0,0.43],["Highmont","Canada",265.0,0.266],["Huckleberry","Canada",161.0,0.48],["Hushamu","Canada",735.4,0.198],["Island Copper","Canada",377.0,0.41],["Kemess North","Canada",601.0,0.207],["Kemess South","Canada",250.0,0.22],["Kerr","Canada",140.8,0.75],["Kinaskan","Canada",220.5,0.268],["Krain","Canada",72.1,0.31],["Kwanika","Canada",36.0,0.2],["Lornex","Canada",514.0,0.427],["Lorraine","Canada",32.0,0.66],["Louise Lake","Canada",50.0,0.3],["Maggie","Canada",181.0,0.28],["Morrison","Canada",263.4,0.39],["Mt. Milligan","Canada",445.0,0.215],["Mt. Polly","Canada",293.0,0.23],["O.K.","Canada",143.0,0.24],["Ox Lake","Canada",21.4,0.34],["Pine","Canada",40.0,0.15],["Poison Mountain","Canada",808.0,0.24],["Poplar","Canada",236.0,0.37],["Primer","Canada",23.0,0.2],["Red Bluff","Canada",37.0,0.23],["Red Chris","Canada",523.0,0.35],["Red Dog","Canada",45.0,0.32],["Schaft Creek","Canada",1434.0,0.25],["Sulphurets","Canada",382.0,0.406],["Taseko","Canada",15.0,0.53],["Valley","Canada",833.5,0.432],["Jogran","Canada",20.0,0.19],["Tribag","Canada",165.0,0.15],["Don Rouyn","Canada",36.0,0.15],["Gasp","Canada",336.0,0.555],["Cash","Canada",36.0,0.28],["Casino","Canada",964.0,0.22],["Andacollo","Chile",540.0,0.45],["Antucoya","Chile",519.0,0.41],["Cerro Casale","Chile",1285.0,0.35],["Cerro Colorado","Chile",607.0,0.81],["Chimborazo","Chile",236.0,0.6],["Chuquicamata","Chile",21277.0,0.592],["Collahuasi","Chile",3100.0,0.86],["Conchi","Chile",351.0,0.71],["El Abra","Chile",1779.4,0.494],["El Salvador","Chile",3836.3,0.447],["El Telgrafo","Chile",898.0,0.45],["El Teniente","Chile",20731.0,0.62],["Escondida","Chile",11158.0,0.769],["Esperanza","Chile",1435.0,0.51],["Gaby","Chile",3421.0,0.35],["La Fortuna","Chile",1245.0,0.41],["Lomas Bayas","Chile",1230.0,0.279],["Los Bronces/Rio Blanco","Chile",16816.0,0.601],["Los Pelambres - El Pachon, AGTN","Chile",7458.0,0.617],["Mansa Mina","Chile",1000.0,1.3],["Opache","Chile",341.0,0.53],["Potrerillos","Chile",1030.0,0.976],["Quebrada Blanca","Chile",1090.0,0.72],["Regalito","Chile",1005.0,0.366],["Relincho","Chile",581.0,0.43],["Sierra Gorda","Chile",110.0,0.6],["Spence","Chile",497.0,0.92],["Ticnmar","Chile",500.0,0.2],["Toki","Chile",2550.0,0.47],["Ujina","Chile",1298.0,0.71],["Vizcachitas","Chile",1163.0,0.38],["Bainamiao","China",64.0,0.8],["Chengmenshan","China",409.0,0.75],["Chonjiang","China",74.6,0.67],["Dexing","China",1825.0,0.459],["Dongga","China",420.0,0.65],["Duobaoshan","China",951.0,0.46],["Duoxiasongduo","China",236.0,0.38],["Fengshandong","China",105.0,0.38],["Gegongnong","China",101.0,0.5],["Machangqing","China",62.0,0.5],["Malasongduo","China",228.0,0.45],["Mangzhong","China",73.5,0.34],["Pulang","China",54.2,0.53],["Qulong","China",1517.0,0.52],["Saishitang","China",50.0,1.13],["Tongchankou","China",44.6,0.94],["Tongkuangyu","China",440.0,0.69],["Tuwu","China",280.0,0.75],["Wunugetushan","China",495.0,0.45],["Xietongmen","China",219.8,0.43],["Xifanping","China",64.3,0.28],["Yandong","China",372.0,0.58],["Yulong","China",850.0,0.84],["Zhanaga","China",83.3,0.36],["Zhunuo","China",120.5,0.83],["Zijinshan","China",356.0,0.49],["Mocoa","Colombia",283.0,0.37],["Arimao","Cuba",83.0,0.27],["Chaucha","Ecuador",363.0,0.4],["Fierro Urcu","Ecuador",53.5,0.2],["Gaby-Papa Grande","Ecuador",165.9,0.12],["Junin","Ecuador",319.0,0.71],["Mirador","Ecuador",890.0,0.56],["Panantza","Ecuador",463.0,0.66],["San Carlos","Ecuador",850.0,0.5],["Warintza","Ecuador",84.5,0.9],["Namosi","Fiji",963.0,0.435],["Waivaka","Fiji",23.0,0.75],["Skouries/Fisoka","Greece",568.0,0.35],["Douvray","Haiti",327.3,0.44],["Recsk","Hungary",700.0,0.66],["Malanjkhand","India",797.0,0.83],["Batu Hijau","Indonesia",1640.0,0.44],["Grasberg","Indonesia",4000.0,0.6],["Kaputusan","Indonesia",77.0,0.33],["Tangse","Indonesia",600.0,0.15],["Tapadaa","Indonesia",43.0,0.54],["Tombulilato","Indonesia",287.0,0.63],["Ali-Abad","Iran",40.0,0.73],["Darreh-Zerreshk","Iran",23.0,0.9],["Darrehzar","Iran",31.7,0.722],["Kale Kafi","Iran",245.0,0.26],["Meiduk","Iran",180.0,0.83],["Sar Cheshmeh","Iran",1200.0,1.2],["Sungun","Iran",740.0,0.661],["Calabona","Italy",189.0,0.07],["Aktogai","Kazakhstan",2636.0,0.39],["Benkala","Kazakhstan",309.0,0.42],["Borly","Kazakhstan",94.4,0.34],["Boshchekul","Kazakhstan",1000.0,0.67],["Chatyrkul","Kazakhstan",90.7,0.6],["Karatas","Kazakhstan",29.0,0.44],["Kazkyrmyskoye","Kazakhstan",375.0,0.41],["Kenkuduk","Kazakhstan",23.7,0.34],["Kepcham","Kazakhstan",35.8,0.34],["Koksai","Kazakhstan",320.0,0.55],["Koktasdzhal","Kazakhstan",57.0,0.62],["Kounrad","Kazakhstan",637.0,0.589],["Kyzylkain","Kazakhstan",542.0,0.3],["Kyzyltu","Kazakhstan",65.8,0.48],["Nurkazgan","Kazakhstan",213.0,0.81],["Ozernoe","Kazakhstan",194.0,0.36],["Saryshagan","Kazakhstan",324.0,0.27],["Varvarinskoye","Kazakhstan",117.6,0.66],["Taldy-Bulak","Kyrgyzstan",540.0,0.27],["Phu Kham","Laos",277.0,0.51],["Buchim","Macedonia",150.0,0.3],["Mamut","Malaysia",196.0,0.48],["Mengpur","Malaysia",45.0,1.8],["Bahuerachi","Mexico",604.7,0.397],["Cananea","Mexico",5141.0,0.45],["Cuatro Hermanos","Mexico",233.0,0.431],["Cumobabi","Mexico",67.0,0.266],["El Arco","Mexico",1016.0,0.518],["El Batamote","Mexico",4.4,0.36],["Inguaran","Mexico",7.0,1.29],["La Caridad","Mexico",1800.0,0.452],["La Florida","Mexico",135.0,0.33],["La Reyna","Mexico",33.0,0.5],["La Verde","Mexico",110.0,0.7],["Luz del Cobre","Mexico",14.7,0.738],["Mariquita","Mexico",100.0,0.48],["Milpillas","Mexico",230.0,0.85],["Piedras Verdes","Mexico",288.0,0.37],["Pilares","Mexico",147.0,1.04],["San Isidro","Mexico",12.5,0.4],["Santo Toms","Mexico",274.0,0.498],["Suaqui Verde","Mexico",87.2,0.43],["Tameapa","Mexico",49.0,0.26],["Tepal","Mexico",78.0,0.25],["Erdenet","Mongolia",2370.0,0.38],["Kharmagtai","Mongolia",229.0,0.35],["Oyu Tolgoi","Mongolia",3107.1,0.676],["Tsagaan-Suvarga","Mongolia",240.0,0.53],["Monywa","Myanmar",1700.0,0.37],["Haib","Namibia",400.0,0.33],["Dasht-e-Kain","Pakistan",350.0,0.3],["Reko Diq","Pakistan",2420.0,0.51],["Saindak","Pakistan",440.0,0.41],["Cerro Chorcha","Panama",134.9,0.48],["Cerro Colorado","Panama",3730.0,0.39],["Cobre Panama","Panama",272.0,0.65],["Petaquilla-Botija","Panama",1218.0,0.5],["Arie","Papua New Guinea",165.0,0.32],["Frieda River","Papua New Guinea",1060.0,0.521],["Mount Bini","Papua New Guinea",85.0,0.4],["Ok Tedi","Papua New Guinea",854.0,0.64],["Panguna","Papua New Guinea",1420.0,0.465],["Star Mt. Futik","Papua New Guinea",65.0,0.54],["Star Mt. Nong River","Papua New Guinea",60.0,0.5],["Wafi River","Papua New Guinea",272.7,0.646],["Yandera","Papua New Guinea",338.0,0.42],["Aguila","Peru",34.0,0.85],["Antapaccay","Peru",472.0,0.74],["Caariaco","Peru",820.0,0.45],["Cerro Colorado","Peru",220.0,1.01],["Cerro Corona","Peru",300.0,0.3],["Cerro Negro","Peru",70.0,0.53],["Cerro Verde/Santa Rosa","Peru",2528.0,0.495],["Constancia","Peru",320.2,0.514],["Coroccohuayco","Peru",155.0,1.57],["Cotabambas","Peru",114.0,0.68],["Cuajone","Peru",1630.0,0.69],["El Galeno","Peru",863.0,0.474],["La Granja","Peru",3000.0,0.56],["Los Chancas","Peru",200.0,1.0],["Los Pinos","Peru",37.8,0.4],["Magistral","Peru",270.0,0.51],["Michiquillay","Peru",700.0,0.65],["Minas Conga","Peru",641.0,0.3],["Pashpap","Peru",141.6,0.45],["Quechua","Peru",300.0,0.68],["Quellaveco","Peru",974.0,0.65],["Rio Blanco","Peru",1257.0,0.57],["Tantahuatay","Peru",375.0,0.79],["Toquepala","Peru",2320.0,0.55],["Toromocho","Peru",2152.0,0.461],["Amacan","Philippines",110.0,0.3],["Atlas","Philippines",1420.0,0.448],["Aya Aya","Philippines",40.0,0.3],["Balak-5","Philippines",5.0,0.8],["Basay","Philippines",262.0,0.44],["Batong Buhay","Philippines",86.9,0.599],["Boneng Lobo","Philippines",225.0,0.283],["Botilao","Philippines",82.0,0.52],["Boyongan","Philippines",300.0,0.6],["Dinkidi","Philippines",121.0,0.39],["Dizon","Philippines",187.0,0.36],["Far Southeast-Bato Tabio","Philippines",650.0,0.65],["Guinaoang-Tirad","Philippines",326.0,0.43],["Hale-Mayabo","Philippines",35.0,0.5],["Hinobaan","Philippines",432.0,0.367],["Ino-Capayang","Philippines",50.0,0.5],["Kalamatan","Philippines",26.0,0.34],["Kennon South East/Black Mountain","Philippines",62.0,0.378],["Kilongolao","Philippines",50.0,0.35],["Kingking","Philippines",749.0,0.387],["Lumbay","Philippines",78.0,0.4],["Luna-Asiga","Philippines",26.0,0.36],["Manag","Philippines",20.0,0.5],["Mapula","Philippines",78.0,0.4],["Marcopper","Philippines",372.0,0.55],["Marian","Philippines",55.0,0.427],["Matanlang","Philippines",65.0,0.35],["Pisumpan","Philippines",20.0,0.41],["San AntonioÐPhilex","Philippines",170.0,0.44],["San Fabian","Philippines",314.0,0.27],["Santo Nio","Philippines",286.0,0.345],["Santo Tomas II","Philippines",449.0,0.375],["Sipalay","Philippines",807.0,0.473],["Suguibon","Philippines",26.0,0.35],["Sulat","Philippines",32.5,0.61],["Tagpura-Maangob","Philippines",75.6,0.44],["Tampakan","Philippines",2500.0,0.48],["Tawi-Tawi","Philippines",159.0,0.39],["Taysan","Philippines",600.0,0.31],["Myszkow","Poland",460.0,0.152],["Rio Vivi","Puerto Rico",218.0,0.73],["Tanama","Puerto Rico",126.0,0.64],["Bolcana","Romania",90.0,0.3],["Bucium Tarnita","Romania",335.0,0.5],["Moldova Noua","Romania",500.0,0.35],["Musariu","Romania",12.0,0.2],["Rosia Poieni","Romania",431.0,0.55],["Rovina","Romania",228.3,0.204],["Talagiu","Romania",150.0,0.35],["Valea Morii","Romania",100.0,0.25],["Aksug","Russia",370.5,0.67],["Kiyalykh-uzen","Russia",30.0,1.0],["Lora","Russia",178.0,0.5],["Miheevskoye","Russia",426.6,0.37],["Peschanka","Russia",940.0,0.51],["Tominskoe","Russia",241.0,0.58],["Bor","Serbia",800.0,0.84],["Majdanpek","Serbia",1000.0,0.6],["Veliki Krivelj","Serbia",750.0,0.44],["Zlatno","Slovakia",66.0,0.34],["Koloula","Solomon Islands",50.0,0.17],["Aitik","Sweden",1340.0,0.4],["Tallberg","Sweden",44.0,0.27],["Phu Lon","Thailand",58.0,1.76],["Bakircay","Turkey",200.0,0.2],["Derekoy","Turkey",221.0,0.24],["Gm_hane","Turkey",80.0,0.5],["Gzelyayla","Turkey",186.0,0.3],["Ikiztepe","Turkey",13.0,0.39],["Uluta_","Turkey",140.0,0.27],["Baultoff","United States",140.0,0.2],["Bond Creek","United States",500.0,0.3],["Carl Creek","United States",16.0,0.15],["Horsfield","United States",60.0,0.15],["Margerie Glacier","United States",145.0,0.2],["Nunatak","United States",120.0,0.18],["Orange Hill","United States",320.0,0.35],["Pebble Copper","United States",7510.0,0.416],["Pyramid","United States",159.0,0.372],["Round Top","United States",55.0,0.2],["Taurus","United States",450.0,0.5],["Ajo","United States",742.0,0.576],["Bagdad","United States",1600.0,0.4],["Bisbee","United States",346.6,0.656],["Casa Grande West","United States",1450.0,0.588],["Castle Dome","United States",1438.0,0.33],["Chilito","United States",199.0,0.3],["Christmas","United States",48.1,1.1],["Copper Basin","United States",228.0,0.4],["Copper Creek","United States",75.3,0.75],["Esperanza-Sierrita","United States",2262.0,0.294],["Gibson","United States",9.9,0.78],["Helvetia","United States",952.0,0.552],["Ithaca Peak","United States",876.5,0.143],["Johnson Camp","United States",250.0,0.489],["Lakeshore","United States",716.7,0.657],["Lonesome Pine","United States",18.0,0.41],["Miami-Inspiration","United States",1591.0,0.63],["Mineral Butte","United States",13.0,0.4],["Mission-Pima","United States",900.0,0.52],["Morenci-Metcalf","United States",6470.0,0.524],["Pine Flat","United States",25.0,0.36],["Poston Butte","United States",726.0,0.38],["Ray","United States",1583.0,0.68],["Red Hills","United States",453.5,0.1],["Red Mountain","United States",570.0,0.63],["Sacaton","United States",48.6,0.72],["Safford","United States",7260.0,0.441],["San Manuel-Kalamazoo","United States",1390.0,0.6],["San Xavier North","United States",208.0,0.54],["Sanchez","United States",173.0,0.317],["Sheep Mountain","United States",318.0,0.99],["Silver Bell","United States",268.0,0.66],["Squaw Peak","United States",18.0,0.4],["Sunnyside","United States",180.0,0.61],["Superior East","United States",996.0,0.498],["Twin Buttes","United States",940.0,0.502],["Two Peaks","United States",29.0,0.3],["Vekol Hills","United States",95.0,0.56],["Lights Creek","United States",318.0,0.34],["Allard","United States",200.0,0.4],["Bobcat Gulch","United States",54.4,0.5],["Catheart Mt.","United States",18.0,0.556],["Beavertown","United States",50.0,0.5],["Continental/Butte","United States",5220.0,0.673],["Heddleston","United States",302.0,0.36],["Copper Flat","United States",61.7,0.36],["Hannover Mountains","United States",1406.0,0.34],["Santa Rita","United States",3030.0,0.468],["Tyrone","United States",1050.0,0.49],["Ann Mason","United States",495.0,0.4],["Bear-Lagomarsino","United States",454.0,0.4],["Contact","United States",55.8,0.77],["Copper Basin","United States",54.7,0.28],["Copper Canyon","United States",56.8,0.48],["Ely","United States",754.0,0.613],["MacArthur","United States",88.0,0.21],["SFS","United States",159.0,0.46],["Sullivan","United States",23.1,0.33],["Yerington","United States",928.0,0.514],["Bingham","United States",3230.0,0.882],["OK","United States",10.0,0.5],["Southwest Tintic","United States",559.0,0.28],["Glacier Peak","United States",1710.0,0.334],["Gold Mountain","United States",40.0,0.5],["Kelsey","United States",285.0,0.281],["Margaret","United States",523.0,0.36],["Mazama","United States",135.0,0.36],["Middle Fork","United States",93.0,0.41],["North Fork Snoqualmie River","United States",128.0,0.68],["Sunrise","United States",63.9,0.35],["Copper King","United States",35.0,0.21],["Kirwin","United States",118.0,0.76],["Silver Creek","United States",54.0,0.31],["Stinkingwater","United States",59.0,0.35],["Almalyk","Uzbekistan",6080.0,0.39],["Kyzata","Uzbekistan",700.0,0.85],["Sarycheku","Uzbekistan",200.0,0.5],["Samba","Zambia",50.0,0.5]]</script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nf = (d) => new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d});
+  const f0 = nf(0), f1 = nf(1), f2 = nf(2);
+  const setup = (cv, H) => { const d = devicePixelRatio || 1, W = cv.clientWidth; cv.width = W * d; cv.height = H * d; cv.style.height = H + 'px'; const x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, W, H); x.font = `11px ${css('--mono')}`; return [x, W]; };
+
+  // ---------- Lab 1
+  const renderRock = () => {
+    const ley = +$('ley').value, rec = +$('rec').value / 100;
+    $('ley-v').textContent = f2.format(ley) + ' %'; $('rec-v').textContent = f0.format(rec * 100) + ' %';
+    const kg = ley * 10, rock = 1 / (ley / 100 * rec);
+    $('r-kg').textContent = f1.format(kg) + ' kg'; $('r-t').textContent = f0.format(rock) + ' t'; $('r-cam').textContent = f1.format(rock / 300);
+    const cv = $('cv-rock'), H = 120, [x, W] = setup(cv, H);
+    const cols = 50, rows = 4, cw = (W - 2) / cols, ch = (H - 30) / rows, n = cols * rows, cu = Math.max(1, Math.round(n * ley / 100));
+    for (let i = 0; i < n; i++) { const c = i % cols, r = Math.floor(i / cols); x.fillStyle = i < cu ? css('--copper') : css('--line'); x.fillRect(1 + c * cw + 1, r * ch + 1, cw - 2, ch - 2); }
+    x.fillStyle = css('--muted'); x.fillText(`Cada cuadro = 0,5 % de la roca. El cobre ocupa ${f2.format(ley)} %: ${cu === 1 && ley < 0.5 ? 'menos de un cuadro' : cu + ' cuadro(s)'}.`, 2, H - 8);
+  };
+  ['ley', 'rec'].forEach((id) => $(id).addEventListener('input', renderRock));
+
+  // ---------- Lab 2: perfil
+  const ZONES = [
+    {id: 'cap', name: 'Cubierta lixiviada', y0: 40, y1: 120, color: '#c49a6c',
+      txt: 'La parte más alta, oxidada y lavada por el agua. El cobre se fue; quedan óxidos de hierro (goethita, hematita, jarosita) que le dan el color rojizo.',
+      mins: 'Limonitas. Casi sin cobre.', ruta: 'Estéril o de baja ley: generalmente no se procesa.'},
+    {id: 'ox', name: 'Zona de óxidos', y0: 120, y1: 200, color: '#3f9b8a',
+      txt: 'Sobre el nivel del agua subterránea. El cobre quedó como minerales oxidados: carbonatos, silicatos, cloruros y sulfatos de cobre, de colores verdes y azules.',
+      mins: 'Malaquita, azurita, crisocola, atacamita, brochantita, cuprita, tenorita.', ruta: 'Lixiviación con ácido sulfúrico → SX → electroobtención.'},
+    {id: 'enr', name: 'Enriquecimiento secundario', y0: 214, y1: 284, color: '#4a5d8a',
+      txt: 'Cerca y bajo el antiguo nivel del agua. El cobre que bajó disuelto reemplazó a los sulfuros originales y formó sulfuros más ricos. Puede tener más ley que el mineral primario.',
+      mins: 'Calcosina, covelina (sulfuros secundarios o supérgenos).', ruta: 'Lixiviación con oxidante (biolixiviación en pilas) → SX → EW, o flotación.'},
+    {id: 'hip', name: 'Zona primaria (hipógena)', y0: 284, y1: 400, color: '#6b6f78',
+      txt: 'El mineral tal como lo dejaron los fluidos magmáticos, sin alterar por el agua de superficie. Es la mayor parte del yacimiento en profundidad.',
+      mins: 'Calcopirita, bornita, pirita (y enargita en algunos depósitos).', ruta: 'Molienda → flotación → concentrado → fundición y refinería.'}
+  ];
+  let zSel = 'ox';
+  const renderProfile = () => {
+    const svg = $('profile'), NS = 'http://www.w3.org/2000/svg';
+    svg.replaceChildren();
+    const el = (t, a, txt) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    el('rect', {x: 0, y: 0, width: 360, height: 40, fill: css('--soft')});
+    el('text', {x: 8, y: 26, fill: css('--muted'), 'font-size': 12, 'font-family': css('--mono')}, 'superficie');
+    ZONES.forEach((z) => {
+      const g = el('g', {tabindex: 0, role: 'button', 'aria-label': z.name, style: 'cursor:pointer'});
+      const r = document.createElementNS(NS, 'rect');
+      [['x', 0], ['y', z.y0], ['width', 360], ['height', z.y1 - z.y0], ['fill', z.color], ['opacity', zSel === z.id ? 1 : 0.55], ['stroke', zSel === z.id ? css('--fg') : 'none'], ['stroke-width', 2]].forEach(([k, v]) => r.setAttribute(k, v));
+      g.appendChild(r);
+      const t = document.createElementNS(NS, 'text'); t.setAttribute('x', 10); t.setAttribute('y', z.y0 + (z.id === 'enr' ? 46 : 22)); t.setAttribute('fill', '#fff'); t.setAttribute('font-size', 14); t.setAttribute('font-weight', 600); t.textContent = z.name; g.appendChild(t);
+      g.addEventListener('click', () => { zSel = z.id; renderProfile(); });
+      g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); zSel = z.id; renderProfile(); } });
+    });
+    // nivel freatico
+    el('rect', {x: 0, y: 200, width: 360, height: 14, fill: css('--blue'), opacity: .35});
+    el('line', {x1: 0, x2: 360, y1: 207, y2: 207, stroke: css('--blue'), 'stroke-width': 2, 'stroke-dasharray': '6 4'});
+    el('text', {x: 10, y: 232, fill: '#fff', 'font-size': 11, 'font-family': css('--mono')}, '↑ nivel del agua subterránea');
+    // flecha del cobre que baja
+    el('path', {d: 'M300 70 L300 236', stroke: '#fff', 'stroke-width': 2, fill: 'none', 'stroke-dasharray': '3 4'});
+    el('path', {d: 'M294 228 L300 240 L306 228 Z', fill: '#fff'});
+    el('text', {x: 292, y: 168, fill: '#fff', 'font-size': 11, 'text-anchor': 'end', 'font-family': css('--mono')}, 'el cobre baja disuelto');
+    // intrusivo
+    el('path', {d: 'M120 400 C130 340 150 310 180 300 C210 310 230 340 240 400 Z', fill: '#000', opacity: .15});
+    el('text', {x: 180, y: 390, fill: '#fff', 'font-size': 11, 'text-anchor': 'middle', 'font-family': css('--mono')}, 'pórfido intrusivo');
+    const z = ZONES.find((q) => q.id === zSel), box = $('zone-info');
+    box.replaceChildren();
+    const h = document.createElement('h3'); h.textContent = z.name; h.style.margin = '0'; box.appendChild(h);
+    [[null, z.txt], ['Minerales', z.mins], ['Ruta de proceso', z.ruta]].forEach(([lab, val]) => { const p = document.createElement('p'); p.style.margin = '0'; if (lab) { const b = document.createElement('b'); b.textContent = lab + ': '; p.appendChild(b); } p.appendChild(document.createTextNode(val)); box.appendChild(p); });
+  };
+
+  // ---------- Tabla de minerales (% Cu calculado)
+  const AW = {Cu: 63.546, Fe: 55.845, S: 32.06, O: 15.999, H: 1.008, C: 12.011, Cl: 35.45, As: 74.922};
+  const MINS = [
+    ['Malaquita', 'Cu₂CO₃(OH)₂', {Cu: 2, C: 1, O: 5, H: 2}, 'Óxidos', 'Se disuelve rápido. El carbonato consume ácido.', 'Lixiviación'],
+    ['Azurita', 'Cu₃(CO₃)₂(OH)₂', {Cu: 3, C: 2, O: 8, H: 2}, 'Óxidos', 'Se disuelve rápido. El carbonato consume ácido.', 'Lixiviación'],
+    ['Atacamita', 'Cu₂Cl(OH)₃', {Cu: 2, Cl: 1, O: 3, H: 3}, 'Óxidos', 'Se disuelve fácil. Aporta cloruro a la solución.', 'Lixiviación'],
+    ['Brochantita', 'Cu₄SO₄(OH)₆', {Cu: 4, S: 1, O: 10, H: 6}, 'Óxidos', 'Se disuelve fácil.', 'Lixiviación'],
+    ['Tenorita', 'CuO', {Cu: 1, O: 1}, 'Óxidos', 'Se disuelve en ácido.', 'Lixiviación'],
+    ['Cuprita', 'Cu₂O', {Cu: 2, O: 1}, 'Óxidos', 'Sin oxidante solo se disuelve la mitad del cobre; la otra mitad queda como cobre metálico.', 'Lixiviación con oxidante'],
+    ['Crisocola', '(Cu,Al)₂H₂Si₂O₅(OH)₄·nH₂O', null, 'Óxidos', 'Se disuelve más lento que los carbonatos. Composición variable.', 'Lixiviación'],
+    ['Calcosina', 'Cu₂S', {Cu: 2, S: 1}, 'Enriquecimiento', 'Necesita oxidante (ion férrico). Se disuelve en dos etapas: rápida primero, lenta después.', 'Biolixiviación o flotación'],
+    ['Covelina', 'CuS', {Cu: 1, S: 1}, 'Enriquecimiento', 'Necesita oxidante. Más lenta que la calcosina.', 'Biolixiviación o flotación'],
+    ['Bornita', 'Cu₅FeS₄', {Cu: 5, Fe: 1, S: 4}, 'Hipógeno', 'Necesita oxidante.', 'Flotación'],
+    ['Calcopirita', 'CuFeS₂', {Cu: 1, Fe: 1, S: 2}, 'Hipógeno', 'Muy lenta a temperatura ambiente.', 'Flotación y fundición'],
+    ['Enargita', 'Cu₃AsS₄', {Cu: 3, As: 1, S: 4}, 'Hipógeno', 'Refractaria. Contiene arsénico.', 'Flotación con manejo del arsénico']
+  ];
+  const pct = (f) => { let m = 0; for (const k in f) m += AW[k] * f[k]; return 100 * AW.Cu * f.Cu / m; };
+  const tb = $('mins').querySelector('tbody');
+  MINS.forEach(([n, fm, comp, z, acid, ruta]) => {
+    const tr = document.createElement('tr');
+    [n, fm, comp ? f1.format(pct(comp)) : '≈ 30–36 (variable)', z, acid, ruta].forEach((v, i) => { const td = document.createElement('td'); td.textContent = v; if (i === 1 || i === 2) td.style.fontFamily = css('--mono'); if (i === 2) td.style.whiteSpace = 'nowrap'; tr.appendChild(td); });
+    tb.appendChild(tr);
+  });
+
+  // ---------- Lab 3: ley-tonelaje
+  const D = JSON.parse(document.getElementById('porfidos').textContent).map(([n, c, t, g]) => ({n, c, t, g, cu: t * g / 100}));
+  let pts = [];
+  const renderGT = () => {
+    const only = $('only-cl').checked, data = only ? D.filter((d) => d.c === 'Chile') : D;
+    $('n-dep').textContent = `${data.length} yacimientos · fuente USGS`;
+    const cv = $('cv-gt'), H = 380, [x, W] = setup(cv, H), m = {l: 54, r: 14, t: 12, b: 34};
+    const lx0 = Math.log10(1), lx1 = Math.log10(40000), ly0 = Math.log10(0.05), ly1 = Math.log10(3);
+    const X = (t) => m.l + (W - m.l - m.r) * (Math.log10(t) - lx0) / (lx1 - lx0), Y = (g) => H - m.b - (H - m.t - m.b) * (Math.log10(g) - ly0) / (ly1 - ly0);
+    x.save(); x.beginPath(); x.rect(m.l, m.t, W - m.l - m.r, H - m.t - m.b); x.clip();
+    // diagonales de cobre contenido
+    [0.1, 1, 10, 100].forEach((cu) => { x.strokeStyle = css('--line'); x.setLineDash([3, 4]); x.beginPath(); x.moveTo(X(1), Y(cu * 100 / 1)); x.lineTo(X(40000), Y(cu * 100 / 40000)); x.stroke(); x.setLineDash([]);
+      const tt = Math.min(30000, cu * 100 / 0.07), gx = cu * 100 / tt; x.fillStyle = css('--muted'); x.textAlign = 'right'; x.fillText(f1.format(cu).replace(',0', '') + ' Mt Cu', X(tt) - 4, Y(gx) - 4); });
+    x.restore();
+    x.strokeStyle = css('--line'); x.fillStyle = css('--muted'); x.textAlign = 'center';
+    [1, 10, 100, 1000, 10000].forEach((t) => { x.beginPath(); x.moveTo(X(t), m.t); x.lineTo(X(t), H - m.b); x.stroke(); x.fillText(f0.format(t), X(t), H - m.b + 14); });
+    x.fillText('Tonelaje (millones de toneladas de mineral)', (m.l + W - m.r) / 2, H - 4);
+    x.textAlign = 'right'; [0.1, 0.2, 0.5, 1, 2].forEach((g) => { x.beginPath(); x.moveTo(m.l, Y(g)); x.lineTo(W - m.r, Y(g)); x.stroke(); x.fillText(f1.format(g).replace(',0', '') + ' %', m.l - 6, Y(g) + 4); });
+    pts = [];
+    [...data].sort((a, b) => (a.c === 'Chile') - (b.c === 'Chile')).forEach((d) => {
+      const px = X(d.t), py = Y(d.g), cl = d.c === 'Chile', r = Math.max(2.5, Math.min(9, 1.6 * Math.sqrt(d.cu)));
+      x.globalAlpha = cl ? .9 : .4; x.fillStyle = cl ? css('--copper') : css('--muted'); x.beginPath(); x.arc(px, py, r, 0, 7); x.fill(); x.globalAlpha = 1;
+      pts.push({px, py, r, d});
+    });
+    const top = D.filter((d) => d.c === 'Chile').sort((a, b) => b.cu - a.cu).slice(0, 8), tb2 = $('top-cl'); tb2.replaceChildren();
+    top.forEach((d) => { const tr = document.createElement('tr'); [d.n, f0.format(d.t), f2.format(d.g), f1.format(d.cu)].forEach((v) => { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); }); tb2.appendChild(tr); });
+  };
+  $('only-cl').addEventListener('input', renderGT);
+  $('cv-gt').addEventListener('pointermove', (ev) => {
+    const r = ev.currentTarget.getBoundingClientRect(), mx = ev.clientX - r.left, my = ev.clientY - r.top, tip = $('gt-tip');
+    let best = null, bd = 14; pts.forEach((p) => { const dd = Math.hypot(p.px - mx, p.py - my); if (dd < bd) { bd = dd; best = p; } });
+    if (!best) { tip.hidden = true; return; }
+    tip.textContent = `${best.d.n} (${best.d.c}) · ${f0.format(best.d.t)} Mt · ${f2.format(best.d.g)} % Cu · ${f1.format(best.d.cu)} Mt de cobre`;
+    tip.hidden = false; const tw = tip.offsetWidth; tip.style.left = Math.max(0, Math.min(r.width - tw, mx + 12)) + 'px'; tip.style.top = Math.max(0, my - 36) + 'px';
+  });
+  $('cv-gt').addEventListener('pointerleave', () => { $('gt-tip').hidden = true; });
+
+  const all = () => { renderRock(); renderProfile(); renderGT(); };
+  addEventListener('resize', all); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', all); all();
+})();
+</script>
+</body>
+</html>
