@@ -3,11 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Planta virtual LX-SX-EW</title>
-<meta name="description" content="Sala de control de una planta de lixiviación, extracción por solventes y electroobtención de cobre: P&ID en vivo, lazos PID, alarmas ISA-18.2, mantenimiento predictivo y KPI de turno.">
-<meta property="og:title" content="Planta virtual LX-SX-EW · Sala de control">
-<meta property="og:description" content="Opera una planta de cobre completa: pantallas de operador, alarmas, mantenimiento y gerencia sobre una simulación dinámica con datos reales.">
+<title>Planta virtual LX-SX-EW · Simulador de entrenamiento de operadores</title>
+<meta name="description" content="Simulador de entrenamiento de operadores (OTS) de una planta de lixiviación, extracción por solventes y electroobtención de cobre: P&ID en vivo, lazos PID, secuencias, alarmas ISA-18.2, mantenimiento predictivo y KPI de turno.">
+<meta property="og:title" content="Planta virtual LX-SX-EW · Simulador de entrenamiento de operadores (OTS)">
+<meta property="og:description" content="Opera una planta de cobre completa: partidas, paradas y fallas sobre un modelo dinámico con parámetros de literatura, con las vistas del operador, el mantenedor y el gerente.">
 <meta property="og:image" content="https://jsnn15.github.io/img/planta.jpg">
+<script>/* tema de sala de control: oscuro por defecto, el operador puede cambiarlo */
+try { document.documentElement.dataset.theme = localStorage.getItem('pv-theme') || 'dark'; } catch (e) { document.documentElement.dataset.theme = 'dark'; }</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -18,10 +20,11 @@
   --txt:#1a1e23; --muted:#58606a; --val:#0d2f78; --pipe:#8c9299; --flow:#41474e; --sig:#7d8590;
   --p1:#d0161b; --p2:#e57a00; --p3:#d9b800; --diag:#0a8ea6; --sel:#1f5fbf; --ok:#2f7d4f; --bar:#b9bec3; --band:#9ea4aa;
   --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace; --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --pen4:#7a4fb8;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#2a2e33;--panel:#33383e;--panel2:#3b4047;--line:#5a6168;--eq:#a5acb3;--eqfill:#4a5057;--run:#aeb5bc;--stop:#2a2e33;--txt:#e6e9ec;--muted:#a3abb3;--val:#9cc3ff;--pipe:#6d747b;--flow:#c9ced3;--sig:#7f8891;--bar:#4a5057;--band:#646b72;--sel:#6aa1ff;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#2a2e33;--panel:#33383e;--panel2:#3b4047;--line:#5a6168;--eq:#a5acb3;--eqfill:#4a5057;--run:#aeb5bc;--stop:#2a2e33;--txt:#e6e9ec;--muted:#a3abb3;--val:#9cc3ff;--pipe:#6d747b;--flow:#c9ced3;--sig:#7f8891;--bar:#4a5057;--band:#646b72;--sel:#6aa1ff;color-scheme:dark}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1b1f24;--panel:#242930;--panel2:#2b3139;--line:#444c56;--eq:#99a2ac;--eqfill:#3d444d;--run:#b9c1c9;--stop:#1f242a;--txt:#e3e7eb;--muted:#9aa4ae;--val:#8ab8ff;--pipe:#58616b;--flow:#c5ccd3;--sig:#6c7681;--bar:#373e47;--band:#59626c;--sel:#4d8dff;--diag:#2bb3c9;--ok:#4fae78;--pen4:#b48cf0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1b1f24;--panel:#242930;--panel2:#2b3139;--line:#444c56;--eq:#99a2ac;--eqfill:#3d444d;--run:#b9c1c9;--stop:#1f242a;--txt:#e3e7eb;--muted:#9aa4ae;--val:#8ab8ff;--pipe:#58616b;--flow:#c5ccd3;--sig:#6c7681;--bar:#373e47;--band:#59626c;--sel:#4d8dff;--diag:#2bb3c9;--ok:#4fae78;--pen4:#b48cf0;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px;line-height:1.4}
 button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:5px 10px;cursor:pointer}
@@ -105,6 +108,76 @@ td.mono{white-space:nowrap}
 .scn .card b{font-size:.92rem}
 .scn .card p{margin:0;font-size:.82rem;color:var(--muted);flex:1}
 footer{padding:10px 14px;font-size:.78rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line)}
+/* interacción */
+.ots{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.08em;text-decoration:none;padding:2px 6px;border:1px solid var(--sel);color:var(--sel);border-radius:3px;vertical-align:2px;margin-left:4px;cursor:help}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--sel);outline-offset:1px}
+.alarmbar .last[data-galm]{cursor:pointer}
+.alarmbar .last[data-galm]:hover{text-decoration:underline}
+tr.lnk{cursor:pointer}
+tr.lnk:hover td{background:var(--panel)}
+.tip{position:fixed;z-index:30;pointer-events:none;max-width:290px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:.78rem;display:flex;flex-direction:column;gap:2px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.tip[hidden]{display:none}
+.tip b{font-family:var(--mono);font-weight:600;font-size:.82rem}
+.tip span{color:var(--txt)}
+.tip i{font-style:normal;color:var(--muted);font-size:.72rem;margin-top:2px}
+.toasts{position:fixed;left:16px;bottom:16px;z-index:25;display:flex;flex-direction:column;gap:6px;max-width:min(380px,calc(100vw - 32px));pointer-events:none}
+.toast{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:6px;padding:8px 12px;font-size:.84rem;box-shadow:0 6px 18px rgba(0,0,0,.28);animation:tin .18s ease-out;transition:opacity .3s}
+.toast.err{border-left-color:var(--p2)}
+.toast.out{opacity:0}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}}
+@media (max-width:760px){.toasts{left:16px;right:16px;bottom:auto;top:12px;max-width:none}}
+.cdb{display:block;height:3px;background:var(--bar);border-radius:2px;overflow:hidden}
+.cdb i{display:block;height:100%;background:var(--p2);animation:cd 10s linear forwards}
+@keyframes cd{from{width:100%}to{width:0}}
+.fpw:not([hidden]){animation:fpin .14s ease-out}
+@keyframes fpin{from{opacity:0;transform:translateY(6px)}}
+table.norms tr.ngrp td{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;background:var(--panel)}
+table.norms td.mono{font-size:.78rem;white-space:normal;min-width:9rem}
+.nst{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:10px;border:1px solid var(--line);white-space:nowrap}
+.nst.ok{border-color:var(--ok);color:var(--ok)}.nst.part{border-color:var(--sel);color:var(--sel)}.nst.real{border-color:var(--diag);color:var(--diag)}.nst.ref{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){svg .pipe.on,svg .drum.run .st,.fpw:not([hidden]),.toast{animation:none}}
+button.ico{padding:5px 9px;min-width:34px;display:inline-flex;align-items:center;justify-content:center;align-self:stretch}
+.simst{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.75rem;letter-spacing:.04em;padding:3px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel2)}
+.simst i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
+.simst.paused i{background:var(--p3);box-shadow:none}
+/* faceplate flotante (ventana de equipo) */
+.fpw{position:fixed;z-index:15;left:auto;right:24px;top:150px;width:352px;max-height:calc(100vh - 24px);display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.fpw[hidden]{display:none}
+.fph{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 12px;border-bottom:1px solid var(--line);background:var(--panel2);border-radius:8px 8px 0 0;cursor:move;user-select:none;touch-action:none}
+.fph b{flex:1;font-family:var(--mono);font-size:.95rem;font-weight:600}
+.fph button{padding:2px 9px}
+.fpb{padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.fpb h3{font-size:.76rem;margin:0;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+@media (max-width:760px){.fpw{left:0!important;right:0;top:auto!important;bottom:0;width:auto;max-height:72vh;border-radius:12px 12px 0 0}.fph{cursor:default}}
+.cfm{border:1px solid var(--p2);border-left-width:4px;border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:6px;background:var(--panel2)}
+button.go{background:var(--sel);border-color:var(--sel);color:#fff;font-weight:600}
+.nud button{padding:3px 8px;font-family:var(--mono);font-size:.8rem}
+.nud span{min-width:100%}
+.lims{display:grid;grid-template-columns:auto auto 1fr;gap:4px 10px;align-items:center;font-size:.82rem}
+.lims b{font-family:var(--mono);font-weight:500;color:var(--val);text-align:right}
+.evl{display:flex;flex-direction:column;gap:3px;font-size:.78rem;color:var(--muted)}
+.abn{color:var(--diag)}.bad,.abn.bad{color:var(--p1)}
+.steps{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:.84rem}
+.steps li{display:flex;gap:8px;align-items:baseline;color:var(--muted)}
+.steps li span{width:14px;font-family:var(--mono);text-align:center}
+.steps li i{font-style:normal;font-family:var(--mono);font-size:.75rem;margin-left:auto;white-space:nowrap}
+.steps li.done{color:var(--txt)}.steps li.cur{color:var(--val);font-weight:600}.steps li.bad{color:var(--p1);font-weight:600}
+tr.trip td{color:var(--p1)}
+/* página del modelo */
+h3.sec{margin:6px 0 0;font-size:.85rem}
+.chain{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr));gap:10px;counter-reset:n}
+.mnode{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;position:relative}
+.mnode .l{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.mnode .v{font-family:var(--mono);font-size:1.4rem;color:var(--val)}
+.mnode .v small{font-size:.75rem;color:var(--muted)}
+.mnode .eq{font-family:var(--mono);font-size:.74rem;line-height:1.45}
+.mnode .s{font-size:.74rem;color:var(--muted);margin-top:auto}
+.stack{display:flex;height:26px;border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.stack i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.legend b{font-family:var(--mono);font-weight:500}
 /* SVG del P&ID */
 svg text{font-family:var(--sans);fill:var(--txt)}
 svg .lbl{font-size:12px;fill:var(--muted)}
@@ -155,6 +228,16 @@ svg .drum .st{stroke:var(--eq);stroke-width:1.2;stroke-dasharray:4 10;fill:none}
 svg .crud{fill:var(--p2);opacity:.75}
 svg .org{fill:var(--eqfill);opacity:.9}
 svg .btn rect{fill:var(--panel);stroke:var(--line)}
+svg .eq path.base{fill:none;stroke:var(--eq);stroke-width:1.4}
+/* resalte al pasar el puntero y del equipo cuya ventana está abierta */
+svg [data-fp]:hover>circle,svg [data-fp]:hover>rect,svg [data-fp]:hover>path:not(.ic),svg [data-go]:hover>path,svg rect[data-cell]:hover{stroke:var(--sel);stroke-width:2.2}
+svg .selx>circle,svg .selx>rect,svg .selx>path:not(.ic),svg rect.selx{stroke:var(--sel)!important;stroke-width:3!important}
+svg .spk{fill:none;stroke:var(--muted);stroke-width:1;opacity:.85}
+svg .mb rect{fill:var(--diag)}
+svg .mb text{font-family:var(--mono);font-size:8.5px;font-weight:700;fill:#fff}
+svg .lbl.cur,svg .unit.cur{fill:var(--val);font-weight:600}
+svg .lbl.bad,svg .unit.bad{fill:var(--p1);font-weight:600}
+svg .lbl.done{fill:var(--txt)}
 svg .btn.on rect{fill:var(--sel);stroke:var(--sel)}
 svg .btn.on text{fill:#fff}
 </style>
@@ -162,12 +245,15 @@ svg .btn.on text{fill:#fff}
 <body>
 <header class="bar">
   <a class="home" href="../">← jsnn15.github.io</a>
-  <h1>Planta virtual LX-SX-EW · Sala de control</h1>
+  <h1>Planta virtual LX-SX-EW <abbr class="ots" title="Simulador de entrenamiento de operadores (Operator Training Simulator)">OTS</abbr></h1>
   <span class="clock" id="clock">—</span>
+  <span class="simst" id="simst" title="Estado del motor de simulación"><i></i> SIM</span>
   <span class="grp" id="speed" aria-label="Velocidad de simulación"></span>
   <span class="sp"></span>
   <span class="grp" id="roles"></span>
   <button id="btn-scn">Escenarios</button>
+  <button id="btn-theme" class="ico" title="Cambiar tema" aria-label="Cambiar tema"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg></button>
+  <button id="btn-fs" class="ico" title="Pantalla completa, como en una consola de sala de control" aria-label="Pantalla completa"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg></button>
 </header>
 <div class="alarmbar" id="abar">
   <span class="cnt" id="acnt"></span>
@@ -193,10 +279,12 @@ svg .btn.on text{fill:#fff}
   <div class="row"><button id="btn-reset">Reiniciar la planta</button></div>
 </div></div>
 
-<div class="modal" id="m-src"><div class="dlg">
-  <div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1">Datos y criterios del modelo</h2><button data-close>Cerrar</button></div>
-  <div class="small" id="src-body"></div>
-</div></div>
+<div class="tip" id="tip" hidden></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="fpw" id="fpw" hidden role="dialog" aria-labelledby="fpw-t">
+  <div class="fph" id="fpw-h"><b id="fpw-t">—</b><button data-close-fp aria-label="Cerrar">✕</button></div>
+  <div class="fpb" id="fpw-b"></div>
+</div>
 
 <script src="sim.js"></script>
 <script src="hmi.js"></script>

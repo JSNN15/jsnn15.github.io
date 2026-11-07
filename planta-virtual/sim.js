@@ -1,4 +1,4 @@
-/* Planta virtual LX-SX-EW · motor de simulación dinámica.
+/* Planta virtual LX-SX-EW · motor del simulador de entrenamiento de operadores (OTS).
    Paso fijo de 1 s de tiempo simulado. Modelo didáctico: dinámica creíble, no validado contra una planta real. */
 (function (G) {
   'use strict';
@@ -10,7 +10,7 @@
 
   /* ---------- Lazos PID (forma posicional con anti-windup y cambio sin salto) ---------- */
   class PID {
-    constructor(o) { Object.assign(this, {kp: 1, ti: 60, sp: 0, op: 50, mode: 'AUTO', span: 100, act: 'rev', casSP: null, i: null, pv: 0, unit: '', opUnit: '%', modes: ['MAN', 'AUTO']}, o); }
+    constructor(o) { Object.assign(this, {kp: 1, ti: 60, sp: 0, op: 50, mode: 'AUTO', span: 100, act: 'rev', casSP: null, i: null, pv: 0, unit: '', opUnit: '%', modes: ['MAN', 'AUTO']}, o); this.norm = this.mode; }
     step(pv, dt) {
       this.pv = pv;
       if (this.mode === 'MAN') { this.i = null; return this.op; }
@@ -49,7 +49,9 @@
   };
 
   /* ---------- Voltaje de celda (capítulo 5) ---------- */
-  const vcell = (j, T) => { const kap = 55 * (1 + 0.02 * (T - 45)); return 0.89 + (0.62 + 0.12 * Math.log10(Math.max(j, 20) / 300)) + Math.max(0, 0.08 + 0.06 * Math.log10(Math.max(j, 20) / 300)) + j * 0.04 / Math.max(kap, 10) + 0.15 * j / 300; };
+  // rev: potencial reversible; an y cat: sobrepotenciales (Tafel); ohm: caída en el electrolito (j·d/κ, κ sube 2 %/°C); hw: contactos, barras y ánodos.
+  const vparts = (j, T) => { const kap = 55 * (1 + 0.02 * (T - 45)), jj = Math.max(j, 20); return {rev: 0.89, an: 0.62 + 0.12 * Math.log10(jj / 300), cat: Math.max(0, 0.08 + 0.06 * Math.log10(jj / 300)), ohm: j * 0.04 / Math.max(kap, 10), hw: 0.15 * j / 300}; };
+  const vcell = (j, T) => { const p = vparts(j, T); return p.rev + p.an + p.cat + p.ohm + p.hw; };
 
   const NCELL = 160, NCAT = 60, CU_PRICE = 14330, E_PRICE = 100; // US$/t Cu (6,5 US$/lb), US$/MWh
 
@@ -173,12 +175,14 @@
     Object.values(M).forEach((m) => tag('VIT-' + m.id, 'Vibración ' + m.id, 'mm/s', m.area, 1, 0, 12, 0, 4.5));
     /* ----- alarmas (ISA-18.2: prioridad 1 alta, 2 media, 3 baja) ----- */
     const AD = [];
-    const al = (tagId, type, lim, prio, desc, delay = 10) => AD.push({id: tagId + '.' + type, tag: tagId, type, lim, prio, desc, delay, st: 'N', since: 0, tOn: null, shelved: 0, count: 0, area: tagId === 'DISC' ? 0 : null});
-    al('WIT-101', 'L', 1200, 3, 'Tonelaje bajo a aglomeración', 30);
-    al('KY-102', 'H', 23, 2, 'Dosis de ácido alta');
-    al('KY-102', 'L', 17, 2, 'Dosis de ácido baja');
-    al('AIT-105', 'H', 11, 3, 'Aglomerado muy húmedo', 60);
-    al('AIT-105', 'L', 7.5, 3, 'Aglomerado seco', 60);
+    // en: condición de habilitación (alarma por estado, ISA-18.2): con el área detenida a propósito, estas alarmas no tienen sentido y se suprimen.
+    const al = (tagId, type, lim, prio, desc, delay = 10, en = null) => AD.push({id: tagId + '.' + type, tag: tagId, type, lim, prio, desc, delay, en, st: 'N', since: 0, tOn: null, shelved: 0, count: 0, area: tagId === 'DISC' ? 0 : null});
+    const feeding = () => running('FD-101') && running('CV-101'), dosing = () => running('P-102') && X.tonDrum > 500;
+    al('WIT-101', 'L', 1200, 3, 'Tonelaje bajo a aglomeración', 30, feeding);
+    al('KY-102', 'H', 23, 2, 'Dosis de ácido alta', 10, dosing);
+    al('KY-102', 'L', 17, 2, 'Dosis de ácido baja', 10, dosing);
+    al('AIT-105', 'H', 11, 3, 'Aglomerado muy húmedo', 60, dosing);
+    al('AIT-105', 'L', 7.5, 3, 'Aglomerado seco', 60, dosing);
     al('LIT-103', 'L', 25, 2, 'Nivel bajo estanque diario de ácido');
     al('PIT-202', 'L', 2.5, 2, 'Presión baja en cabezal de riego');
     al('PIT-202', 'LL', 1.0, 1, 'Sin presión de riego', 5);
@@ -198,7 +202,7 @@
     al('KY-301', 'L', 0.75, 2, 'Razón O/A baja', 30);
     al('LIT-303', 'H', 0.38, 2, 'Interfase alta en E1 (borra)', 60);
     al('AIT-309', 'H', 500, 2, 'Arrastre alto hacia electrolito', 60);
-    al('IIT-401', 'L', 30, 2, 'Corriente baja en la nave', 30);
+    al('IIT-401', 'L', 30, 2, 'Corriente baja en la nave', 30, () => RECT.state !== 'STOP');
     al('FIT-402', 'L', 750, 2, 'Caudal bajo de electrolito');
     al('FIT-402', 'LL', 500, 1, 'Caudal muy bajo de electrolito (disparo RT)', 5);
     al('TIT-403', 'H', 52, 2, 'Temperatura alta electrolito');
@@ -232,7 +236,7 @@
     const hm = (ts = now()) => { const h = Math.floor(ts % 86400 / 3600), m = Math.floor(ts % 3600 / 60); return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`; };
     const hhmm = (ts = now()) => { const d = Math.floor(ts / 86400) + 1, h = Math.floor(ts % 86400 / 3600), m = Math.floor(ts % 3600 / 60); return `Día ${d} ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`; };
     const shiftOf = (ts = now()) => { const h = Math.floor(ts % 86400 / 3600); return h >= 8 && h < 16 ? 'A' : (h >= 16 ? 'B' : 'C'); };
-    const log = (who, msg, kind = 'op') => { S.log.unshift({t: now(), who, msg, kind}); if (S.log.length > 300) S.log.pop(); };
+    const log = (who, msg, kind = 'op') => { S.log.unshift({t: now(), who, msg, kind}); if (S.log.length > 1500) S.log.pop(); };
 
     /* ----- permisivos y enclavamientos ----- */
     const running = (id) => M[id] && M[id].state === 'RUN';
@@ -249,24 +253,30 @@
       'P-501': () => [['Stock de ácido > 50 t', X.tk501 > 50]]
     };
     const permOK = (id) => !perms[id] || perms[id]().every((p) => p[1]);
+    const whyNot = (id) => {
+      const m = M[id];
+      if (m && !BRK[m.mcc]) return `${m.mcc} sin energía`;
+      if (m && m.maintUntil) return 'equipo en mantención';
+      if (m && m.state === 'TRIP' && m.trip !== 'reset') return 'falta rearmar el disparo';
+      const p = perms[id] ? perms[id]().filter((x) => !x[1]).map((x) => x[0].toLowerCase()) : [];
+      return p.length ? 'falta permisivo: ' + p.join(', ') : '';
+    };
     const tripMotor = (id, why) => { const m = M[id]; if (!m || m.state !== 'RUN') return; m.state = 'TRIP'; m.trip = why; log('Sistema', `${id} disparado: ${why}`, 'trip'); };
     const ilkStop = (id, why) => { const m = M[id]; if (!m || m.state !== 'RUN') return; m.state = 'STOP'; m.ilk = why; log('Sistema', `${id} detenido por enclavamiento: ${why}`, 'warn'); };
     const cmd = {
-      start(id) {
-        if (id === 'RT-401') { if (RECT.state === 'RUN') return; if (!permOK(id)) { log('Operador', `Partida de RT-401 rechazada: falta un permisivo`, 'warn'); return false; } RECT.state = 'RUN'; RECT.trip = null; RECT.I = 0; log('Operador', 'RT-401 en servicio, rampa de corriente'); return true; }
+      start(id, who = 'Operador') {
+        if (id === 'RT-401') { if (RECT.state === 'RUN') return; if (!permOK(id)) { log(who, `Partida de RT-401 rechazada: ${whyNot(id)}`, 'warn'); return false; } RECT.state = 'RUN'; RECT.trip = null; RECT.I = 0; log(who, 'RT-401 en servicio, rampa de corriente'); return true; }
         const m = M[id]; if (!m || m.state === 'RUN') return;
-        if (m.state === 'TRIP' && m.trip !== 'reset') { log('Operador', `${id} no parte: falta rearmar el disparo`, 'warn'); return false; }
-        if (!BRK[m.mcc] && m.mcc !== 'MCC-100' || (m.mcc === 'MCC-100' && !BRK['MCC-100'])) { log('Operador', `${id} no parte: ${m.mcc} sin energía`, 'warn'); return false; }
-        if (!permOK(id)) { log('Operador', `Partida de ${id} rechazada: falta un permisivo`, 'warn'); return false; }
-        m.state = 'RUN'; m.trip = null; m.ilk = null; m.starts++; log('Operador', `Partida de ${id}`); return true;
+        if (!BRK[m.mcc] || m.maintUntil || (m.state === 'TRIP' && m.trip !== 'reset') || !permOK(id)) { log(who, `Partida de ${id} rechazada: ${whyNot(id)}`, 'warn'); return false; }
+        m.state = 'RUN'; m.trip = null; m.ilk = null; m.starts++; log(who, `Partida de ${id}`); return true;
       },
-      stop(id) {
-        if (id === 'RT-401') { RECT.state = 'STOP'; log('Operador', 'RT-401 fuera de servicio'); return; }
-        const m = M[id]; if (!m) return; if (m.state === 'RUN') { m.state = 'STOP'; log('Operador', `Parada de ${id}`); }
+      stop(id, who = 'Operador') {
+        if (id === 'RT-401') { RECT.state = 'STOP'; log(who, 'RT-401 fuera de servicio'); return; }
+        const m = M[id]; if (!m) return; if (m.state === 'RUN') { m.state = 'STOP'; log(who, `Parada de ${id}`); }
       },
       reset(id) { if (id === 'RT-401') { if (RECT.state === 'TRIP') { RECT.state = 'STOP'; RECT.trip = null; log('Operador', 'Rearme de RT-401'); } return; } const m = M[id]; if (m && m.state === 'TRIP') { m.trip = 'reset'; log('Operador', `Rearme de ${id}`); } },
       standby(id, v) { const m = M[id]; if (m) { m.standby = v; log('Operador', `${id} ${v ? 'en respaldo automático' : 'sin respaldo automático'}`); } },
-      mode(lp, md) { const c = L[lp]; if (!c || !c.modes.includes(md)) return; c.mode = md; c.i = null; log('Operador', `${lp} a ${md}`); },
+      mode(lp, md, who = 'Operador') { const c = L[lp]; if (!c || !c.modes.includes(md) || c.mode === md) return; c.mode = md; c.i = null; log(who, `${lp} a ${md}`); },
       sp(lp, v) { const c = L[lp]; if (!c) return; c.sp = v; log('Operador', `${lp} consigna ${v} ${c.unit}`); },
       ratio(lp, v) { const c = L[lp]; if (!c) return; c.ratio = v; log('Operador', `${lp} razón ${v} ${c.ratioUnit}`); },
       op(lp, v) { const c = L[lp]; if (!c || c.mode !== 'MAN') return; c.op = clamp(v, 0, 100); log('Operador', `${lp} salida manual ${v.toFixed(0)} %`); },
@@ -281,9 +291,47 @@
       fixHX() { X.hxOk = true; log('Mantenimiento', 'Intercambiador HX-401 reparado'); },
       truck(n = 1) { X.tk501 = Math.min(2000, X.tk501 + 30 * n); log('Operador', `Descarga de ${n} camión(es) de ácido (${30 * n} t)`); },
       delayComp(v) { X.delayComp = v; log('Operador', `Compensación de retardo de la correa ${v ? 'activada' : 'desactivada'}`); },
-      ack(id) { const a = AD.find((x) => x.id === id); if (!a) return; if (a.st === 'U') a.st = 'A'; else if (a.st === 'R') a.st = 'N'; },
-      ackAll(area) { AD.forEach((a) => { if (area && a.area !== area) return; if (a.st === 'U') a.st = 'A'; else if (a.st === 'R') a.st = 'N'; }); log('Operador', 'Reconocimiento de alarmas' + (area ? ` del área ${area}` : '')); },
-      shelve(id, sec = 3600) { const a = AD.find((x) => x.id === id); if (a) { a.shelved = S.t + sec; if (a.st !== 'N') a.st = 'N'; log('Operador', `Alarma ${id} inhibida por ${sec / 60} min`); } }
+      ack(id) { const a = AD.find((x) => x.id === id); if (!a) return; if (a.st === 'U') a.st = 'A'; else if (a.st === 'R') a.st = 'N'; else return; log('Operador', `Reconoce alarma ${a.id}`, 'ack'); },
+      ackAll(area) { let n = 0; AD.forEach((a) => { if (area && a.area !== area) return; if (a.st === 'U') { a.st = 'A'; n++; } else if (a.st === 'R') { a.st = 'N'; n++; } }); if (n) log('Operador', `Reconoce ${n} alarma${n > 1 ? 's' : ''}` + (area ? ` del área ${area}` : ''), 'ack'); },
+      shelve(id, sec = 3600) { const a = AD.find((x) => x.id === id); if (a) { a.shelved = S.t + sec; if (a.st !== 'N') a.st = 'N'; log('Operador', `Alarma ${id} inhibida por ${sec / 60} min`); } },
+      seq(id) { return seqStart(id); },
+      seqAbort() { if (seq.st === 'IDLE') return; const s = SEQ[seq.id]; if (seq.st === 'RUN') log('Operador', `${s.name} abortada en el paso ${seq.k + 1}`, 'warn'); seq.st = 'IDLE'; seq.id = null; seq.msg = ''; }
+    };
+
+    /* ----- secuencias (automatización de procedimientos de proceso continuo, ISA-106 simplificado: paso, condición de avance y tiempo máximo) ----- */
+    const SEQ = {
+      start100: {name: 'Partida secuencial del área 100', steps: [
+        {d: 'Partir tambor aglomerador M-103', eq: 'M-103', go: () => cmd.start('M-103', 'Secuencia'), ok: () => running('M-103'), min: 15},
+        {d: 'Partir correa CV-101', eq: 'CV-101', go: () => cmd.start('CV-101', 'Secuencia'), ok: () => running('CV-101'), min: 20},
+        {d: 'WIC-101 en automático y partir alimentador FD-101', eq: 'FD-101', go: () => { cmd.mode('WIC-101', 'AUTO', 'Secuencia'); cmd.start('FD-101', 'Secuencia'); }, ok: () => running('FD-101'), min: 5},
+        {d: 'Esperar mineral en el tambor (> 1.000 t/h)', go: () => {}, ok: () => X.tonDrum > 1000, max: 240},
+        {d: 'Razones en cascada y partir bombas de ácido y agua', eq: 'P-102', go: () => { cmd.mode('FFIC-102', 'CAS', 'Secuencia'); cmd.mode('FFIC-104', 'CAS', 'Secuencia'); cmd.start('P-102', 'Secuencia'); cmd.start('P-104', 'Secuencia'); }, ok: () => running('P-102') && running('P-104'), min: 5}
+      ]},
+      stop100: {name: 'Parada secuencial del área 100', steps: [
+        {d: 'Detener alimentador FD-101', go: () => cmd.stop('FD-101', 'Secuencia'), ok: () => !running('FD-101'), min: 2},
+        {d: 'Vaciar la correa (mineral al tambor < 50 t/h)', go: () => {}, ok: () => X.tonDrum < 50, min: 10, max: 300},
+        {d: 'Detener bombas de ácido y agua', go: () => { cmd.stop('P-102', 'Secuencia'); cmd.stop('P-104', 'Secuencia'); }, ok: () => !running('P-102') && !running('P-104'), min: 2},
+        {d: 'Detener correa CV-101', go: () => cmd.stop('CV-101', 'Secuencia'), ok: () => !running('CV-101'), min: 2},
+        {d: 'Descargar el tambor (60 s)', go: () => {}, ok: () => true, min: 60},
+        {d: 'Detener tambor M-103', go: () => cmd.stop('M-103', 'Secuencia'), ok: () => !running('M-103'), min: 2}
+      ]}
+    };
+    const seq = {id: null, k: 0, t0: 0, st: 'IDLE', msg: ''};
+    const seqNext = () => {
+      seq.k++; const s = SEQ[seq.id];
+      if (seq.k >= s.steps.length) { seq.st = 'DONE'; log('Secuencia', `${s.name} completada`); return; }
+      seq.t0 = S.t; s.steps[seq.k].go();
+    };
+    const seqStart = (id) => {
+      if (!SEQ[id] || seq.st === 'RUN') return false;
+      Object.assign(seq, {id, k: -1, st: 'RUN', msg: '', tStart: S.t});
+      log('Operador', `Inicio de ${SEQ[id].name}`); seqNext(); return true;
+    };
+    const seqTick = () => {
+      if (seq.st !== 'RUN') return;
+      const s = SEQ[seq.id], st = s.steps[seq.k], el = S.t - seq.t0, max = st.max || 60;
+      if (st.ok() && el >= (st.min || 0)) seqNext();
+      else if (el > max) { const w = st.eq ? whyNot(st.eq) : ''; seq.st = 'FAIL'; seq.msg = `Paso ${seq.k + 1} sin confirmar en ${max} s${w ? ': ' + w : ''}`; log('Secuencia', `${s.name} detenida. ${seq.msg}`, 'trip'); }
     };
 
     /* ----- escenarios ----- */
@@ -316,6 +364,7 @@
       });
       // mantenimiento en curso
       const m103 = M['M-103']; if (m103.maintUntil && S.t >= m103.maintUntil) { m103.maintUntil = 0; log('Mantenimiento', 'M-103 disponible tras cambio de rodamiento'); }
+      seqTick();
 
       /* --- Área 100 --- */
       if (!running('M-103') && running('CV-101')) ilkStop('CV-101', 'tambor detenido');
@@ -332,7 +381,8 @@
       if (belt) { X.ton = X.beltBuf[(X.bi - 20 + 240) % 240]; X.tonDrum = X.beltBuf[(X.bi - 65 + 240) % 240]; } else { X.ton = 0; X.tonDrum = lag(X.tonDrum, 0, 5, dt); }
       // razón ácido
       const ff2 = L['FFIC-102'], ff4 = L['FFIC-104'];
-      const tonRef = X.delayComp ? X.beltBuf[(X.bi - 45 + 240) % 240] : X.ton; // compensa 45 s entre pesómetro y tambor
+      // compensación de retardo: el pesómetro está 20 s después del alimentador y el tambor a 65 s; la razón usa la lectura del pesómetro retrasada 45 s
+      const tonRef = X.delayComp ? X.beltBuf[(X.bi - 65 + 240) % 240] : X.ton;
       ff2.casSP = ff2.ratio * (belt ? tonRef : 0) / 1840;   // m³/h de ácido (1,84 t/m³)
       ff4.casSP = ff4.ratio * (belt ? tonRef : 0);
       const v102 = running('P-102') ? ff2.step(X.acidQ, dt) : 0;
@@ -444,7 +494,8 @@
       let ceSum = 0, vSum = 0, lostS = 0;
       const base = 0.955 - feEff - tEff;
       for (let k = 0; k < NCELL; k++) { const s = X.shorts[k] * 2 / NCAT; ceSum += Math.max(0, base - s); lostS += Math.min(base, s); vSum += Vc * (1 - 0.35 * X.shorts[k] / 6); }
-      if (I > 0.5) X.CE = 100 * ceSum / NCELL;
+      if (I > 0.5) { X.CE = 100 * ceSum / NCELL; X.ceLoss = {fe: feEff * 100, temp: tEff * 100, shorts: 100 * lostS / NCELL, base: 95.5}; }
+      X.vp = vparts(j, X.Te);
       X.Vcell = vSum / NCELL; X.cellV = (k) => Vc * (1 - 0.35 * X.shorts[k] / 6);
       X.D = I * 1.1855 * ceSum;                                           // kg/h
       const Pdc = I * vSum / 1000;                                       // MW (kA × V)
@@ -498,7 +549,7 @@
       set('AIT-208', X.craf); set('FIT-301', X.qOrg); set('KY-301', X.qFeed > 10 ? X.qOrg / X.qFeed : 0); set('AIT-302', X.yL); set('KY-303', X.ext); set('LIT-303', X.iface); set('AIT-309', X.ent); set('KY-304', X.T / 1000);
       set('IIT-401', I); set('EIT-401', RECT.V); set('JIT-401', Pdc); set('KY-401', j); set('KY-402', X.Vcell); set('FIT-402', X.qEl); set('TIT-403', X.Te);
       set('AIT-405', X.Ce); set('AIT-406', X.Acid); set('AIT-407', X.Fe * 1000); set('AIT-408', X.Co); set('LIT-401', 70); set('KY-405', X.D / 1000); set('KY-406', X.CE);
-      set('KY-407', X.D > 100 ? Pdc * 1000 / (X.D / 1000) / 1 * 1 : 0); set('FIT-404', coQ); set('FIT-409', X.bleedQ);
+      set('FIT-404', coQ); set('FIT-409', X.bleedQ);
       set('JIT-500', MW); set('KY-501', X.pf); set('KY-502', X.thd); set('LIT-501', X.tk501); set('LIT-502', X.tk502);
       T['KY-407'].v = X.D > 100 ? Pdc * 1e6 / X.D : 0; // kWh/t = MW·1000 / (t/h)
       Object.values(M).forEach((m) => { T['VIT-' + m.id].v = m.vib; });
@@ -524,6 +575,7 @@
       discAlarm('RT-401.TRIP', 1, `RT-401 Rectificador: disparo${RECT.trip ? ' (' + RECT.trip + ')' : ''}`, 400, RECT.state === 'TRIP');
       Object.values(M).forEach((m) => { discAlarm(m.id + '.VIB', 3, `${m.id}: vibración en zona C de ISO 10816-3 (> 4,5 mm/s)`, m.area, m.state === 'RUN' && m.vib > 4.5 && m.vib <= 7.1); discAlarm(m.id + '.VIBH', 2, `${m.id}: vibración en zona D de ISO 10816-3 (> 7,1 mm/s)`, m.area, m.state === 'RUN' && m.vib > 7.1); });
       ['MCC-100', 'MCC-200', 'MCC-300', 'MCC-400', '52-RT'].forEach((b) => discAlarm(b + '.OPEN', 1, `Interruptor ${b} abierto`, 500, !BRK[b]));
+      discAlarm('SEQ-100.FAIL', 2, `Secuencia del área 100 detenida: ${seq.msg}`, 100, seq.st === 'FAIL');
       discAlarm('AIT-207.DEV', 3, 'AIT-207: desviación contra laboratorio mayor a 0,15 pH', 200, Math.abs(T['AIT-207'].v - X.labPH) > 0.15 && S.t - X.labT < 600);
       if (X.monitor) for (let k = 0; k < NCELL; k++) discAlarm('CELDA-' + (k + 1) + '.V', 3, `Celda ${k + 1}: voltaje bajo (posible cortocircuito)`, 400, X.shorts[k] >= 2);
       // análogas y discretas: máquina de estados
@@ -531,10 +583,11 @@
         let on;
         if (a.type === 'DISC') on = !!a.forced;
         else { const v = T[a.tag].v, db = (T[a.tag].hi - T[a.tag].lo) * 0.01; const hi = a.type[0] === 'H'; const act = hi ? v > a.lim : v < a.lim; const clr = hi ? v < a.lim - db : v > a.lim + db; on = act ? true : (clr ? false : a.st === 'U' || a.st === 'A'); }
+        a.supp = !!(a.en && !a.en()); if (a.supp) on = false;
         if (a.shelved && S.t < a.shelved) { a.raw = on; return; }
         a.shelved = 0;
-        if (on) { a.tOn = a.tOn == null ? S.t : a.tOn; if (S.t - a.tOn >= a.delay && (a.st === 'N' || a.st === 'R')) { a.st = 'U'; a.since = ts; a.count++; X.alarmsShift++; } }
-        else { a.tOn = null; if (a.st === 'U') a.st = 'R'; else if (a.st === 'A') a.st = 'N'; }
+        if (on) { a.tOn = a.tOn == null ? S.t : a.tOn; if (S.t - a.tOn >= a.delay && (a.st === 'N' || a.st === 'R')) { a.st = 'U'; a.since = ts; a.count++; X.alarmsShift++; log('Alarma', `P${a.prio} ${a.id} · ${a.desc}`, 'alm'); } }
+        else { a.tOn = null; if (a.st === 'U' || a.st === 'A') log('Alarma', `Normaliza ${a.id}`, 'rtn'); if (a.st === 'U') a.st = 'R'; else if (a.st === 'A') a.st = 'N'; }
         a.raw = on;
       });
 
@@ -547,7 +600,7 @@
     S.log = []; X.shiftHist = []; X.alarmsShift = 0; X.cathShift = 0; X.energyShift = 0; X.plannedShift = 0; X.lostShorts = 0; X.lostRect = 0; X.acidShift = 0; X.oreShift = 0; X.downShift = 0;
     log('Sistema', 'Planta en régimen. Turno A a cargo.');
 
-    return {S, M, L, T, X, AD, H, RECT, BRK, SCN, NCELL, CU_PRICE, E_PRICE, step, cmd, scenario, perms, histGet, hhmm, hm, shiftOf, now, R};
+    return {S, M, L, T, X, AD, H, RECT, BRK, SCN, SEQ, seq, NCELL, NCAT, CU_PRICE, E_PRICE, step, cmd, scenario, perms, whyNot, histGet, hhmm, hm, shiftOf, now, R};
   }
 
   G.PlantSim = {create};
