@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vigía EPP · Consola</title>
+<meta name="description" content="Consola de Vigía EPP: detección de personas sin casco en vivo con la cámara, sala de control con cuatro cámaras, incidentes e informe de turno. La IA corre en el navegador.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0d11;--panel:#121820;--panel2:#18202a;--line:#263241;--fg:#e8edf2;--muted:#8d9aa8;--acc:#f5b301;--bad:#ff3b30;--ok:#34c759;--mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.45}
+a{color:var(--acc)}
+button{font:inherit;color:var(--fg);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+button.pri{background:var(--acc);border-color:var(--acc);color:#1a1300;font-weight:600}
+button.on{background:var(--acc);border-color:var(--acc);color:#1a1300;font-weight:600}
+header{display:flex;align-items:center;gap:12px 18px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg)}
+.brand svg{width:26px;height:26px}
+.brand b{font-size:1.05rem;letter-spacing:.02em}
+.brand span{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.sp{flex:1}
+.pill{font-family:var(--mono);font-size:.74rem;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:3px 10px;white-space:nowrap}
+.pill i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:middle}
+main{padding:14px 16px 28px}
+.view{display:none}
+.view.show{display:block}
+/* sala */
+.sala{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}
+@media (max-width:1000px){.sala{grid-template-columns:1fr}}
+.cams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.cams{grid-template-columns:1fr}}
+.cam{position:relative;background:#000;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.cam.alert{border-color:var(--bad);box-shadow:0 0 0 2px var(--bad) inset}
+.cam canvas{display:block;width:100%;aspect-ratio:1/1}
+.cam .hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:6px 8px;font-family:var(--mono);font-size:.72rem;background:linear-gradient(#000a,#0000)}
+.cam .hud b{color:#fff;font-weight:600}
+.rec{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--bad);margin-right:6px;animation:blk 1.2s steps(2,start) infinite}
+@keyframes blk{to{visibility:hidden}}
+.cam .foot{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:6px 8px;font-family:var(--mono);font-size:.72rem;background:linear-gradient(#0000,#000c)}
+.cam .tag{background:var(--bad);color:#fff;padding:1px 6px;border-radius:3px;font-weight:600}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
+.box h3{margin:0 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:var(--panel2);border-radius:6px;padding:8px 10px}
+.kpi .l{font-size:.72rem;color:var(--muted)}
+.kpi .v{font-family:var(--mono);font-size:1.4rem;font-weight:600}
+.kpi .v.bad{color:var(--bad)} .kpi .v.ok{color:var(--ok)}
+.bars{display:flex;flex-direction:column;gap:6px;font-size:.8rem}
+.bars .r{display:grid;grid-template-columns:7.5rem 1fr 3rem;gap:8px;align-items:center}
+.bars .t{height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}
+.bars .t i{display:block;height:100%;background:var(--ok)}
+.feed{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto}
+.inc{display:grid;grid-template-columns:64px 1fr;gap:10px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--bad);border-radius:6px;padding:8px}
+.inc.done{border-left-color:var(--ok);opacity:.75}
+.inc img{width:64px;height:64px;object-fit:cover;border-radius:4px;background:#000}
+.inc .m{font-size:.8rem;display:flex;flex-direction:column;gap:3px;min-width:0}
+.inc .m b{font-size:.85rem}
+.inc .m span{color:var(--muted);font-family:var(--mono);font-size:.72rem}
+.inc .act{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.inc .act button{padding:3px 8px;font-size:.75rem}
+.toast{position:fixed;right:16px;bottom:16px;max-width:360px;background:#0f2a18;border:1px solid var(--ok);border-radius:10px;padding:12px 14px;font-size:.85rem;display:none;z-index:30;box-shadow:0 10px 30px #0008}
+.toast.show{display:block}
+.toast .wa{background:#1f3b2a;border-radius:8px;padding:8px 10px;margin-top:8px;font-family:var(--sans)}
+.toast small{display:block;color:var(--muted);margin-top:6px}
+/* vivo */
+.live{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px}
+@media (max-width:900px){.live{grid-template-columns:1fr}}
+.stage{position:relative;background:#000;border:1px solid var(--line);border-radius:10px;overflow:hidden;min-height:240px;display:flex;align-items:center;justify-content:center}
+.stage canvas{display:block;width:100%;height:auto}
+.stage .ov{position:absolute;left:12px;top:12px;font-family:var(--mono);font-size:.75rem;background:#000a;padding:4px 8px;border-radius:4px}
+.banner{font-size:1.4rem;font-weight:700;text-align:center;padding:14px;border-radius:8px;background:var(--panel2);border:1px solid var(--line)}
+.banner.bad{background:#3a0d0b;border-color:var(--bad);color:#ffd9d6}
+.banner.ok{background:#0d2a16;border-color:var(--ok);color:#d8ffe3}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:22px;text-align:center;color:var(--muted)}
+.drop.hov{border-color:var(--acc);color:var(--fg)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs img{width:72px;height:72px;object-fit:cover;border-radius:6px;cursor:pointer;border:1px solid var(--line);filter:blur(1.5px) saturate(.8)}
+.thumbs img:hover{border-color:var(--acc)}
+.muted{color:var(--muted)}
+.small{font-size:.8rem}
+/* informe */
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto;z-index:40}
+.modal.show{display:flex}
+.report{background:#fff;color:#111;max-width:820px;width:100%;border-radius:8px;padding:28px;font-family:var(--sans)}
+.report h2{margin:0;font-size:1.4rem}
+.report .meta{color:#555;font-size:.85rem;margin:4px 0 16px}
+.report table{width:100%;border-collapse:collapse;font-size:.85rem;margin:10px 0}
+.report th,.report td{border-bottom:1px solid #ddd;padding:6px;text-align:left}
+.report .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.report .grid div{border:1px solid #ddd;border-radius:6px;padding:8px}
+.report .grid b{display:block;font-size:1.3rem;font-family:var(--mono)}
+.report .imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.report .imgs figure{margin:0;font-size:.72rem;color:#444}
+.report .imgs img{width:100%;border-radius:4px}
+.report .noprint{display:flex;gap:8px;justify-content:flex-end;margin-bottom:10px}
+.report .noprint button{color:#111;background:#f2f2f2;border-color:#ccc}
+@media print{body *{visibility:hidden}.report,.report *{visibility:visible}.report{position:absolute;left:0;top:0;border-radius:0}.noprint{display:none!important}}
+.loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:50;flex-direction:column;gap:10px;font-family:var(--mono);color:var(--muted)}
+.loading.hide{display:none}
+</style>
+</head>
+<body>
+<div class="loading" id="loading"><div>Cargando el modelo de IA en tu equipo…</div><div class="small">Una sola vez, unos 12 MB. Las imágenes nunca salen de este navegador.</div></div>
+<header>
+  <a class="brand" href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 19a11 11 0 0 1 22 0" fill="#f5b301"/><rect x="3" y="19" width="26" height="4" rx="2" fill="#f5b301"/><rect x="14" y="7" width="4" height="7" rx="1" fill="#0a0d11"/></svg><b>Vigía EPP</b><span>consola</span></a>
+  <nav class="tabs" id="tabs"><button data-v="sala" class="on">Sala de control</button><button data-v="vivo">Cámara en vivo</button><button data-v="foto">Probar una foto</button></nav>
+  <span class="sp"></span>
+  <span class="pill" id="pill"><i></i>IA local</span>
+  <a class="pill" href="./" style="text-decoration:none">¿Qué es Vigía?</a>
+</header>
+<main>
+  <section class="view show" id="v-sala">
+    <div class="sala">
+      <div class="cams" id="cams"></div>
+      <aside class="side">
+        <div class="box"><h3>Turno en curso</h3><div class="kpis">
+          <div class="kpi"><div class="l">Cumplimiento de casco</div><div class="v" id="k-comp">—</div></div>
+          <div class="kpi"><div class="l">Incidentes abiertos</div><div class="v" id="k-open">0</div></div>
+          <div class="kpi"><div class="l">Personas revisadas</div><div class="v" id="k-ppl">0</div></div>
+          <div class="kpi"><div class="l">Cuadros analizados</div><div class="v" id="k-fr">0</div></div>
+        </div></div>
+        <div class="box"><h3>Cumplimiento por cámara</h3><div class="bars" id="bars"></div></div>
+        <div class="box"><h3 style="display:flex;justify-content:space-between;align-items:center">Incidentes <button id="btn-rep" class="pri" style="padding:4px 10px;font-size:.78rem">Informe de turno</button></h3><div class="feed" id="feed"><p class="muted small" style="margin:0">Sin incidentes todavía.</p></div></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="view" id="v-vivo">
+    <div class="live">
+      <div class="stage" id="stage"><canvas id="cv-live"></canvas><div class="ov" id="ov-live">Cámara apagada</div><video id="vid" playsinline muted style="display:none"></video></div>
+      <aside class="side">
+        <div class="banner" id="banner">Apunta la cámara a una persona</div>
+        <div class="box"><div class="kpis">
+          <div class="kpi"><div class="l">Con casco</div><div class="v ok" id="l-ok">0</div></div>
+          <div class="kpi"><div class="l">Sin casco</div><div class="v bad" id="l-bad">0</div></div>
+          <div class="kpi"><div class="l">Tiempo de inferencia</div><div class="v" id="l-ms">—</div></div>
+          <div class="kpi"><div class="l">Cuadros por segundo</div><div class="v" id="l-fps">—</div></div>
+        </div></div>
+        <div class="box" style="display:flex;flex-direction:column;gap:8px">
+          <button class="pri" id="btn-cam">Encender cámara</button>
+          <button id="btn-flip">Cambiar cámara</button>
+          <label class="small"><input type="checkbox" id="chk-anon" checked> Anonimizar rostros</label>
+          <p class="small muted" style="margin:0">El video se procesa en este equipo. Nada se graba ni se envía. Funciona mejor a 2 a 8 metros, como una cámara de faena.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="view" id="v-foto">
+    <div class="live">
+      <div class="stage"><canvas id="cv-foto"></canvas><div class="ov" id="ov-foto">Sube una foto o elige una de ejemplo</div></div>
+      <aside class="side">
+        <div class="banner" id="banner-f">Esperando una foto</div>
+        <label class="drop" id="drop"><input type="file" id="file" accept="image/*" style="display:none">Arrastra una foto aquí o <u>elige un archivo</u><br><span class="small">Se analiza en tu equipo, no se sube a ningún servidor.</span></label>
+        <div class="box"><h3>Fotos de ejemplo</h3><div class="thumbs" id="thumbs"></div></div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="report" id="report"></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js"></script>
+<script src="det.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
