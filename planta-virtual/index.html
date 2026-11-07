@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Planta virtual LX-SX-EW</title>
-<meta name="description" content="Sala de control de una planta de lixiviación, extracción por solventes y electroobtención de cobre: P&ID en vivo, lazos PID, alarmas ISA-18.2, mantenimiento predictivo y KPI de turno.">
-<meta property="og:title" content="Planta virtual LX-SX-EW · Sala de control">
-<meta property="og:description" content="Opera una planta de cobre completa: pantallas de operador, alarmas, mantenimiento y gerencia sobre una simulación dinámica con datos reales.">
+<title>Planta virtual LX-SX-EW · Simulador de entrenamiento de operadores</title>
+<meta name="description" content="Simulador de entrenamiento de operadores (OTS) de una planta de lixiviación, extracción por solventes y electroobtención de cobre: P&ID en vivo, lazos PID, secuencias, alarmas ISA-18.2, mantenimiento predictivo y KPI de turno.">
+<meta property="og:title" content="Planta virtual LX-SX-EW · Simulador de entrenamiento de operadores (OTS)">
+<meta property="og:description" content="Opera una planta de cobre completa: partidas, paradas y fallas sobre un modelo dinámico con parámetros de literatura, con las vistas del operador, el mantenedor y el gerente.">
 <meta property="og:image" content="https://jsnn15.github.io/img/planta.jpg">
 <script>/* tema de sala de control: oscuro por defecto, el operador puede cambiarlo */
 try { document.documentElement.dataset.theme = localStorage.getItem('pv-theme') || 'dark'; } catch (e) { document.documentElement.dataset.theme = 'dark'; }</script>
@@ -108,6 +108,34 @@ td.mono{white-space:nowrap}
 .scn .card b{font-size:.92rem}
 .scn .card p{margin:0;font-size:.82rem;color:var(--muted);flex:1}
 footer{padding:10px 14px;font-size:.78rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line)}
+/* interacción */
+.ots{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.08em;text-decoration:none;padding:2px 6px;border:1px solid var(--sel);color:var(--sel);border-radius:3px;vertical-align:2px;margin-left:4px;cursor:help}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--sel);outline-offset:1px}
+.alarmbar .last[data-galm]{cursor:pointer}
+.alarmbar .last[data-galm]:hover{text-decoration:underline}
+tr.lnk{cursor:pointer}
+tr.lnk:hover td{background:var(--panel)}
+.tip{position:fixed;z-index:30;pointer-events:none;max-width:290px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:.78rem;display:flex;flex-direction:column;gap:2px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.tip[hidden]{display:none}
+.tip b{font-family:var(--mono);font-weight:600;font-size:.82rem}
+.tip span{color:var(--txt)}
+.tip i{font-style:normal;color:var(--muted);font-size:.72rem;margin-top:2px}
+.toasts{position:fixed;left:16px;bottom:16px;z-index:25;display:flex;flex-direction:column;gap:6px;max-width:min(380px,calc(100vw - 32px));pointer-events:none}
+.toast{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:6px;padding:8px 12px;font-size:.84rem;box-shadow:0 6px 18px rgba(0,0,0,.28);animation:tin .18s ease-out;transition:opacity .3s}
+.toast.err{border-left-color:var(--p2)}
+.toast.out{opacity:0}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}}
+@media (max-width:760px){.toasts{left:16px;right:16px;bottom:auto;top:12px;max-width:none}}
+.cdb{display:block;height:3px;background:var(--bar);border-radius:2px;overflow:hidden}
+.cdb i{display:block;height:100%;background:var(--p2);animation:cd 10s linear forwards}
+@keyframes cd{from{width:100%}to{width:0}}
+.fpw:not([hidden]){animation:fpin .14s ease-out}
+@keyframes fpin{from{opacity:0;transform:translateY(6px)}}
+table.norms tr.ngrp td{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;background:var(--panel)}
+table.norms td.mono{font-size:.78rem;white-space:normal;min-width:9rem}
+.nst{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:10px;border:1px solid var(--line);white-space:nowrap}
+.nst.ok{border-color:var(--ok);color:var(--ok)}.nst.part{border-color:var(--sel);color:var(--sel)}.nst.real{border-color:var(--diag);color:var(--diag)}.nst.ref{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){svg .pipe.on,svg .drum.run .st,.fpw:not([hidden]),.toast{animation:none}}
 button.ico{padding:5px 9px;min-width:34px;display:inline-flex;align-items:center;justify-content:center;align-self:stretch}
 .simst{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.75rem;letter-spacing:.04em;padding:3px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel2)}
 .simst i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
@@ -201,6 +229,9 @@ svg .crud{fill:var(--p2);opacity:.75}
 svg .org{fill:var(--eqfill);opacity:.9}
 svg .btn rect{fill:var(--panel);stroke:var(--line)}
 svg .eq path.base{fill:none;stroke:var(--eq);stroke-width:1.4}
+/* resalte al pasar el puntero y del equipo cuya ventana está abierta */
+svg [data-fp]:hover>circle,svg [data-fp]:hover>rect,svg [data-fp]:hover>path:not(.ic),svg [data-go]:hover>path,svg rect[data-cell]:hover{stroke:var(--sel);stroke-width:2.2}
+svg .selx>circle,svg .selx>rect,svg .selx>path:not(.ic),svg rect.selx{stroke:var(--sel)!important;stroke-width:3!important}
 svg .spk{fill:none;stroke:var(--muted);stroke-width:1;opacity:.85}
 svg .mb rect{fill:var(--diag)}
 svg .mb text{font-family:var(--mono);font-size:8.5px;font-weight:700;fill:#fff}
@@ -214,7 +245,7 @@ svg .btn.on text{fill:#fff}
 <body>
 <header class="bar">
   <a class="home" href="../">← jsnn15.github.io</a>
-  <h1>Planta virtual LX-SX-EW</h1>
+  <h1>Planta virtual LX-SX-EW <abbr class="ots" title="Simulador de entrenamiento de operadores (Operator Training Simulator)">OTS</abbr></h1>
   <span class="clock" id="clock">—</span>
   <span class="simst" id="simst" title="Estado del motor de simulación"><i></i> SIM</span>
   <span class="grp" id="speed" aria-label="Velocidad de simulación"></span>
@@ -248,6 +279,8 @@ svg .btn.on text{fill:#fff}
   <div class="row"><button id="btn-reset">Reiniciar la planta</button></div>
 </div></div>
 
+<div class="tip" id="tip" hidden></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
 <div class="fpw" id="fpw" hidden role="dialog" aria-labelledby="fpw-t">
   <div class="fph" id="fpw-h"><b id="fpw-t">—</b><button data-close-fp aria-label="Cerrar">✕</button></div>
   <div class="fpb" id="fpw-b"></div>

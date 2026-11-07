@@ -1,4 +1,4 @@
-/* Planta virtual · interfaz de operador, mantenimiento y gerencia */
+/* Planta virtual · simulador de entrenamiento de operadores (OTS): interfaz de operador, mantenimiento y gerencia */
 (() => {
   'use strict';
   let P = PlantSim.create();
@@ -185,7 +185,7 @@
     s += V_(16, 222, 'IIT-401') + V_(16, 240, 'EIT-401') + V_(16, 258, 'JIT-401');
     s += bub(150, 230, 'IIC-401', {loop: 'IIC-401'}) + bub(150, 300, 'AIC-405', {loop: 'AIC-405'}) + sig('M150,284 L150,247') + sig('M134,230 L100,170');
     s += `<path class="bus" d="M100,150 L210,150 L210,60 L230,60"/><path class="bus" d="M100,170 L210,170 L210,330 L1170,330 L1170,280"/>`;
-    for (let k = 0; k < 160; k++) { const r = Math.floor(k / 40), c = k % 40; s += `<rect class="cell" data-cell="${k}" x="${246 + c * 22.9}" y="${50 + r * 56}" width="19.5" height="46" rx="1.5"><title>Celda ${k + 1}</title></rect>`; }
+    for (let k = 0; k < 160; k++) { const r = Math.floor(k / 40), c = k % 40; s += `<rect class="cell" data-cell="${k}" x="${246 + c * 22.9}" y="${50 + r * 56}" width="19.5" height="46" rx="1.5"/>`; }
     for (let r = 0; r < 4; r++) s += T_(242, 78 + r * 56, String(r * 40 + 1), 'unit', 'end');
     s += K_(232, 290 + 22, 'cells-sum', 'lbl');
     s += btn(860, 296, 300, 'Monitoreo continuo de celdas', 'monitor');
@@ -240,7 +240,7 @@
   const areaAlarmList = (area) => {
     const al = P.AD.filter((a) => (a.st === 'U' || a.st === 'A') && (!area || a.area === area)).sort((a, b) => a.prio - b.prio || b.since - a.since).slice(0, 8);
     if (!al.length) return '<p class="muted small" style="margin:0">Sin alarmas activas.</p>';
-    return '<div class="tblw"><table><tbody>' + al.map((a) => `<tr><td><span class="pr p${a.prio} ${a.st === 'U' ? 'blink' : ''}">${a.prio}</span></td><td class="small">${esc(a.desc)}</td></tr>`).join('') + '</tbody></table></div>';
+    return '<div class="tblw"><table><tbody>' + al.map((a) => `<tr class="lnk" data-galm="${esc(a.id)}" title="Ir al equipo en alarma"><td><span class="pr p${a.prio} ${a.st === 'U' ? 'blink' : ''}">${a.prio}</span></td><td class="small">${esc(a.desc)}</td></tr>`).join('') + '</tbody></table></div>';
   };
   const equipList = (area) => {
     const eqs = Object.values(P.M).filter((m) => m.area === area);
@@ -279,7 +279,11 @@
     'P-401A': 'Si P-401B no está en respaldo, el caudal de electrolito baja y dispara el rectificador.',
     'P-305': 'Sin orgánico, SX deja de extraer y el cobre se va al refino.'
   };
-  const confirmBox = (key, label, note = '') => state.confirm && state.confirm.key === key ? `<div class="cfm"><b>${label}</b>${note ? `<span class="small">${esc(note)}</span>` : ''}<span class="small muted">La orden queda en la bitácora. Se cancela sola en 10 s.</span><div class="row"><button class="go" data-ok="${key}">Confirmar</button><button data-cancel>Cancelar</button></div></div>` : '';
+  const confirmBox = (key, label, note = '') => {
+    if (!state.confirm || state.confirm.key !== key) return '';
+    const el = (performance.now() - state.confirm.t) / 1000;
+    return `<div class="cfm" role="alertdialog"><b>${label}</b>${note ? `<span class="small">${esc(note)}</span>` : ''}<span class="small muted">La orden queda en la bitácora. Si no confirmas, se cancela sola.</span><span class="cdb"><i style="animation-delay:-${el.toFixed(2)}s"></i></span><div class="row"><button class="go" data-ok="${key}">Confirmar</button><button data-cancel>Cancelar</button></div></div>`;
+  };
   const anyConfirm = (pairs) => pairs.map(([k, l, n]) => confirmBox(k, l, n)).join('');
   const recentEvents = (id, pred = (l) => l.msg.includes(id)) => {
     const ev = P.S.log.filter(pred).slice(0, 4);
@@ -391,6 +395,67 @@
     addEventListener('pointermove', mv); addEventListener('pointerup', up);
   });
   const renderSide = () => { $('side').innerHTML = sideDefault(); };
+
+  /* =================== interacción: avisos, tooltip, selección y navegación por alarma =================== */
+  // Cada orden muestra su resultado: aceptada o rechazada con su causa (antes solo quedaba en la bitácora).
+  const toast = (msg, kind = 'ok') => { // kind: ok | err
+    const box = $('toasts'), el = document.createElement('div');
+    el.className = 'toast ' + kind; el.textContent = msg; box.prepend(el);
+    while (box.children.length > 3) box.lastChild.remove();
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 4200);
+  };
+  const runCmd = (fn) => {
+    const top = P.S.log[0], r = fn(), fresh = [];
+    for (const l of P.S.log) { if (l === top) break; fresh.push(l); }
+    fresh.reverse().filter((l) => l.kind !== 'alm' && l.kind !== 'rtn').forEach((l) => toast(l.msg, l.kind === 'warn' || l.kind === 'trip' ? 'err' : 'ok'));
+    return r;
+  };
+  const PV_LOOP = Object.fromEntries(Object.entries(LOOP_PV).map(([l, t]) => [t, l]));
+  const alarmTarget = (a) => {
+    const t = a.tag;
+    if (P.M[t] || t === 'RT-401') return t;
+    if (PV_LOOP[t]) return PV_LOOP[t];
+    if (P.BRK[t] != null) return 'BRK:' + t;
+    if (/^CELDA-\d+$/.test(t)) return 'CELL:' + (+t.slice(6) - 1);
+    if (t === 'SEQ-100') return 'SEQ';
+    return null;
+  };
+  // ISA-101: desde una alarma, un clic lleva a la pantalla y al equipo (no la reconoce: eso es explícito)
+  const goAlarm = (id) => {
+    const a = P.AD.find((x) => x.id === id); if (!a) return;
+    state.role = 'op'; state.screen = a.area ? 'a' + a.area : 'gen'; state.sel = null; show();
+    const tg = alarmTarget(a); if (tg) openFp(tg);
+  };
+  const tip = $('tip'); let tipEl = null;
+  const tipHTML = (el) => {
+    const d = el.dataset;
+    if (d.cell != null) { const k = +d.cell, sh = P.X.shorts[k], known = P.X.monitor || P.X.seen[k]; return `<b>Celda ${k + 1}</b><span>${P.X.monitor ? f(P.X.cellV(k), 2) + ' V' : 'Sin medición continua'}${known && sh > 0 ? ' · cortocircuito detectado' : ''}</span>`; }
+    const s = d.fp;
+    if (!s && d.go) { const ar = areaOf(d.go); return `<b>Ir a ${ar ? ar + ' · ' + AREAS[ar] : 'la pantalla'}</b>`; }
+    if (P.L[s]) { const c = P.L[s], t = P.T[LOOP_PV[s]]; return `<b>${s} · ${c.mode}</b><span>${esc(c.desc)}</span><span class="mono">PV ${ft(t.id)} · SP ${f(c.sp_(), t.dec)} ${t.unit} · salida ${f(c.op)} %</span>`; }
+    if (P.M[s]) { const m = P.M[s]; return `<b>${s}</b><span>${esc(m.desc)}</span><span>${stTxt(m.state, m)} · ${f(m.vib, 1)} mm/s</span>`; }
+    if (s === 'RT-401') return `<b>RT-401</b><span>Rectificador · ${stTxt(P.RECT.state)}</span><span class="mono">${ft('IIT-401')} kA · ${ft('EIT-401')} V</span>`;
+    if (s && s.startsWith('BRK:')) return `<b>Interruptor ${s.slice(4)}</b><span>${P.BRK[s.slice(4)] ? 'Cerrado' : '<b class="bad">Abierto</b>'}</span>`;
+    if (s === 'SEQ') return `<b>Secuencias del área 100</b><span>${esc(seqStatus())}</span>`;
+    return s ? `<b>${esc(s)}</b>` : '';
+  };
+  const placeTip = (e) => { const w = tip.offsetWidth, h = tip.offsetHeight; tip.style.left = clamp(e.clientX + 14, 4, innerWidth - w - 4) + 'px'; tip.style.top = (e.clientY + 18 + h > innerHeight ? e.clientY - h - 12 : e.clientY + 18) + 'px'; };
+  const fillTip = () => { if (!tipEl) return; if (!tipEl.isConnected) { tipEl = null; tip.hidden = true; return; } tip.innerHTML = tipHTML(tipEl) + '<i>Clic para abrir</i>'; };
+  $('screen').addEventListener('pointerover', (e) => {
+    if (e.pointerType === 'touch') return;
+    const el = e.target.closest('svg [data-fp], svg [data-cell], svg [data-go]');
+    if (el === tipEl) return;
+    tipEl = el; if (!el) { tip.hidden = true; return; }
+    fillTip(); tip.hidden = false; placeTip(e);
+  });
+  $('screen').addEventListener('pointermove', (e) => { if (tipEl) placeTip(e); });
+  $('screen').addEventListener('pointerleave', () => { tipEl = null; tip.hidden = true; });
+  const markSel = (root) => {
+    root.querySelectorAll('.selx').forEach((e) => e.classList.remove('selx'));
+    const s = state.sel; if (!s) return;
+    const q = s.startsWith('CELL:') ? `[data-cell="${s.slice(5)}"]` : `svg [data-fp="${CSS.escape(s)}"]`;
+    root.querySelectorAll(q).forEach((e) => e.classList.add('selx'));
+  };
   const drawFpTrend = () => {
     const cv = $('fp-trend'); if (!cv || !P.L[state.sel]) return;
     const pv = LOOP_PV[state.sel], t = P.T[pv], d = P.histGet(pv, 1800);
@@ -418,7 +483,7 @@
       <div class="card"><div class="l">Inhibidas temporalmente</div><div class="v">${shelved.length}</div><div class="s">vuelven solas al vencer el plazo</div></div>
       <div class="card"><div class="l">Suprimidas por estado de equipo</div><div class="v">${supp.length}</div><div class="s">${supp.length ? esc(supp.slice(0, 3).map((a) => a.id).join(' · ')) + (supp.length > 3 ? '…' : '') : 'el área detenida no genera alarmas de proceso'}</div></div></div>`;
     h += `<div class="tblw"><table><thead><tr><th>Hora</th><th>Prior.</th><th>Área</th><th>Tag</th><th>Descripción</th><th>Estado</th><th></th></tr></thead><tbody>`;
-    h += act.length ? act.map((a) => `<tr><td class="mono">${P.hm(a.since)}</td><td><span class="pr p${a.prio} ${a.st === 'U' ? 'blink' : ''}">${a.prio}</span></td><td>${a.area}</td><td class="mono">${esc(a.tag)}</td><td>${esc(a.desc)}</td><td class="small">${{U: 'Activa sin reconocer', A: 'Activa reconocida', R: 'Normalizada sin reconocer'}[a.st]}</td><td><div class="row"><button data-ack="${esc(a.id)}">Reconocer</button><button data-shelve="${esc(a.id)}">Inhibir 1 h</button></div></td></tr>`).join('') : '<tr><td colspan="7" class="muted">Sin alarmas.</td></tr>';
+    h += act.length ? act.map((a) => `<tr><td class="mono">${P.hm(a.since)}</td><td><span class="pr p${a.prio} ${a.st === 'U' ? 'blink' : ''}">${a.prio}</span></td><td>${a.area}</td><td class="mono">${esc(a.tag)}</td><td>${esc(a.desc)}</td><td class="small">${{U: 'Activa sin reconocer', A: 'Activa reconocida', R: 'Normalizada sin reconocer'}[a.st]}</td><td><div class="row"><button data-galm="${esc(a.id)}" title="Abrir la pantalla y el equipo">Ir</button><button data-ack="${esc(a.id)}">Reconocer</button><button data-shelve="${esc(a.id)}">Inhibir 1 h</button></div></td></tr>`).join('') : '<tr><td colspan="7" class="muted">Sin alarmas.</td></tr>';
     h += `</tbody></table></div><h3 style="margin:0;font-size:.85rem">Alarmas más frecuentes (candidatas a racionalización)</h3><div class="tblw"><table><thead><tr><th>Tag</th><th>Descripción</th><th>Veces</th></tr></thead><tbody>${top.length ? top.map((a) => `<tr><td class="mono">${esc(a.tag)}</td><td>${esc(a.desc)}</td><td class="num">${a.count}</td></tr>`).join('') : '<tr><td colspan="3" class="muted">Aún no hay repeticiones.</td></tr>'}</tbody></table></div></div>`;
     return h;
   };
@@ -481,7 +546,7 @@
   };
   const eventsCSV = () => download('bitacora-planta-virtual.csv', [['Hora simulada', 'Origen', 'Tipo', 'Mensaje'].map(csvq).join(';'), ...P.S.log.map((l) => [hms(l.t), l.who, l.kind, l.msg].map(csvq).join(';'))].join('\r\n'));
 
-  /* modelo: de dónde sale cada número (trazabilidad del gemelo) */
+  /* modelo: de dónde sale cada número (trazabilidad del simulador) */
   const SRC = {
     saldana: ['Saldaña y otros, Minerals 9(7) 421, 2019 (ENAMI)', 'https://www.mdpi.com/2075-163X/9/7/421'],
     leon: ['León y otros, Processes 13, 1513, 2025', 'https://doi.org/10.3390/pr13051513'],
@@ -497,7 +562,7 @@
     const cuIn = 1700 * X.stackF * 0.006, recov = 100 * X.leach / (1700 * 6);
     const bleedCu = (X.bleedQ || 0) * X.Ce, acc = X.T - X.D - bleedCu;
     const node = (ttl, val, unit, eq, ref) => `<div class="mnode"><div class="l">${ttl}</div><div class="v">${val}<small> ${unit}</small></div><div class="eq">${eq}</div><div class="s">${ref}</div></div>`;
-    let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1">Modelo del gemelo · de dónde sale cada número</h2></div>`;
+    let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1">Modelo del simulador · de dónde sale cada número</h2></div>`;
     h += `<p class="small muted" style="margin:0;max-width:75ch">Cada valor de las pantallas sale de ecuaciones de balance y de parámetros publicados. Aquí se ve la cadena del cobre en línea, con la ecuación y la fuente de cada eslabón.</p>`;
     h += `<h3 class="sec">Cadena del cobre, en este instante</h3><div class="chain">`;
     h += node('Mineral apilado', f(cuIn, 2), 't/h de Cu', `${f(1700 * X.stackF)} t/h × 0,6 % Cu (promedio de 72 h)`, 'Planta de diseño del ' + ch('balance', 6));
@@ -533,11 +598,44 @@
       <tr><td>Equivalente electroquímico del cobre</td><td class="num">1,1855 g/Ah</td><td class="small">M/(zF) = 63,546 / (2 · 96.485) · 3.600</td></tr>
       <tr><td>Nave EW</td><td class="num">160 celdas · 60 cátodos · 1 m²/cara</td><td class="small">Supuesto de diseño, ${ch('ew', 5)}</td></tr>
       <tr><td>Calidad del cátodo</td><td class="num">Pb ≤ 5 · S ≤ 15 · Fe ≤ 10 ppm</td><td class="small">${src('lme')}</td></tr>
-      <tr><td>Zonas de vibración</td><td class="num">2,3 · 4,5 · 7,1 mm/s</td><td class="small">ISO 10816-3, grupo 1, base rígida</td></tr>
-      <tr><td>Alarmas, pantallas, tags y secuencias</td><td class="num">—</td><td class="small">ISA-18.2 · ISA-101 · ISA-5.1 · ISA-88 (simplificado)</td></tr>
+      <tr><td>Zonas de vibración</td><td class="num">2,3 · 4,5 · 7,1 mm/s</td><td class="small">ISO 10816-3, grupo 1, base rígida (hoy reemplazada por ISO 20816-3)</td></tr>
       <tr><td>Precios</td><td class="num">US$ 6,5/lb Cu · US$ 100/MWh</td><td class="small">Supuesto para valorizar pérdidas</td></tr></tbody></table></div>`;
-    h += `<div class="notice"><b>Alcance</b><span class="small">Es un gemelo de referencia: un modelo físico con parámetros de literatura, no sincronizado con una planta real. Para ser un gemelo digital de una faena concreta le faltan la conexión al historiador de la planta (OPC UA o PI), la estimación en línea de sus parámetros y la validación contra sus datos. La dinámica es creíble y los balances cierran; los valores exactos no representan a ninguna operación.</span></div>`;
+    h += pageNorms();
+    h += `<div class="notice"><b>Alcance: simulador de entrenamiento de operadores (OTS)</b><span class="small">Un OTS es un modelo dinámico del proceso con la interfaz del sistema de control, hecho para practicar partidas, paradas y fallas sin riesgo. En la clasificación de Kritzinger y otros (2018) esto es un <b>modelo digital</b>: no intercambia datos con ninguna planta. Pasaría a <b>sombra digital</b> si leyera en línea el historiador de una planta (OPC UA o PI) y ajustara sus parámetros con esos datos, y a <b>gemelo digital</b> si además devolviera recomendaciones o consignas a esa planta. La dinámica es creíble y los balances cierran, pero los valores no representan a ninguna operación real.</span></div>`;
     return h + '</div>';
+  };
+  /* normativa: qué normas rigen este tipo de solución y cómo se aplican aquí */
+  const NORMS = [
+    ['Operación y pantallas', [
+      ['ANSI/ISA-101.01', 'Interfaces humano-máquina (HMI) para automatización de procesos', 'ok', 'Fondo neutro, color solo para lo anormal, jerarquía general → área → equipo, modos de control visibles.'],
+      ['ANSI/ISA-18.2 · IEC 62682', 'Gestión de alarmas en industrias de proceso', 'ok', 'Prioridades, estados, reconocimiento, inhibición temporal, supresión por estado de equipo y tasa de alarmas por hora.'],
+      ['EEMUA 191', 'Guía de diseño y gestión de sistemas de alarma', 'part', 'Métricas de desempeño: tasa por operador y alarmas más frecuentes como candidatas a racionalización.'],
+      ['ANSI/ISA-5.1 · ISO 10628-2', 'Identificación de instrumentos y símbolos de P&ID', 'part', 'Tags según ISA-5.1 (FIC, LIT, AIT…); símbolos gráficos simplificados.'],
+      ['ISA-106', 'Automatización de procedimientos en procesos continuos', 'part', 'Partida y parada secuencial del área 100 con pasos, condiciones de avance, tiempos máximos y causa de falla.'],
+      ['IEC 61131-3', 'Lenguajes de programación de PLC', 'real', 'En una planta, las secuencias irían en SFC y los lazos en bloques PID del controlador.']]],
+    ['Seguridad', [
+      ['IEC 61511', 'Seguridad funcional: sistemas instrumentados de seguridad (SIS)', 'real', 'Aquí los enclavamientos son del control básico. En una planta, disparos como el del rectificador por caudal bajo se evalúan como funciones de seguridad independientes.'],
+      ['ISA/IEC 62443', 'Ciberseguridad de sistemas de automatización y control', 'real', 'Requisito al conectar el simulador a la red de control: zonas y conductos, acceso de solo lectura al historiador.']]],
+    ['Datos y gemelo digital', [
+      ['ISA-95 · IEC 62264', 'Integración entre la empresa y el control', 'part', 'Los roles separan el nivel 2 (operación) de los niveles 3 y 4 (mantenimiento y gestión).'],
+      ['IEC 62541 (OPC UA)', 'Intercambio de datos industriales', 'real', 'La vía para leer el historiador y pasar de modelo digital a sombra digital.'],
+      ['ISO 23247 · ISO/IEC 30173 · IEC 63278', 'Marco, terminología y administración de activos de gemelos digitales', 'ref', 'Definen qué exige un gemelo digital. Este proyecto no lo es: no tiene enlace automático con una planta.'],
+      ['ANSI/ISA-77.20', 'Requisitos funcionales de simuladores (centrales térmicas)', 'ref', 'No hay una norma general de OTS para minería; esta es la referencia más cercana para fidelidad y pruebas de aceptación.']]],
+    ['Equipos y producto', [
+      ['ISO 20816-3 (antes ISO 10816-3)', 'Evaluación de vibraciones en máquinas industriales', 'ok', 'Zonas A, B, C y D para máquinas del grupo 1 en base rígida.'],
+      ['ISO 17359', 'Monitoreo de condición de máquinas', 'part', 'Avisos predictivos por tendencia de vibración y tiempo estimado a zona D.'],
+      ['IEEE 519', 'Control de armónicos en sistemas eléctricos', 'part', 'Distorsión de corriente del rectificador con y sin filtro de 5.ª y 7.ª armónica.'],
+      ['BS EN 1978 (LME grado A)', 'Calidad del cátodo de cobre', 'ok', 'Límites de Pb, S y Fe para estimar si el cátodo es grado A.']]]
+  ];
+  const NST = {ok: ['Aplicada', 'ok'], part: ['Parcial', 'part'], real: ['Para planta real', 'real'], ref: ['Referencia', 'ref']};
+  const pageNorms = () => {
+    let h = `<h3 class="sec">Normativa para este tipo de solución</h3><p class="small muted" style="margin:0;max-width:80ch">Normas de ingeniería que rigen las salas de control, los simuladores y los gemelos digitales, y cómo se aplica cada una en este simulador.</p>`;
+    h += `<div class="tblw"><table class="norms"><thead><tr><th>Norma</th><th>Ámbito</th><th>Estado</th><th>En este simulador</th></tr></thead><tbody>`;
+    NORMS.forEach(([grp, rows]) => {
+      h += `<tr class="ngrp"><td colspan="4">${grp}</td></tr>`;
+      h += rows.map(([n, a, st, how]) => `<tr><td class="mono">${n}</td><td class="small">${a}</td><td><span class="nst ${NST[st][1]}">${NST[st][0]}</span></td><td class="small">${how}</td></tr>`).join('');
+    });
+    return h + '</tbody></table></div>';
   };
 
   const pageMaint = () => {
@@ -565,10 +663,10 @@
     let h = `<div class="page"><h2 style="margin:0;font-size:1.05rem">Mantenimiento · condición de equipos</h2>`;
     h += `<div class="cards"><div class="card"><div class="l">Avisos abiertos</div><div class="v">${N.length}</div></div><div class="card"><div class="l">Equipos disparados</div><div class="v">${eqs.filter((m) => m.state === 'TRIP').length}</div></div><div class="card ${!P.X.monitor ? 'warn' : ''}"><div class="l">Monitoreo de celdas EW</div><div class="v" style="font-size:1rem">${P.X.monitor ? 'Continuo' : 'Ronda cada 4 h'}</div><div class="s">${P.X.monitor ? 'cada cortocircuito se ve al aparecer' : hidden + ' cortocircuitos aún no detectados'}</div><button data-mact="monitor" style="margin-top:6px">${P.X.monitor ? 'Volver a rondas' : 'Activar monitoreo continuo'}</button></div></div>`;
     h += `<h3 style="margin:0;font-size:.85rem">Avisos de mantenimiento</h3>` + (N.length ? N.sort((a, b) => a.p - b.p).map((n) => `<div class="notice p${n.p}"><b>${esc(n.t)}</b><span class="small">${n.d}</span>${n.a ? `<div class="row">${n.a}</div>` : ''}</div>`).join('') : '<p class="muted small" style="margin:0">Sin avisos.</p>');
-    h += `<h3 style="margin:0;font-size:.85rem">Equipos rotativos</h3><div class="tblw"><table><thead><tr><th>Equipo</th><th>Estado</th><th>Salud</th><th>Vibración (ISO 10816-3)</th><th>Temp.</th><th>Horas</th><th>Partidas</th><th>PM</th></tr></thead><tbody>`;
+    h += `<h3 style="margin:0;font-size:.85rem">Equipos rotativos</h3><div class="tblw"><table><thead><tr><th>Equipo</th><th>Estado</th><th>Salud</th><th>Vibración (ISO 20816-3)</th><th>Temp.</th><th>Horas</th><th>Partidas</th><th>PM</th></tr></thead><tbody>`;
     h += eqs.map((m) => { const hl = health(m); return `<tr data-msel="${m.id}" style="cursor:pointer;${state.maintSel === m.id ? 'background:var(--panel)' : ''}"><td><span class="mono">${m.id}</span><div class="small muted">${esc(m.desc)}</div></td><td class="small">${stTxt(m.state, m)}</td><td><div class="hbar"><i style="width:${hl}%;background:${hl < 50 ? 'var(--p1)' : hl < 75 ? 'var(--p2)' : 'var(--run)'}"></i></div><span class="small mono">${hl} %</span></td>` +
       `<td><div class="zone"><span style="background:var(--band)"></span><span style="background:var(--bar)"></span><span style="background:var(--p3)"></span><span style="background:var(--p1)"></span><em style="left:${Math.min(98, m.vib / 9.5 * 100)}%"></em></div><span class="small mono">${f(m.vib, 1)} mm/s · ${zone(m.vib)}</span></td><td class="num">${f(m.temp)} °C</td><td class="num">${f(m.hours)}</td><td class="num">${m.starts}</td><td class="num">${f(m.sincePM)}/${m.pmEvery}</td></tr>`; }).join('');
-    h += `</tbody></table></div><h3 style="margin:0;font-size:.85rem">Vibración de ${state.maintSel} · últimas 8 h</h3><canvas id="mt-cv" height="180" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px"></canvas><div class="small muted">Zonas de ISO 10816-3, máquinas del grupo 1 sobre base rígida: A/B 2,3 · B/C 4,5 · C/D 7,1 mm/s RMS.</div></div>`;
+    h += `</tbody></table></div><h3 style="margin:0;font-size:.85rem">Vibración de ${state.maintSel} · últimas 8 h</h3><canvas id="mt-cv" height="180" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px"></canvas><div class="small muted">Zonas de ISO 10816-3 (hoy reemplazada por ISO 20816-3), máquinas del grupo 1 sobre base rígida: A/B 2,3 · B/C 4,5 · C/D 7,1 mm/s RMS.</div></div>`;
     return h;
   };
   const drawMaint = () => {
@@ -628,6 +726,7 @@
 
   /* =================== navegación =================== */
   const TABS = [['gen', 'General'], ['a100', '100 Aglomeración'], ['a200', '200 Pilas'], ['a300', '300 SX'], ['a400', '400 EW'], ['a500', '500 Servicios'], ['alarms', 'Alarmas'], ['trends', 'Tendencias'], ['events', 'Eventos'], ['model', 'Modelo']];
+  const KEYTAB = {gen: '0', a100: '1', a200: '2', a300: '3', a400: '4', a500: '5', alarms: 'A'};
   const PAGES = {alarms: () => pageAlarms(), trends: () => pageTrends(), events: () => pageEvents(), model: () => pageModel()};
   const ROLES = [['op', 'Operación'], ['mt', 'Mantenimiento'], ['mg', 'Gerencia']];
   const SPEEDS = [[0, 'Pausa'], [1, '×1'], [10, '×10'], [60, '×60'], [300, '×300']];
@@ -636,7 +735,7 @@
     $('speed').innerHTML = SPEEDS.map(([v, l]) => `<button data-speed="${v}" class="${v === speed ? 'on' : ''}" title="${v ? `1 s real = ${v} s de planta` : 'Detener el tiempo'}">${l}</button>`).join('');
     $('roles').innerHTML = ROLES.map(([v, l]) => `<button data-role="${v}" class="${state.role === v ? 'on' : ''}">${l}</button>`).join('');
     $('tabs').style.display = state.role === 'op' ? '' : 'none';
-    $('tabs').innerHTML = TABS.map(([v, l]) => `<button data-tab="${v}" class="${state.screen === v ? 'on' : ''}">${l}<i data-tcount="${v}"></i></button>`).join('');
+    $('tabs').innerHTML = TABS.map(([v, l]) => `<button data-tab="${v}" class="${state.screen === v ? 'on' : ''}" ${KEYTAB[v] ? `title="Atajo: tecla ${KEYTAB[v]}"` : ''}>${l}<i data-tcount="${v}"></i></button>`).join('');
   };
   const full = (on) => { $('side').style.display = on ? 'none' : ''; document.querySelector('main').style.gridTemplateColumns = on ? '1fr' : ''; };
   const show = () => {
@@ -713,6 +812,7 @@
     });
     root.querySelectorAll('[data-cell]').forEach((e) => { const k = +e.dataset.cell, sh = P.X.shorts[k], known = P.X.monitor || P.X.seen[k]; e.setAttribute('class', 'cell' + (known && sh > 0 ? (sh >= 3 ? ' s2' : ' s1') : '') + (P.X.fixing.find((x) => x.k === k) ? ' fx' : '')); });
     root.querySelectorAll('[data-org]').forEach((e) => { });
+    markSel(root); fillTip();
     const cr = root.querySelector('[data-crud]'); if (cr) { const h = Math.min(30, P.X.crud * 120); cr.setAttribute('height', h); cr.setAttribute('y', 111 + 22 - h / 2); }
     root.querySelectorAll('[data-btxt]').forEach((e) => { const a = e.dataset.btxt, on = a === 'delay' ? P.X.delayComp : a === 'monitor' ? P.X.monitor : a === 'cap' ? P.X.capBank : false; e.parentNode.classList.toggle('on', on); });
     root.querySelectorAll('[data-brk]').forEach((e) => { const on = P.BRK[e.dataset.brk]; e.classList.toggle('on', on); e.classList.toggle('open', !on); });
@@ -722,6 +822,7 @@
     $('acnt').innerHTML = c.map((n, i) => `<span><span class="pr p${i + 1}">${i + 1}</span> ${n}</span>`).join('');
     const un = P.AD.filter((a) => a.st === 'U').sort((a, b) => a.prio - b.prio || b.since - a.since)[0];
     $('alast').innerHTML = un ? `<span class="pr p${un.prio} blink">${un.prio}</span> ${P.hm(un.since)} · ${esc(un.desc)}` : '<span class="muted">Sin alarmas nuevas por reconocer</span>';
+    if (un) { $('alast').dataset.galm = un.id; $('alast').title = 'Ir al equipo en alarma'; } else { delete $('alast').dataset.galm; $('alast').title = ''; }
     $('clock').textContent = `${P.hhmm()} · Turno ${P.shiftOf()}`;
     $('simst').className = 'simst' + (speed ? '' : ' paused'); $('simst').lastChild.textContent = speed ? ` SIM ×${speed}` : ' SIM EN PAUSA';
     if (state.confirm && performance.now() - state.confirm.t > 10000) { state.confirm = null; renderFp(); }
@@ -741,22 +842,24 @@
 
   /* =================== eventos =================== */
   document.addEventListener('click', (ev) => {
-    const t = ev.target.closest('[data-speed],[data-role],[data-tab],[data-go],[data-fp],[data-fp2],[data-close-fp],[data-mode],[data-set],[data-cmd],[data-ask],[data-ok],[data-cancel],[data-nudge],[data-totrend],[data-csv],[data-act],[data-fixcell],[data-cell],[data-ack],[data-shelve],[data-ackall],[data-win],[data-mact],[data-msel],[data-scn],[data-close]');
+    const t = ev.target.closest('[data-speed],[data-role],[data-tab],[data-go],[data-fp],[data-fp2],[data-close-fp],[data-mode],[data-set],[data-cmd],[data-ask],[data-ok],[data-cancel],[data-nudge],[data-totrend],[data-csv],[data-act],[data-fixcell],[data-cell],[data-galm],[data-ack],[data-shelve],[data-ackall],[data-win],[data-mact],[data-msel],[data-scn],[data-close]');
     if (!t) return;
     const d = t.dataset;
     if (d.speed != null) { speed = +d.speed; buildBars(); return; }
     if (d.role) { state.role = d.role; state.sel = null; show(); return; }
     if (d.tab) { state.screen = d.tab; state.sel = null; show(); return; }
     if (d.go) { state.role = 'op'; state.screen = d.go; state.sel = null; show(); return; }
-    if (d.cell != null) { openFp('CELL:' + d.cell, ev); return; }
+    if (d.galm) { tipEl = null; tip.hidden = true; goAlarm(d.galm); return; }
+    if (d.cell != null) { tipEl = null; tip.hidden = true; openFp('CELL:' + d.cell, ev); refresh(); return; }
     if (d.fp2) { openFp(d.fp2); return; }
-    if (d.fp) { openFp(d.fp, ev); return; }
-    if (d.closeFp != null) { closeFp(); return; }
-    if (d.mode) { P.cmd.mode(state.sel, d.mode); renderFp(); refresh(); return; }
+    if (d.fp) { tipEl = null; tip.hidden = true; openFp(d.fp, ev); refresh(); return; }
+    if (d.closeFp != null) { closeFp(); refresh(); return; }
+    if (d.mode) { runCmd(() => P.cmd.mode(state.sel, d.mode)); renderFp(); refresh(); return; }
     if (d.set) {
       const c = state.sel, lp = P.L[c], t2 = P.T[LOOP_PV[c]], v = +$('fp-' + d.set).value;
       if (!Number.isFinite(v)) return;
-      if (d.set === 'sp') P.cmd.sp(c, clamp(v, t2.lo, t2.hi)); if (d.set === 'op') P.cmd.op(c, v); if (d.set === 'ratio' && v > 0) P.cmd.ratio(c, v);
+      if (d.set === 'sp' && (v < t2.lo || v > t2.hi)) toast(`Consigna fuera de rango: se limita a ${f(clamp(v, t2.lo, t2.hi), t2.dec)} ${t2.unit}`, 'err');
+      runCmd(() => { if (d.set === 'sp') P.cmd.sp(c, clamp(v, t2.lo, t2.hi)); if (d.set === 'op') P.cmd.op(c, v); if (d.set === 'ratio' && v > 0) P.cmd.ratio(c, v); });
       renderFp(); return;
     }
     if (d.nudge) {
@@ -771,23 +874,25 @@
     if (d.cancel != null) { state.confirm = null; renderFp(); return; }
     if (d.ok) {
       const k = d.ok, s2 = state.sel;
-      if (k === 'start' || k === 'stop') P.cmd[k](s2);
-      else if (k === 'brk1' || k === 'brk0') P.cmd.breaker(s2.slice(4), k === 'brk1');
-      else if (k.startsWith('seq:')) P.cmd.seq(k.slice(4));
-      else if (k === 'seqabort') P.cmd.seqAbort();
+      runCmd(() => {
+        if (k === 'start' || k === 'stop') P.cmd[k](s2);
+        else if (k === 'brk1' || k === 'brk0') P.cmd.breaker(s2.slice(4), k === 'brk1');
+        else if (k.startsWith('seq:')) P.cmd.seq(k.slice(4));
+        else if (k === 'seqabort') P.cmd.seqAbort();
+      });
       state.confirm = null; renderFp(); refresh(true); return;
     }
-    if (d.cmd) { P.cmd[d.cmd](state.sel); renderFp(); refresh(); return; }
+    if (d.cmd) { runCmd(() => P.cmd[d.cmd](state.sel)); renderFp(); refresh(); return; }
     if (d.csv) { if (d.csv === 'trend') trendCSV(); else eventsCSV(); return; }
-    if (d.fixcell != null) { P.cmd.fixCell(+d.fixcell); renderFp(); return; }
-    if (d.act) { if (d.act === 'delay') P.cmd.delayComp(!P.X.delayComp); if (d.act === 'monitor') P.cmd.monitor(!P.X.monitor); if (d.act === 'cap') P.cmd.capBank(!P.X.capBank); if (d.act === 'truck') P.cmd.truck(1); refresh(true); return; }
+    if (d.fixcell != null) { runCmd(() => P.cmd.fixCell(+d.fixcell)); renderFp(); return; }
+    if (d.act) { runCmd(() => { if (d.act === 'delay') P.cmd.delayComp(!P.X.delayComp); if (d.act === 'monitor') P.cmd.monitor(!P.X.monitor); if (d.act === 'cap') P.cmd.capBank(!P.X.capBank); if (d.act === 'truck') P.cmd.truck(1); }); refresh(true); return; }
     if (d.ack) { P.cmd.ack(d.ack); $('screen').innerHTML = pageAlarms(); refresh(); return; }
     if (d.shelve) { P.cmd.shelve(d.shelve); $('screen').innerHTML = pageAlarms(); return; }
     if (d.ackall != null) { P.cmd.ackAll(state.alFilter || 0); $('screen').innerHTML = pageAlarms(); return; }
     if (d.win) { state.trend.win = +d.win; show(); return; }
-    if (d.mact) { const a = d.mact; if (a === 'bearing') P.cmd.bearing(); if (a === 'calibrate') P.cmd.calibrate(); if (a === 'crud') P.cmd.cleanCrud(); if (a === 'hx') P.cmd.fixHX(); if (a === 'cells') P.cmd.fixAllSeen(); if (a === 'monitor') P.cmd.monitor(!P.X.monitor); $('screen').innerHTML = pageMaint(); drawMaint(); return; }
+    if (d.mact) { const a = d.mact; runCmd(() => { if (a === 'bearing') P.cmd.bearing(); if (a === 'calibrate') P.cmd.calibrate(); if (a === 'crud') P.cmd.cleanCrud(); if (a === 'hx') P.cmd.fixHX(); if (a === 'cells') P.cmd.fixAllSeen(); if (a === 'monitor') P.cmd.monitor(!P.X.monitor); }); $('screen').innerHTML = pageMaint(); drawMaint(); return; }
     if (d.msel) { state.maintSel = d.msel; $('screen').innerHTML = pageMaint(); drawMaint(); return; }
-    if (d.scn) { P.scenario(d.scn); $('m-scn').classList.remove('show'); const s = P.SCN.find((x) => x.id === d.scn); state.role = 'op'; state.screen = 'a' + s.area; state.sel = null; show(); return; }
+    if (d.scn) { runCmd(() => P.scenario(d.scn)); $('m-scn').classList.remove('show'); const s = P.SCN.find((x) => x.id === d.scn); state.role = 'op'; state.screen = 'a' + s.area; state.sel = null; show(); return; }
     if (d.close != null) { t.closest('.modal').classList.remove('show'); return; }
   });
   document.addEventListener('change', (ev) => {
@@ -802,7 +907,13 @@
   $('btn-scn').onclick = () => { $('scn-list').innerHTML = P.SCN.map((s) => `<div class="card"><b>${esc(s.name)}</b><span class="small muted">Área ${s.area}</span><p>${esc(s.desc)}</p><button data-scn="${s.id}">Provocar</button></div>`).join(''); $('m-scn').classList.add('show'); };
   $('btn-reset').onclick = () => { P = PlantSim.create(); $('m-scn').classList.remove('show'); state.sel = null; show(); };
   $('btn-src').onclick = (e) => { e.preventDefault(); state.role = 'op'; state.screen = 'model'; state.sel = null; show(); scrollTo(0, 0); };
-  addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (state.confirm) { state.confirm = null; renderFp(); } else if (state.sel) closeFp(); document.querySelectorAll('.modal.show').forEach((m) => m.classList.remove('show')); } });
+  addEventListener('keydown', (e) => {
+    const tg = e.target, typing = tg.closest && tg.closest('input,select,textarea');
+    if (!typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const scr = Object.keys(KEYTAB).find((k) => KEYTAB[k].toLowerCase() === e.key.toLowerCase());
+      if (scr) { state.role = 'op'; state.screen = scr; state.sel = null; show(); return; }
+    }
+    if (e.key === 'Escape') { if (state.confirm) { state.confirm = null; renderFp(); } else if (state.sel) closeFp(); document.querySelectorAll('.modal.show').forEach((m) => m.classList.remove('show')); } });
   const setTheme = (th) => { document.documentElement.dataset.theme = th; try { localStorage.setItem('pv-theme', th); } catch (e) { /* sin almacenamiento */ } $('btn-theme').title = th === 'dark' ? 'Pasar a tema claro' : 'Pasar a tema oscuro'; };
   setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
   $('btn-theme').onclick = () => { setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); show(); };

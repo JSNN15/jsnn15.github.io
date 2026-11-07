@@ -1,4 +1,4 @@
-/* Planta virtual LX-SX-EW · motor de simulación dinámica.
+/* Planta virtual LX-SX-EW · motor del simulador de entrenamiento de operadores (OTS).
    Paso fijo de 1 s de tiempo simulado. Modelo didáctico: dinámica creíble, no validado contra una planta real. */
 (function (G) {
   'use strict';
@@ -298,7 +298,7 @@
       seqAbort() { if (seq.st === 'IDLE') return; const s = SEQ[seq.id]; if (seq.st === 'RUN') log('Operador', `${s.name} abortada en el paso ${seq.k + 1}`, 'warn'); seq.st = 'IDLE'; seq.id = null; seq.msg = ''; }
     };
 
-    /* ----- secuencias (control secuencial tipo ISA-88 simplificado: paso, condición de avance y tiempo máximo) ----- */
+    /* ----- secuencias (automatización de procedimientos de proceso continuo, ISA-106 simplificado: paso, condición de avance y tiempo máximo) ----- */
     const SEQ = {
       start100: {name: 'Partida secuencial del área 100', steps: [
         {d: 'Partir tambor aglomerador M-103', eq: 'M-103', go: () => cmd.start('M-103', 'Secuencia'), ok: () => running('M-103'), min: 15},
