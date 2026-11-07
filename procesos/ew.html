@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Electroobtención (EW)</title>
+<meta name="description" content="Capítulo 5 de Procesos del cobre para ingenieros eléctricos: Faraday, voltaje de celda, eficiencia de corriente y la norma del cátodo grado A.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
+:root{
+  --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
+  --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.top{background:var(--ink);color:#e9eef2}
+.top .in{padding-block:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.top a{color:#e9eef2;text-decoration:none}
+.in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+header.ch{padding-block:48px 8px}
+.kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+article{padding-block:16px 40px}
+.prose{max-width:68ch}
+h2{font-size:1.45rem;font-weight:600;margin:52px 0 6px;line-height:1.25;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:.85rem;color:var(--copper);display:block;letter-spacing:.08em;margin-bottom:4px}
+p{margin:0 0 14px}
+.analogy{border-left:3px solid var(--copper-2);background:var(--soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:18px 0}
+.analogy b{color:var(--copper)}
+.eq{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.92rem;margin:14px 0}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0;display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:24px}
+@media (max-width:46rem){.lab{grid-template-columns:1fr}}
+.lab h3{grid-column:1/-1;margin:0;font-size:1rem;font-weight:600}
+.lab h3 small{display:block;font-weight:400;color:var(--muted);font-size:.85rem;margin-top:2px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.f label b{font-family:var(--mono);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.f input[type=range]{width:100%;accent-color:var(--copper)}
+.f select{width:100%;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+button{font:inherit;font-size:.86rem;padding:7px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--copper)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--soft)}
+.ro .l{font-size:.72rem;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.ro .v.bad{color:var(--bad)} .ro .v.ok{color:var(--ok)}
+canvas{display:block;width:100%}
+.msg{font-size:.88rem;padding:8px 10px;border-radius:6px;background:var(--soft);border:1px solid var(--line)}
+.msg.bad{border-color:var(--bad)} .msg.ok{border-color:var(--ok)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+.tbl{overflow-x:auto}
+.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:12px;margin:16px 0}
+.inst div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.inst b{display:block;font-size:.95rem}
+.inst span{font-size:.87rem;color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.src li{margin-bottom:6px}
+.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;margin-top:40px}
+.next a{text-decoration:none;font-weight:600}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a href="./">← Procesos del cobre para ingenieros eléctricos</a><a href="../">jsnn15.github.io</a></div></div>
+<div class="in">
+  <header class="ch">
+    <div class="kick">Capítulo 5</div>
+    <h1>Electro&shy;obtención (EW)</h1>
+    <p class="lede">Por fin, terreno conocido: un rectificador de decenas de kiloamperes, celdas en serie y la ley de Faraday. Aquí el cobre disuelto vuelve a ser metal, y la química se mide en volts y amperes.</p>
+  </header>
+
+  <article>
+    <div class="prose">
+      <h2><span class="n">01</span>La celda: un cargador de baterías</h2>
+      <p>Cada celda es un estanque con electrolito rico (unos 48 g/L de cobre) y placas alternadas: ánodos de plomo y cátodos de acero inoxidable. La corriente continua del rectificador hace dos reacciones a la vez:</p>
+      <div class="eq">Cátodo:  Cu²⁺ + 2 e⁻ → Cu   (el cobre se deposita en la placa)<br>Ánodo:   H₂O → ½ O₂ + 2 H⁺ + 2 e⁻   (se libera oxígeno y se regenera ácido)</div>
+      <p>El electrolito sale con menos cobre y más ácido: es el electrolito pobre que vuelve a SX para descargar el orgánico (capítulo 4). El ácido da la vuelta completa al circuito.</p>
+      <p>Las celdas se conectan en serie (la misma corriente pasa por todas) y dentro de cada celda los cátodos quedan en paralelo. La ley de Faraday dice cuánto cobre deposita cada ampere:</p>
+      <div class="eq">m = I · t · M / (z · F) = 1,1855 g de cobre por ampere-hora   (M = 63,546 g/mol, z = 2, F = 96.485 C/mol)</div>
+    </div>
+    <div class="analogy prose"><b>En términos eléctricos:</b> la celda es una batería que se está cargando. Tiene una fuerza contraelectromotriz que hay que vencer (0,89 V, la diferencia entre los potenciales del oxígeno y del cobre), dos "diodos" en serie (los sobrepotenciales del ánodo y del cátodo, que crecen con el logaritmo de la corriente, igual que la curva de un diodo) y una resistencia (el electrolito, los contactos y las barras).</div>
+
+    <div class="prose">
+      <h2><span class="n">02</span>¿Dónde se van los 2 volts?</h2>
+      <p>Una celda convencional trabaja cerca de 2 V y gasta unos 2 kWh por kilo de cobre, con densidades de corriente bajo los 360 A/m² (Cifuentes y otros, Universidad de Chile). Solo 0,89 V son química inevitable. El resto es pérdida, y la más grande está en el ánodo, donde se forma oxígeno.</p>
+    </div>
+
+    <section class="lab" aria-label="Voltaje de celda y energía">
+      <h3>Laboratorio 1 · El voltaje de una celda, componente por componente<small>Modelo de batería + diodos + resistencia. La fuerza contraelectromotriz es exacta; los sobrepotenciales y la conductividad son valores didácticos ajustados para dar unos 2 V a 300 A/m².</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="j">Densidad de corriente <b id="j-v"></b></label><input id="j" type="range" min="100" max="450" step="5" value="300"></div>
+        <div class="f"><label for="ce">Eficiencia de corriente <b id="ce-v"></b></label><input id="ce" type="range" min="70" max="99" step="0.5" value="92"></div>
+        <div class="f"><label for="kap">Conductividad del electrolito <b id="kap-v"></b></label><input id="kap" type="range" min="30" max="80" step="1" value="55"></div>
+        <div class="f"><label for="gap">Distancia ánodo-cátodo <b id="gap-v"></b></label><input id="gap" type="range" min="2" max="6" step="0.1" value="4"></div>
+        <div class="f"><label for="ctc">Caída en contactos y barras <b id="ctc-v"></b></label><input id="ctc" type="range" min="50" max="400" step="10" value="150"></div>
+        <div class="f"><label for="tar">Precio de la energía <b id="tar-v"></b></label><input id="tar" type="range" min="40" max="200" step="5" value="100"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Voltaje de celda</div><div class="v" id="r-v"></div></div>
+          <div class="ro"><div class="l">Energía específica</div><div class="v" id="r-e"></div></div>
+          <div class="ro"><div class="l">Producción por m² de cátodo</div><div class="v" id="r-p"></div></div>
+          <div class="ro"><div class="l">Costo de energía</div><div class="v" id="r-c"></div></div>
+        </div>
+        <svg id="sv-v" viewBox="0 0 640 64" role="img" aria-label="Componentes del voltaje de celda"></svg>
+        <div class="lg" id="lg-v"></div>
+        <canvas id="cv-vj" height="200" aria-label="Voltaje de celda en función de la densidad de corriente"></canvas>
+        <div class="msg" id="m-v"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <p>La energía por tonelada depende de dos cosas: el voltaje y la eficiencia de corriente. Subir la densidad de corriente produce más por metro cuadrado (menos celdas para la misma producción), pero cada ampere extra cuesta más volts. Es el mismo dilema que dimensionar un conductor: sección contra pérdidas.</p>
+      <div class="eq">energía [kWh/t] = V_celda × 1000 / (1,1855 × eficiencia de corriente)</div>
+
+      <h2><span class="n">03</span>La eficiencia de corriente: corrientes de fuga</h2>
+      <p>No todo ampere deposita cobre. Lo que se pierde es equivalente a una corriente de fuga en paralelo con la carga útil:</p>
+      <div class="inst">
+        <div><b>Cortocircuitos</b><span>Un nódulo de cobre que crece hasta tocar el ánodo. La corriente pasa por ahí sin depositar nada. Es la pérdida más grande y la más fácil de medir.</span></div>
+        <div><b>Hierro férrico</b><span>El Fe³⁺ que llegó desde SX se reduce a Fe²⁺ en el cátodo, vuelve al ánodo, se oxida otra vez y repite. Una lanzadera de electrones que consume corriente sin producir cobre (Sole y otros lo señalan como perjudicial para la eficiencia).</span></div>
+        <div><b>Fugas a tierra</b><span>Corrientes por el electrolito derramado, las cañerías y las estructuras. Además de pérdida, corroen.</span></div>
+      </div>
+      <p><a href="../simulador-ew/"><b>Abre el simulador de nave →</b></a> Provoca cortocircuitos y compara cuánto cobre se pierde con rondas manuales y con monitoreo continuo del voltaje de cada celda.</p>
+
+      <h2><span class="n">04</span>La pureza: qué significa "grado A"</h2>
+      <p>El cátodo se vende según la norma BS EN 1978 (Cu-CATH-1), que es la que exige la Bolsa de Metales de Londres (LME) para el cobre grado A. No fija un porcentaje de cobre: fija máximos para cada impureza, en partes por millón, y un máximo para la suma. Por eso "99,99 %" es una forma corta de decir que la suma de impurezas no pasa de 65 ppm.</p>
+      <p>Cada impureza tiene una causa en el proceso que un instrumentista puede vigilar:</p>
+      <div class="inst">
+        <div><b>Plomo</b><span>Viene del ánodo que se corroe. Se controla con cobalto en el electrolito y cuidando el manganeso.</span></div>
+        <div><b>Azufre</b><span>Electrolito atrapado en un depósito rugoso o nodular. Lo provoca una densidad de corriente alta, poco aditivo o mala distribución de corriente.</span></div>
+        <div><b>Hierro y otros</b><span>Arrastrados desde SX o por contaminación física en la cosecha y el lavado de los cátodos.</span></div>
+      </div>
+    </div>
+
+    <section class="lab" aria-label="Verificación de cátodo grado A">
+      <h3>Laboratorio 2 · ¿Pasa este cátodo como grado A?<small>Límites reales de la LME (BS EN 1978:2022, Cu-CATH-1). Mueve las impurezas y mira qué límite se rompe primero.</small></h3>
+      <div class="ctl">
+        <div class="f"><label for="i-pb">Plomo (Pb) <b id="i-pb-v"></b></label><input id="i-pb" type="range" min="0" max="15" step="0.5" value="1.5"></div>
+        <div class="f"><label for="i-s">Azufre (S) <b id="i-s-v"></b></label><input id="i-s" type="range" min="0" max="40" step="0.5" value="5"></div>
+        <div class="f"><label for="i-ag">Plata (Ag) <b id="i-ag-v"></b></label><input id="i-ag" type="range" min="0" max="40" step="0.5" value="4"></div>
+        <div class="f"><label for="i-fe">Hierro (Fe) <b id="i-fe-v"></b></label><input id="i-fe" type="range" min="0" max="20" step="0.5" value="2"></div>
+        <div class="f"><label for="i-as">Arsénico + antimonio <b id="i-as-v"></b></label><input id="i-as" type="range" min="0" max="10" step="0.1" value="0.5"></div>
+        <div class="f"><label for="i-bi">Bismuto + selenio + telurio <b id="i-bi-v"></b></label><input id="i-bi" type="range" min="0" max="5" step="0.1" value="0.3"></div>
+      </div>
+      <div class="out">
+        <div class="readouts">
+          <div class="ro"><div class="l">Suma de impurezas</div><div class="v" id="r-sum"></div></div>
+          <div class="ro"><div class="l">Cobre</div><div class="v" id="r-cu"></div></div>
+          <div class="ro"><div class="l">Resultado</div><div class="v" id="r-ok"></div></div>
+        </div>
+        <div class="tbl"><table><thead><tr><th>Límite</th><th>Valor</th><th>Máximo LME</th><th>Uso</th></tr></thead><tbody id="t-lim"></tbody></table></div>
+        <div class="msg" id="m-q"></div>
+      </div>
+    </section>
+
+    <div class="prose">
+      <h2>Lo que vas a encontrar instrumentado</h2>
+      <div class="inst">
+        <div><b>Rectificador</b><span>Corriente continua de decenas de kiloamperes para toda la nave. Control de corriente, tensión, factor de potencia y armónicos hacia la red.</span></div>
+        <div><b>Voltaje por celda</b><span>Rondas manuales con multímetro y gaussímetro, cámaras térmicas o sensores permanentes. Una celda con voltaje bajo suele tener un cortocircuito.</span></div>
+        <div><b>Temperatura del electrolito</b><span>Intercambiadores de calor. Más temperatura da más conductividad, pero también más evaporación y desgaste del orgánico al volver a SX.</span></div>
+        <div><b>Dosificación de aditivos</b><span>Cobalto para proteger los ánodos y un aditivo nivelador (como guar) para un depósito liso. Bombas dosificadoras con caudal controlado.</span></div>
+        <div><b>Neblina ácida</b><span>El oxígeno que sale del ánodo arrastra gotas de ácido. Ventilación, coberturas y medición ambiental.</span></div>
+        <div><b>Calidad del cátodo</b><span>Muestreo por lote y análisis químico contra la norma. La trazabilidad lote-celda permite volver al origen de un problema.</span></div>
+      </div>
+
+      <h2>Fuentes</h2>
+      <ul class="src">
+        <li>London Metal Exchange, <a href="https://www.lme.com/-/media/Files/Physical-services/Brands/Chemical-composition/Chemical-composition-Copper.pdf">Special Contract Rules for Copper Grade A</a>: composición según BS EN 1978:2022, Cu-CATH-1. Límites del laboratorio 2.</li>
+        <li>Cifuentes, L., Glasner, R., Crisóstomo, G., Casas, J. M. y Simpson, J. <a href="https://www.electrochem.org/dl/ma/201/pdfs/1122.pdf">Aspects of the Development of a New Copper Electrowinning Cell based on Reactive Electrodialysis</a>, Electrochemical Society: celdas convencionales de cerca de 2 V, unos 2 kWh/kg y densidades bajo 360 A/m².</li>
+        <li>Sole, K. C. y otros. Global survey of copper solvent extraction operations and practices: composición del electrolito y efecto del Fe(III) en la eficiencia de corriente.</li>
+        <li>Schlesinger, M. E. y otros, <i>Extractive Metallurgy of Copper</i>, Elsevier: reacciones de electroobtención, aditivos y práctica de naves.</li>
+        <li>Los sobrepotenciales, la conductividad, la caída en contactos y las impurezas iniciales del laboratorio son valores didácticos.</li>
+      </ul>
+      <div class="next"><a href="sx.html">← Capítulo 4: Extracción por solventes</a><a href="./">Índice del curso →</a></div>
+    </div>
+  </article>
+</div>
+<style>.lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;color:var(--muted)}.lg span{display:inline-flex;align-items:center;gap:6px}.lg i{width:12px;height:12px;border-radius:2px;display:inline-block}.lg b{font-family:var(--mono);font-weight:500;color:var(--fg)}</style>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nf = (d) => new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d});
+  const f0 = nf(0), f1 = nf(1), f2 = nf(2), f4 = nf(4);
+  const setup = (cv, H) => { const d = devicePixelRatio || 1, W = cv.clientWidth; cv.width = W * d; cv.height = H * d; cv.style.height = H + 'px'; const x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, W, H); x.font = `11px ${css('--mono')}`; return [x, W]; };
+
+  // ---------- Laboratorio 1: batería + dos diodos + resistencia ----------
+  // E_rev = 1,23 − 0,34 = 0,89 V (potenciales estándar O2/H2O y Cu2+/Cu).
+  // Sobrepotenciales tipo Tafel, η = b·log10(j/j0), con parámetros didácticos:
+  //   ánodo (oxígeno sobre plomo): b = 0,12 V/década, 0,62 V a 300 A/m²
+  //   cátodo (cobre):              b = 0,06 V/década, 0,08 V a 300 A/m²
+  const EREV = 0.89, FAR = 1.1855; // g/Ah
+  const etaA = (j) => 0.62 + 0.12 * Math.log10(j / 300);
+  const etaC = (j) => Math.max(0, 0.08 + 0.06 * Math.log10(j / 300));
+  const parts = (j, kap, gap, ctc) => [
+    ['Contraelectromotriz', EREV, '--muted'],
+    ['Ánodo (O₂)', etaA(j), '--copper'],
+    ['Cátodo (Cu)', etaC(j), '--blue'],
+    ['Electrolito', j * (gap / 100) / kap, '--warn'],
+    ['Contactos y barras', ctc / 1000 * (j / 300), '--fg']
+  ];
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, at, txt) => { const e = document.createElementNS(NS, tag); Object.entries(at).forEach(([k, v]) => e.setAttribute(k, v)); if (txt != null) e.textContent = txt; return e; };
+
+  const vRender = () => {
+    const j = +$('j').value, ce = +$('ce').value / 100, kap = +$('kap').value, gap = +$('gap').value, ctc = +$('ctc').value, tar = +$('tar').value;
+    $('j-v').textContent = j + ' A/m²'; $('ce-v').textContent = f1.format(ce * 100) + ' %'; $('kap-v').textContent = kap + ' S/m';
+    $('gap-v').textContent = f1.format(gap) + ' cm'; $('ctc-v').textContent = ctc + ' mV'; $('tar-v').textContent = 'US$ ' + tar + '/MWh';
+    const P = parts(j, kap, gap, ctc), V = P.reduce((s, p) => s + p[1], 0);
+    const kwh = V * 1000 / (FAR * ce), prod = j * 24 * FAR * ce / 1000, cost = kwh * tar / 1000;
+    $('r-v').textContent = f2.format(V) + ' V';
+    const e = $('r-e'); e.textContent = f0.format(kwh) + ' kWh/t'; e.className = 'v ' + (kwh > 2200 ? 'bad' : 'ok');
+    $('r-p').textContent = f1.format(prod) + ' kg/día';
+    $('r-c').textContent = 'US$ ' + f0.format(cost) + '/t';
+    const loss = V - EREV, an = P[1][1];
+    $('m-v').className = 'msg' + (kwh > 2200 ? ' bad' : '');
+    $('m-v').textContent = `De ${f2.format(V)} V, solo ${f2.format(EREV)} V son la reacción química; ${f0.format(100 * loss / V)} % es pérdida. La mayor está en el ánodo (${f2.format(an)} V). ` +
+      `Con ${f1.format(ce * 100)} % de eficiencia de corriente, ${f1.format(100 - ce * 100)} % de los amperes no depositan cobre y también se pagan.`;
+
+    // barra apilada
+    const sv = $('sv-v'); sv.replaceChildren();
+    const W = 640, x0 = 10, x1 = 630, sc = (x1 - x0) / 2.6;
+    let cx = x0;
+    P.forEach(([name, v, col], i) => {
+      const w = v * sc, c = css(col);
+      sv.append(el('rect', {x: cx, y: 8, width: Math.max(0, w - 1), height: 34, rx: 3, fill: c, opacity: i === 0 ? .45 : .85}));
+      cx += w;
+    });
+    sv.append(el('text', {x: Math.min(cx + 6, W - 80), y: 30, 'font-size': 12, 'font-weight': 600, fill: css('--fg'), 'font-family': css('--mono')}, `${f2.format(V)} V`));
+    for (let v = 0; v <= 2.6; v += 0.5) sv.append(el('text', {x: x0 + v * sc, y: 58, 'text-anchor': 'middle', 'font-size': 10, fill: css('--muted'), 'font-family': css('--mono')}, f1.format(v)));
+
+    const lg = $('lg-v'); lg.replaceChildren();
+    P.forEach(([name, v, col], i) => { const sp = document.createElement('span'), ic = document.createElement('i'), bb = document.createElement('b'); ic.style.background = css(col); ic.style.opacity = i === 0 ? .45 : .85; bb.textContent = f2.format(v) + ' V'; sp.append(ic, name + ' ', bb); lg.appendChild(sp); });
+    // curva V-j
+    const cv = $('cv-vj'), H = 200, [x, Wc] = setup(cv, H), mg = {l: 44, r: 14, t: 12, b: 30};
+    const X = (jj) => mg.l + (Wc - mg.l - mg.r) * (jj - 100) / 350, Y = (vv) => mg.t + (H - mg.t - mg.b) * (2.8 - vv) / 2.0;
+    x.strokeStyle = css('--line'); x.fillStyle = css('--muted'); x.lineWidth = 1;
+    for (let vv = 0.8; vv <= 2.81; vv += 0.4) { x.beginPath(); x.moveTo(mg.l, Y(vv)); x.lineTo(Wc - mg.r, Y(vv)); x.stroke(); x.textAlign = 'right'; x.fillText(f1.format(vv) + ' V', mg.l - 6, Y(vv) + 4); }
+    x.textAlign = 'center'; for (let jj = 100; jj <= 450; jj += 50) x.fillText(jj, X(jj), H - 14);
+    x.fillText('A/m²', mg.l + (Wc - mg.l - mg.r) / 2, H - 2);
+    x.setLineDash([3, 4]); x.strokeStyle = css('--muted'); x.beginPath(); x.moveTo(mg.l, Y(EREV)); x.lineTo(Wc - mg.r, Y(EREV)); x.stroke(); x.setLineDash([]);
+    x.strokeStyle = css('--copper'); x.lineWidth = 2.2; x.beginPath();
+    for (let jj = 100; jj <= 450; jj += 5) { const vv = parts(jj, kap, gap, ctc).reduce((s, p) => s + p[1], 0); jj === 100 ? x.moveTo(X(jj), Y(vv)) : x.lineTo(X(jj), Y(vv)); } x.stroke();
+    x.fillStyle = css('--fg'); x.beginPath(); x.arc(X(j), Y(V), 4.5, 0, 7); x.fill();
+    x.fillStyle = css('--muted'); x.textAlign = 'left'; x.fillText('0,89 V: lo que pide la química', mg.l + 6, Y(EREV) - 6);
+  };
+  ['j', 'ce', 'kap', 'gap', 'ctc', 'tar'].forEach((id) => $(id).addEventListener('input', vRender));
+
+  // ---------- Laboratorio 2: verificación grado A (LME, BS EN 1978:2022 Cu-CATH-1) ----------
+  const IMP = [
+    ['i-pb', 'Plomo (Pb)', 5], ['i-s', 'Azufre (S)', 15], ['i-ag', 'Plata (Ag)', 25], ['i-fe', 'Hierro (Fe)', 10],
+    ['i-as', 'Grupo As + Cd + Cr + Mn + P + Sb', 15], ['i-bi', 'Grupo Bi + Se + Te', 3]
+  ];
+  const qRender = () => {
+    const vals = IMP.map(([id]) => +$(id).value);
+    IMP.forEach(([id], i) => { $(id + '-v').textContent = f1.format(vals[i]) + ' ppm'; });
+    const fe = vals[3];
+    const rows = IMP.map(([, name, lim], i) => [name, vals[i], lim]);
+    rows.push(['Grupo Co + Fe + Ni + Si + Sn + Zn', fe, 20]);
+    const sum = vals.reduce((s, v) => s + v, 0);
+    rows.push(['Suma de impurezas listadas', sum, 65]);
+    const tb = $('t-lim'); tb.replaceChildren();
+    let worst = null;
+    rows.forEach(([n, v, lim]) => {
+      const tr = document.createElement('tr'), use = v / lim;
+      if (!worst || use > worst[1]) worst = [n, use];
+      [n, f1.format(v) + ' ppm', f0.format(lim) + ' ppm', f0.format(use * 100) + ' %'].forEach((t, k) => { const td = document.createElement('td'); td.textContent = t; if (k === 3) td.style.color = use > 1 ? css('--bad') : (use > .8 ? css('--warn') : css('--ok')); tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+    $('r-sum').textContent = f1.format(sum) + ' ppm';
+    $('r-cu').textContent = f4.format(100 - sum / 1e4) + ' %';
+    const pass = worst[1] <= 1, ok = $('r-ok');
+    ok.textContent = pass ? 'Grado A' : 'Fuera de norma'; ok.className = 'v ' + (pass ? 'ok' : 'bad');
+    const m = $('m-q'); m.className = 'msg ' + (pass ? 'ok' : 'bad');
+    m.textContent = pass ? `Cumple. El límite más exigido es "${worst[0]}", al ${f0.format(worst[1] * 100)} % de su máximo.`
+      : `No cumple por "${worst[0]}". Fíjate que el cobre todavía es ${f4.format(100 - sum / 1e4)} %: un cátodo puede tener más de 99,99 % de cobre y aun así quedar fuera de norma por una sola impureza.`;
+  };
+  IMP.forEach(([id]) => $(id).addEventListener('input', qRender));
+
+  addEventListener('resize', vRender); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { vRender(); qRender(); });
+  vRender(); qRender();
+})();
+</script>
+</body>
+</html>
