@@ -102,7 +102,7 @@
     ${T_(54, 442, 'Dosis real que recibe el mineral', 'ttl')}${V_(54, 468, 'KY-102')}${T_(160, 468, 'consigna', 'lbl')}${K_(220, 468, 'ratio-102b', 'val')}
     ${K_(54, 494, 'ratio-102', 'lbl')}${T_(330, 524, 'El pesómetro está 45 s antes del tambor.', 'lbl')}
     ${btn(54, 506, 260, 'Compensación de retardo', 'delay')}
-    <g data-fp="SEQ"><rect class="blk" x="640" y="404" width="540" height="146" rx="6"/>
+    <g data-fp="SEQ:100"><rect class="blk" x="640" y="404" width="540" height="146" rx="6"/>
     ${T_(654, 426, 'Secuencias del área 100', 'ttl')}${K_(1166, 426, 'seq-st', 'unit', 'end')}
     ${[0, 1, 2, 3, 4, 5].map((i) => K_(654, 448 + i * 17, 'seq-' + i, 'lbl')).join('')}
     ${T_(1166, 543, 'clic para operar ▸', 'unit', 'end')}</g>
@@ -180,6 +180,7 @@
 
   SCREENS.a400 = () => {
     let s = `<svg viewBox="0 0 1200 560" role="img" aria-label="P&ID área 400">${T_(16, 24, '400 · Nave de electroobtención: 160 celdas en serie, 60 cátodos por celda', 'ttl')}`;
+    s += `<g data-fp="SEQ:400"><rect class="blk" x="760" y="6" width="420" height="32" rx="5"/>${T_(774, 27, 'Secuencias de la nave', 'ttl')}${K_(1166, 27, 'seq4-st', 'unit', 'end')}</g>` + ALM(1176, 8, 'SEQ-400');
     s += `<g class="eq" data-eq="RT-401" data-fp="RT-401"><circle cx="70" cy="80" r="20"/><circle cx="70" cy="108" r="20"/><rect x="40" y="138" width="60" height="44"/></g>`;
     s += `<path d="M56,150 L84,150 M70,150 L70,172 M58,162 L82,162 L70,172 Z" stroke="var(--eq)" fill="none"/>` + T_(70, 198, 'RT-401', 'tagt', 'middle') + ALM(108, 136, 'RT-401.TRIP');
     s += V_(16, 222, 'IIT-401') + V_(16, 240, 'EIT-401') + V_(16, 258, 'JIT-401');
@@ -221,7 +222,7 @@
     s += `<path class="bus" d="M60,110 L1000,110"/>` + T_(1008, 114, 'Barra 23 kV', 'tagt');
     s += feeder(140, '52-RT', 'Transformador RT-401', 'p-rt') + feeder(320, 'MCC-100', 'MCC-100', 'p-m100') + feeder(480, 'MCC-200', 'MCC-200', 'p-m200') + feeder(640, 'MCC-300', 'MCC-300', 'p-m300') + feeder(800, 'MCC-400', 'MCC-400', 'p-m400');
     s += `<path class="bus" d="M940,110 L940,150" style="stroke-width:2.5"/><g class="btn" data-act="cap" transform="translate(890,150)"><rect width="100" height="24" rx="3"/><text x="50" y="16" text-anchor="middle" style="font-size:11px" data-btxt="cap">Filtro y CCEE</text></g>`;
-    s += `<path d="M925,180 L955,180 M925,188 L955,188 M940,174 L940,180 M940,188 L940,200" stroke="var(--eq)" stroke-width="2"/>` + T_(940, 216, 'filtro de 5.ª y 7.ª armónica', 'unit', 'middle');
+    s += `<path d="M925,180 L955,180 M925,188 L955,188 M940,174 L940,180 M940,188 L940,200" stroke="var(--eq)" stroke-width="2"/>` + T_(940, 216, 'filtro de 11.ª y 13.ª armónica', 'unit', 'middle');
     s += `<rect x="860" y="236" width="320" height="100" rx="6" fill="var(--panel)" stroke="var(--line)"/>` + T_(872, 256, 'Medidor de la barra', 'ttl');
     s += V_(872, 280, 'JIT-500') + T_(980, 280, 'demanda', 'lbl') + V_(872, 302, 'KY-501') + T_(980, 302, 'factor de potencia', 'lbl') + ALM(1160, 296, 'KY-501') + V_(872, 324, 'KY-502') + T_(980, 324, 'THD de corriente', 'lbl');
     // ácido
@@ -247,6 +248,9 @@
     if (area === 400) eqs.unshift({id: 'RT-401', desc: 'Rectificador de la nave', state: P.RECT.state});
     return '<div class="tblw"><table><tbody>' + eqs.map((m) => `<tr data-fp="${m.id}" style="cursor:pointer"><td class="mono">${m.id}</td><td class="small">${esc(m.desc)}</td><td class="small">${stTxt(m.state, m)}</td></tr>`).join('') + '</tbody></table></div>';
   };
+  const vzone = (m) => m.vib < m.z[0] ? 'A' : m.vib < m.z[1] ? 'B' : m.vib < m.z[2] ? 'C' : 'D';
+  // posición en una barra de cuatro zonas iguales (A, B, C, D) según los límites del grupo de la máquina
+  const vpos = (m) => { const [a, b, c] = m.z, v = m.vib; const k = v < a ? v / a : v < b ? 1 + (v - a) / (b - a) : v < c ? 2 + (v - b) / (c - b) : 3 + Math.min(1, (v - c) / (c * 0.4)); return Math.min(98, k * 25); };
   const stTxt = (st, m) => st === 'RUN' ? 'En marcha' : (st === 'TRIP' ? (m && m.trip === 'reset' ? 'Rearmado' : '<b style="color:var(--p1)">Disparado</b>') : (m && m.maintUntil ? 'En mantención' : (m && m.standby ? 'Respaldo' : 'Detenido')));
   const areaKPI = {
     gen: () => [['Cátodo ahora', f(tv('KY-405'), 2) + ' t/h'], ['Cátodo en el turno', f(P.X.cathShift, 1) + ' t'], ['Plan del turno a la hora', f(P.X.plannedShift, 1) + ' t'], ['Energía específica', f(tv('KY-407')) + ' kWh/t'], ['Eficiencia de corriente', f(tv('KY-406'), 1) + ' %'], ['Demanda eléctrica', f(tv('JIT-500'), 1) + ' MW']],
@@ -271,7 +275,7 @@
   /* =================== faceplates (ventana flotante) =================== */
   // Seleccionar y luego confirmar (select-before-operate): ninguna orden a un equipo se ejecuta con un solo clic.
   const STOP_NOTE = {
-    'RT-401': 'Corta la corriente de las 160 celdas: la nave deja de producir.',
+    'RT-401': 'Corta la corriente de las 160 celdas. Sin corriente el cátodo se redisuelve y, al volver, sale con plomo: para una parada corta usa la secuencia «Bajar a protección».',
     'M-103': 'Por enclavamiento se detienen la correa, el alimentador y las bombas de ácido y agua.',
     'CV-101': 'Por enclavamiento se detienen el alimentador y las bombas de ácido y agua.',
     'P-201A': 'Si P-201B no está en respaldo, la presión de riego cae a cero.',
@@ -320,14 +324,13 @@
         <h3>Permisivos</h3><ul class="perm">${perms.map(([t, ok]) => `<li class="${ok ? '' : 'no'}">${esc(t)}</li>`).join('')}</ul><button data-fp2="IIC-401">Abrir lazo IIC-401</button>${recentEvents('RT-401')}`;
     }
     const m = P.M[id]; const perms = P.perms[id] ? P.perms[id]() : [];
-    const zone = (v) => v < 2.3 ? 'A' : v < 4.5 ? 'B' : v < 7.1 ? 'C' : 'D';
-    let h = `<p class="small muted" style="margin:0">${esc(m.desc)} · ${m.kw} kW · ${m.mcc}</p>`;
+    let h = `<p class="small muted" style="margin:0">${esc(m.desc)} · ${m.kw} kW · ${m.mcc} · grupo ${m.grp} de vibración</p>`;
     h += `<div class="small">Estado: <b>${stTxt(m.state, m)}</b>${m.trip && m.trip !== 'reset' ? ' · causa: ' + esc(m.trip) : ''}${m.ilk ? ' · última parada por enclavamiento: ' + esc(m.ilk) : ''}</div>`;
     h += `<div class="row"><button data-ask="start" ${m.maintUntil || m.state === 'RUN' ? 'disabled' : ''}>Partir</button><button data-ask="stop" ${m.state !== 'RUN' ? 'disabled' : ''}>Detener</button><button data-cmd="reset" ${m.state !== 'TRIP' || m.trip === 'reset' ? 'disabled' : ''}>Rearmar</button></div>`;
     const why = P.whyNot(id);
     h += anyConfirm([['start', `¿Partir ${id}?`, why ? `Atención: ${why}. La partida será rechazada.` : ''], ['stop', `¿Detener ${id}?`, STOP_NOTE[id] || '']]);
     if (/B$/.test(id)) h += `<label class="small row"><input type="checkbox" data-standby ${m.standby ? 'checked' : ''}> Respaldo automático si falla la bomba A</label>`;
-    h += `<div class="box"><div class="kv"><span>Corriente</span><b>${f(m.amps)} A</b><span>Vibración</span><b>${f(m.vib, 1)} mm/s · zona ${zone(m.vib)}</b><span>Temperatura de rodamiento</span><b>${f(m.temp)} °C</b><span>Horas de marcha</span><b>${f(m.hours)} h</b><span>Partidas</span><b>${m.starts}</b><span>Horas desde la última PM</span><b>${f(m.sincePM)} / ${m.pmEvery} h</b></div></div>`;
+    h += `<div class="box"><div class="kv"><span>Corriente</span><b>${f(m.amps)} A</b><span>Vibración</span><b>${f(m.vib, 1)} mm/s · zona ${vzone(m)}</b><span>Temperatura de rodamiento</span><b>${f(m.temp)} °C</b><span>Horas de marcha</span><b>${f(m.hours)} h</b><span>Partidas</span><b>${m.starts}</b><span>Horas desde la última PM</span><b>${f(m.sincePM)} / ${m.pmEvery} h</b></div></div>`;
     if (perms.length) h += `<h3>Permisivos de partida</h3><ul class="perm">${perms.map(([t, ok]) => `<li class="${ok ? '' : 'no'}">${esc(t)}</li>`).join('')}</ul>`;
     return h + recentEvents(id);
   };
@@ -339,36 +342,42 @@
     return `<div class="box"><div class="kv"><span>Voltaje</span><b>${P.X.monitor ? f(P.X.cellV(k), 2) + ' V' : 'sin medición continua'}</b><span>Estado</span><b>${fx ? 'En corrección' : known && sh > 0 ? 'Cortocircuito detectado' : known ? 'Normal' : 'Desconocido hasta la próxima ronda'}</b></div></div>
       <button data-fixcell="${k}" ${!(known && sh > 0) || fx ? 'disabled' : ''}>Enviar cuadrilla a corregir</button>`;
   };
-  // estado de los pasos de la secuencia activa (o la de partida si no hay ninguna)
-  const seqLines = () => {
-    const q = P.seq, s = P.SEQ[q.id || 'start100'];
+  // estado de los pasos de la secuencia activa del área (o la primera del área si no hay ninguna)
+  const seqLines = (area = 100) => {
+    const q = P.seqs[area], s = P.SEQ[q.id || P.SEQ_AREAS[area][0]];
     return s.steps.map((st, i) => {
       let ic = '·', c = 'lbl';
       if (q.id) {
         if (q.st === 'DONE' || i < q.k) { ic = '✓'; c = 'lbl done'; }
         else if (i === q.k) { ic = q.st === 'FAIL' ? '✗' : '▶'; c = q.st === 'FAIL' ? 'lbl bad' : 'lbl cur'; }
       }
-      const el = i === q.k && q.st === 'RUN' ? ` · ${f(P.S.t - q.t0)} s de ${st.max || 60}` : '';
+      const mx = st.max || 60, el = i === q.k && q.st === 'RUN' ? (mx >= 3600 ? ` · ${f((P.S.t - q.t0) / 60)} min de ${f(mx / 60)}` : ` · ${f(P.S.t - q.t0)} s de ${mx}`) : '';
       return {ic, d: `${i + 1}. ${st.d}`, el, c};
     });
   };
-  const seqStatus = () => { const q = P.seq; return !q.id ? 'Lista' : q.st === 'RUN' ? `${P.SEQ[q.id].name} · paso ${q.k + 1} de ${P.SEQ[q.id].steps.length}` : q.st === 'DONE' ? `${P.SEQ[q.id].name} · completada` : `${P.SEQ[q.id].name} · DETENIDA`; };
-  const fpSeq = () => {
-    const q = P.seq, busy = q.st === 'RUN';
-    let h = `<p class="small muted" style="margin:0">Control secuencial: cada paso da una orden y espera su confirmación antes de avanzar. Si no llega a tiempo, la secuencia se detiene y avisa la causa.</p>`;
-    h += `<div class="small">Estado: <b class="${q.st === 'FAIL' ? 'abn bad' : ''}">${esc(seqStatus())}</b></div>`;
-    if (q.st === 'FAIL') h += `<div class="notice p2"><span class="small">${esc(q.msg)}</span></div>`;
-    h += `<div class="row"><button data-ask="seq:start100" ${busy ? 'disabled' : ''}>Partida secuencial</button><button data-ask="seq:stop100" ${busy ? 'disabled' : ''}>Parada secuencial</button><button data-ask="seqabort" ${q.st === 'RUN' || q.st === 'FAIL' ? '' : 'disabled'}>Abortar</button></div>`;
-    h += anyConfirm([['seq:start100', '¿Iniciar la partida secuencial del área 100?', 'Parte tambor, correa, alimentador y luego ácido y agua.'], ['seq:stop100', '¿Iniciar la parada secuencial del área 100?', 'Detiene el alimentador y vacía la correa antes de cortar ácido y agua.'], ['seqabort', '¿Abortar la secuencia?', 'Los equipos quedan como estén en este momento.']]);
-    h += `<ol class="steps">${seqLines().map((l) => `<li class="${l.c.replace('lbl', '').trim()}"><span>${l.ic}</span>${esc(l.d.replace(/^\d+\. /, ''))}<i>${l.el}</i></li>`).join('')}</ol>`;
-    return h + recentEvents('', (l) => l.who === 'Secuencia' || /secuencia/i.test(l.msg));
+  const seqStatus = (area = 100) => { const q = P.seqs[area]; if (!q.id) return 'Lista'; const s = P.SEQ[q.id]; return q.st === 'RUN' ? `${s.name} · paso ${q.k + 1} de ${s.steps.length}` : q.st === 'DONE' ? `${s.name} · completada` : `${s.name} · DETENIDA`; };
+  const seqShort = (area) => { const q = P.seqs[area]; if (!q.id) return 'Lista ▸'; const s = P.SEQ[q.id]; return q.st === 'RUN' ? `${s.btn} · paso ${q.k + 1}/${s.steps.length} ▸` : q.st === 'DONE' ? `${s.btn} · completada ▸` : 'DETENIDA ▸'; };
+  const SEQ_INTRO = {
+    100: 'Control secuencial: cada paso da una orden y espera su confirmación antes de avanzar. Si no llega a tiempo, la secuencia se detiene y avisa la causa.',
+    400: 'La corriente nunca se energiza sin circulación, temperatura y cobalto, y se sube en rampa. Para una parada corta, la nave baja a corriente de protección en vez de cortarse: sin corriente el cátodo se redisuelve y el ánodo pierde su capa de PbO₂, y al volver la corriente el cátodo sale con plomo.'
   };
-  const fpTitle = (s) => P.L[s] ? s : s.startsWith('BRK:') ? 'Interruptor ' + s.slice(4) : s.startsWith('CELL:') ? 'Celda ' + (+s.slice(5) + 1) : s === 'SEQ' ? 'Secuencias · área 100' : s;
+  const fpSeq = (area) => {
+    const q = P.seqs[area], busy = q.st === 'RUN', ids = P.SEQ_AREAS[area];
+    let h = `<p class="small muted" style="margin:0">${SEQ_INTRO[area]}</p>`;
+    h += `<div class="small">Estado: <b class="${q.st === 'FAIL' ? 'abn bad' : ''}">${esc(seqStatus(area))}</b></div>`;
+    if (q.st === 'FAIL') h += `<div class="notice p2"><span class="small">${esc(q.msg)}</span></div>`;
+    h += `<div class="row">${ids.map((id) => `<button data-ask="seq:${id}" ${busy ? 'disabled' : ''}>${P.SEQ[id].btn}</button>`).join('')}<button data-ask="seqabort:${area}" ${q.st === 'RUN' || q.st === 'FAIL' ? '' : 'disabled'}>Abortar</button></div>`;
+    h += anyConfirm([...ids.map((id) => [`seq:${id}`, `¿Iniciar: ${P.SEQ[id].name.toLowerCase()}?`, P.SEQ[id].note]), [`seqabort:${area}`, '¿Abortar la secuencia?', 'Los equipos quedan como estén en este momento.']]);
+    h += `<ol class="steps">${seqLines(area).map((l) => `<li class="${l.c.replace('lbl', '').trim()}"><span>${l.ic}</span>${esc(l.d.replace(/^\d+\. /, ''))}<i>${l.el}</i></li>`).join('')}</ol>`;
+    return h + recentEvents('', (l) => SEQ_EV[area].test(l.msg) && (l.who === 'Secuencia' || /secuencia|nave/i.test(l.msg)));
+  };
+  const SEQ_EV = {100: /área 100|M-103|CV-101|FD-101|P-10[24]|WIC-101|FFIC-10[24]/, 400: /nave|RT-401|IIC-401|AIC-405|TIC-403|FIC-404|P-401/};
+  const fpTitle = (s) => P.L[s] ? s : s.startsWith('BRK:') ? 'Interruptor ' + s.slice(4) : s.startsWith('CELL:') ? 'Celda ' + (+s.slice(5) + 1) : s.startsWith('SEQ:') ? 'Secuencias · área ' + s.slice(4) : s;
   const fpw = $('fpw');
   const renderFp = () => {
     if (!state.sel) { fpw.hidden = true; return; }
     const s = state.sel;
-    const h = P.L[s] ? fpLoop(s) : (P.M[s] || s === 'RT-401') ? fpMotor(s) : s.startsWith('BRK:') ? fpBreaker(s.slice(4)) : s.startsWith('CELL:') ? fpCell(+s.slice(5)) : s === 'SEQ' ? fpSeq() : '';
+    const h = P.L[s] ? fpLoop(s) : (P.M[s] || s === 'RT-401') ? fpMotor(s) : s.startsWith('BRK:') ? fpBreaker(s.slice(4)) : s.startsWith('CELL:') ? fpCell(+s.slice(5)) : s.startsWith('SEQ:') ? fpSeq(+s.slice(4)) : '';
     $('fpw-t').textContent = fpTitle(s); $('fpw-b').innerHTML = h; fpw.hidden = false;
     // si el contenido creció (p. ej. al pedir confirmación), subir la ventana para que no quede cortada
     if (window.innerWidth >= 760) { const r = fpw.getBoundingClientRect(); if (r.bottom > innerHeight - 8) fpw.style.top = Math.max(8, innerHeight - r.height - 8) + 'px'; }
@@ -417,7 +426,7 @@
     if (PV_LOOP[t]) return PV_LOOP[t];
     if (P.BRK[t] != null) return 'BRK:' + t;
     if (/^CELDA-\d+$/.test(t)) return 'CELL:' + (+t.slice(6) - 1);
-    if (t === 'SEQ-100') return 'SEQ';
+    if (/^SEQ-\d+$/.test(t)) return 'SEQ:' + t.slice(4);
     return null;
   };
   // ISA-101: desde una alarma, un clic lleva a la pantalla y al equipo (no la reconoce: eso es explícito)
@@ -436,7 +445,7 @@
     if (P.M[s]) { const m = P.M[s]; return `<b>${s}</b><span>${esc(m.desc)}</span><span>${stTxt(m.state, m)} · ${f(m.vib, 1)} mm/s</span>`; }
     if (s === 'RT-401') return `<b>RT-401</b><span>Rectificador · ${stTxt(P.RECT.state)}</span><span class="mono">${ft('IIT-401')} kA · ${ft('EIT-401')} V</span>`;
     if (s && s.startsWith('BRK:')) return `<b>Interruptor ${s.slice(4)}</b><span>${P.BRK[s.slice(4)] ? 'Cerrado' : '<b class="bad">Abierto</b>'}</span>`;
-    if (s === 'SEQ') return `<b>Secuencias del área 100</b><span>${esc(seqStatus())}</span>`;
+    if (s && s.startsWith('SEQ:')) return `<b>Secuencias del área ${s.slice(4)}</b><span>${esc(seqStatus(+s.slice(4)))}</span>`;
     return s ? `<b>${esc(s)}</b>` : '';
   };
   const placeTip = (e) => { const w = tip.offsetWidth, h = tip.offsetHeight; tip.style.left = clamp(e.clientX + 14, 4, innerWidth - w - 4) + 'px'; tip.style.top = (e.clientY + 18 + h > innerHeight ? e.clientY - h - 12 : e.clientY + 18) + 'px'; };
@@ -572,11 +581,11 @@
     h += node('Electrolito → cátodo', ft('KY-405'), 't/h', `m = I · 1,1855 g/Ah · ${P.NCELL} celdas · η = ${ft('IIT-401')} kA · ${ft('KY-406')} %`, 'Ley de Faraday · ' + ch('ew', 5));
     h += `</div>`;
     // balance del electrolito
-    h += `<h3 class="sec">Balance de cobre del electrolito (600 m³)</h3><div class="tblw"><table><tbody>
+    h += `<h3 class="sec">Balance de cobre del electrolito (${f(P.VEL)} m³)</h3><div class="tblw"><table><tbody>
       <tr><td>Entra desde SX (reextracción)</td><td class="num">+${f(X.T)} kg/h</td></tr>
       <tr><td>Se deposita como cátodo</td><td class="num">−${f(X.D)} kg/h</td></tr>
       <tr><td>Sale con el sangrado hacia refino</td><td class="num">−${f(bleedCu)} kg/h</td></tr>
-      <tr><td><b>Acumulación</b> · V·dCu/dt</td><td class="num"><b>${acc >= 0 ? '+' : '−'}${f(Math.abs(acc))} kg/h</b> = ${f(acc / 600, 3)} g/L por hora</td></tr></tbody></table></div>`;
+      <tr><td><b>Acumulación</b> · V·dCu/dt</td><td class="num"><b>${acc >= 0 ? '+' : '−'}${f(Math.abs(acc))} kg/h</b> = ${f(acc / P.VEL, 3)} g/L por hora</td></tr></tbody></table></div>`;
     // voltaje de celda
     const parts = [['Potencial reversible', vp.rev, '--eq'], ['Sobrepotencial anódico (O₂)', vp.an, '--sel'], ['Sobrepotencial catódico', vp.cat, '--diag'], ['Caída óhmica del electrolito', vp.ohm, '--ok'], ['Contactos, barras y ánodos', vp.hw, '--pen4']];
     const vt = parts.reduce((a, p) => a + p[1], 0);
@@ -596,11 +605,12 @@
       <tr><td>PLS: Cu, pH y Fe</td><td class="num">3,2 g/L · 1,9 · 5,8 g/L</td><td class="small">${src('sole')}, promedios sudamericanos</td></tr>
       <tr><td>Electrolito: Cu y H₂SO₄; extractante</td><td class="num">37 a 48 g/L · 183 g/L · 15,4 % vol</td><td class="small">${src('sole')}</td></tr>
       <tr><td>Equivalente electroquímico del cobre</td><td class="num">1,1855 g/Ah</td><td class="small">M/(zF) = 63,546 / (2 · 96.485) · 3.600</td></tr>
-      <tr><td>Nave EW</td><td class="num">160 celdas · 60 cátodos · 1 m²/cara</td><td class="small">Supuesto de diseño, ${ch('ew', 5)}</td></tr>
+      <tr><td>Nave EW</td><td class="num">160 celdas · 60 cátodos · 1 m²/cara · 1.800 m³ de electrolito</td><td class="small">Supuesto de diseño, ${ch('ew', 5)}</td></tr>
       <tr><td>Calidad del cátodo</td><td class="num">Pb ≤ 5 · S ≤ 15 · Fe ≤ 10 ppm</td><td class="small">${src('lme')}</td></tr>
-      <tr><td>Zonas de vibración</td><td class="num">2,3 · 4,5 · 7,1 mm/s</td><td class="small">ISO 10816-3, grupo 1, base rígida (hoy reemplazada por ISO 20816-3)</td></tr>
+      <tr><td>Zonas de vibración</td><td class="num">G1: 2,3 · 4,5 · 7,1 · G2: 1,4 · 2,8 · 4,5 mm/s</td><td class="small">ISO 10816-3 (hoy ISO 20816-3), base rígida; grupo 1 sobre 300 kW, grupo 2 de 15 a 300 kW</td></tr>
       <tr><td>Precios</td><td class="num">US$ 6,5/lb Cu · US$ 100/MWh</td><td class="small">Supuesto para valorizar pérdidas</td></tr></tbody></table></div>`;
     h += pageNorms();
+    h += `<p class="small" style="margin:0">Revisión de ingeniería y metalurgia del modelo, con sus chequeos de consistencia y limitaciones: <a href="https://github.com/JSNN15/jsnn15.github.io/blob/main/planta-virtual/REVISION.md" target="_blank" rel="noopener">REVISION.md</a>.</p>`;
     h += `<div class="notice"><b>Alcance: simulador de entrenamiento de operadores (OTS)</b><span class="small">Un OTS es un modelo dinámico del proceso con la interfaz del sistema de control, hecho para practicar partidas, paradas y fallas sin riesgo. En la clasificación de Kritzinger y otros (2018) esto es un <b>modelo digital</b>: no intercambia datos con ninguna planta. Pasaría a <b>sombra digital</b> si leyera en línea el historiador de una planta (OPC UA o PI) y ajustara sus parámetros con esos datos, y a <b>gemelo digital</b> si además devolviera recomendaciones o consignas a esa planta. La dinámica es creíble y los balances cierran, pero los valores no representan a ninguna operación real.</span></div>`;
     return h + '</div>';
   };
@@ -611,7 +621,7 @@
       ['ANSI/ISA-18.2 · IEC 62682', 'Gestión de alarmas en industrias de proceso', 'ok', 'Prioridades, estados, reconocimiento, inhibición temporal, supresión por estado de equipo y tasa de alarmas por hora.'],
       ['EEMUA 191', 'Guía de diseño y gestión de sistemas de alarma', 'part', 'Métricas de desempeño: tasa por operador y alarmas más frecuentes como candidatas a racionalización.'],
       ['ANSI/ISA-5.1 · ISO 10628-2', 'Identificación de instrumentos y símbolos de P&ID', 'part', 'Tags según ISA-5.1 (FIC, LIT, AIT…); símbolos gráficos simplificados.'],
-      ['ISA-106', 'Automatización de procedimientos en procesos continuos', 'part', 'Partida y parada secuencial del área 100 con pasos, condiciones de avance, tiempos máximos y causa de falla.'],
+      ['ISA-106', 'Automatización de procedimientos en procesos continuos', 'part', 'Partida y parada del área 100, y puesta en servicio y parada a corriente de protección de la nave EW, con pasos, condiciones de avance, tiempos máximos y causa de falla.'],
       ['IEC 61131-3', 'Lenguajes de programación de PLC', 'real', 'En una planta, las secuencias irían en SFC y los lazos en bloques PID del controlador.']]],
     ['Seguridad', [
       ['IEC 61511', 'Seguridad funcional: sistemas instrumentados de seguridad (SIS)', 'real', 'Aquí los enclavamientos son del control básico. En una planta, disparos como el del rectificador por caudal bajo se evalúan como funciones de seguridad independientes.'],
@@ -622,9 +632,9 @@
       ['ISO 23247 · ISO/IEC 30173 · IEC 63278', 'Marco, terminología y administración de activos de gemelos digitales', 'ref', 'Definen qué exige un gemelo digital. Este proyecto no lo es: no tiene enlace automático con una planta.'],
       ['ANSI/ISA-77.20', 'Requisitos funcionales de simuladores (centrales térmicas)', 'ref', 'No hay una norma general de OTS para minería; esta es la referencia más cercana para fidelidad y pruebas de aceptación.']]],
     ['Equipos y producto', [
-      ['ISO 20816-3 (antes ISO 10816-3)', 'Evaluación de vibraciones en máquinas industriales', 'ok', 'Zonas A, B, C y D para máquinas del grupo 1 en base rígida.'],
+      ['ISO 20816-3 (antes ISO 10816-3)', 'Evaluación de vibraciones en máquinas industriales', 'ok', 'Zonas A, B, C y D según grupo de máquina (1: sobre 300 kW; 2: 15 a 300 kW), base rígida; disparo a 1,25 veces el límite C/D.'],
       ['ISO 17359', 'Monitoreo de condición de máquinas', 'part', 'Avisos predictivos por tendencia de vibración y tiempo estimado a zona D.'],
-      ['IEEE 519', 'Control de armónicos en sistemas eléctricos', 'part', 'Distorsión de corriente del rectificador con y sin filtro de 5.ª y 7.ª armónica.'],
+      ['IEEE 519', 'Control de armónicos en sistemas eléctricos', 'part', 'Distorsión de corriente del rectificador de 12 pulsos (armónicas 11.ª y 13.ª) con y sin filtro.'],
       ['BS EN 1978 (LME grado A)', 'Calidad del cátodo de cobre', 'ok', 'Límites de Pb, S y Fe para estimar si el cátodo es grado A.']]]
   ];
   const NST = {ok: ['Aplicada', 'ok'], part: ['Parcial', 'part'], real: ['Para planta real', 'real'], ref: ['Referencia', 'ref']};
@@ -639,17 +649,17 @@
   };
 
   const pageMaint = () => {
-    const zone = (v) => v < 2.3 ? 'A' : v < 4.5 ? 'B' : v < 7.1 ? 'C' : 'D';
-    const health = (m) => Math.max(0, Math.round(100 - Math.max(0, m.vib - 2.3) * 12 - Math.max(0, m.temp - 70) * 2 - (m.sincePM > m.pmEvery ? 15 : 0) - (m.state === 'TRIP' ? 30 : 0)));
+    const health = (m) => Math.max(0, Math.round(100 - 60 * clamp((m.vib - m.z[0]) / (m.z[2] - m.z[0]), 0, 1.5) - Math.max(0, m.temp - 70) * 2 - (m.sincePM > m.pmEvery ? 15 : 0) - (m.state === 'TRIP' ? 30 : 0)));
     const eqs = Object.values(P.M).sort((a, b) => health(a) - health(b));
     // avisos
     const N = [];
     eqs.forEach((m) => {
       const d = P.histGet('VIT-' + m.id, 3600);
       let slope = 0; if (d.length > 20 && m.state === 'RUN') { const a = d[0], b = d[d.length - 1]; slope = (b[1] - a[1]) / ((b[0] - a[0]) / 3600); }
-      if (m.state === 'RUN' && (m.vib > 4.5 || (slope > 0.4 && m.vib > 2.8))) {
-        const eta = slope > 0.05 ? Math.max(0, (7.1 - m.vib) / slope) : null;
-        N.push({p: m.vib > 7.1 ? 2 : 3, t: `${m.id} · ${m.desc}`, d: `Vibración ${f(m.vib, 1)} mm/s (zona ${zone(m.vib)} de ISO 10816-3), sube ${f(slope, 2)} mm/s por hora.${eta != null ? ` A este ritmo entra en zona D en unas ${f(eta, 1)} h.` : ''} Patrón típico de daño de rodamiento.`, a: m.id === 'M-103' ? '<button data-mact="bearing">Cambiar rodamiento (detiene 30 min)</button>' : ''});
+      const [ab, bc, cd] = m.z;
+      if (m.state === 'RUN' && (m.vib > bc || (slope > 0.4 * ab / 2.3 && m.vib > ab * 1.2))) {
+        const eta = slope > 0.02 ? Math.max(0, (cd - m.vib) / slope) : null;
+        N.push({p: m.vib > cd ? 2 : 3, t: `${m.id} · ${m.desc}`, d: `Vibración ${f(m.vib, 1)} mm/s (zona ${vzone(m)}, grupo ${m.grp}), sube ${f(slope, 2)} mm/s por hora.${eta != null ? ` A este ritmo entra en zona D en unas ${f(eta, 1)} h.` : ''} Patrón típico de daño de rodamiento.`, a: m.id === 'M-103' ? '<button data-mact="bearing">Cambiar rodamiento (detiene 30 min)</button>' : ''});
       }
       if (m.state === 'TRIP') N.push({p: 2, t: `${m.id} disparado`, d: `Causa registrada: ${esc(m.trip || '—')}. Inspeccionar antes de rearmar.`, a: ''});
       if (m.sincePM > m.pmEvery) N.push({p: 3, t: `${m.id}: mantención preventiva vencida`, d: `${f(m.sincePM)} h desde la última PM (frecuencia ${m.pmEvery} h).`, a: ''});
@@ -665,17 +675,17 @@
     h += `<h3 style="margin:0;font-size:.85rem">Avisos de mantenimiento</h3>` + (N.length ? N.sort((a, b) => a.p - b.p).map((n) => `<div class="notice p${n.p}"><b>${esc(n.t)}</b><span class="small">${n.d}</span>${n.a ? `<div class="row">${n.a}</div>` : ''}</div>`).join('') : '<p class="muted small" style="margin:0">Sin avisos.</p>');
     h += `<h3 style="margin:0;font-size:.85rem">Equipos rotativos</h3><div class="tblw"><table><thead><tr><th>Equipo</th><th>Estado</th><th>Salud</th><th>Vibración (ISO 20816-3)</th><th>Temp.</th><th>Horas</th><th>Partidas</th><th>PM</th></tr></thead><tbody>`;
     h += eqs.map((m) => { const hl = health(m); return `<tr data-msel="${m.id}" style="cursor:pointer;${state.maintSel === m.id ? 'background:var(--panel)' : ''}"><td><span class="mono">${m.id}</span><div class="small muted">${esc(m.desc)}</div></td><td class="small">${stTxt(m.state, m)}</td><td><div class="hbar"><i style="width:${hl}%;background:${hl < 50 ? 'var(--p1)' : hl < 75 ? 'var(--p2)' : 'var(--run)'}"></i></div><span class="small mono">${hl} %</span></td>` +
-      `<td><div class="zone"><span style="background:var(--band)"></span><span style="background:var(--bar)"></span><span style="background:var(--p3)"></span><span style="background:var(--p1)"></span><em style="left:${Math.min(98, m.vib / 9.5 * 100)}%"></em></div><span class="small mono">${f(m.vib, 1)} mm/s · ${zone(m.vib)}</span></td><td class="num">${f(m.temp)} °C</td><td class="num">${f(m.hours)}</td><td class="num">${m.starts}</td><td class="num">${f(m.sincePM)}/${m.pmEvery}</td></tr>`; }).join('');
-    h += `</tbody></table></div><h3 style="margin:0;font-size:.85rem">Vibración de ${state.maintSel} · últimas 8 h</h3><canvas id="mt-cv" height="180" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px"></canvas><div class="small muted">Zonas de ISO 10816-3 (hoy reemplazada por ISO 20816-3), máquinas del grupo 1 sobre base rígida: A/B 2,3 · B/C 4,5 · C/D 7,1 mm/s RMS.</div></div>`;
+      `<td><div class="zone"><span style="background:var(--band)"></span><span style="background:var(--bar)"></span><span style="background:var(--p3)"></span><span style="background:var(--p1)"></span><em style="left:${vpos(m)}%"></em></div><span class="small mono">${f(m.vib, 1)} mm/s · ${vzone(m)} · G${m.grp}</span></td><td class="num">${f(m.temp)} °C</td><td class="num">${f(m.hours)}</td><td class="num">${m.starts}</td><td class="num">${f(m.sincePM)}/${m.pmEvery}</td></tr>`; }).join('');
+    h += `</tbody></table></div><h3 style="margin:0;font-size:.85rem">Vibración de ${state.maintSel} · últimas 8 h</h3><canvas id="mt-cv" height="180" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px"></canvas><div class="small muted">Zonas de ISO 10816-3 (hoy ISO 20816-3), base rígida, en mm/s RMS. Grupo 1 (sobre 300 kW): A/B 2,3 · B/C 4,5 · C/D 7,1. Grupo 2 (15 a 300 kW): 1,4 · 2,8 · 4,5. La barra de cada equipo usa las zonas de su grupo.</div></div>`;
     return h;
   };
   const drawMaint = () => {
     const cv = $('mt-cv'); if (!cv) return;
     const W = cv.clientWidth, H = 180, dp = devicePixelRatio || 1; cv.width = W * dp; cv.height = H * dp; const x = cv.getContext('2d'); x.setTransform(dp, 0, 0, dp, 0, 0);
-    const d = P.histGet('VIT-' + state.maintSel, 28800), mg = {l: 34, r: 8, t: 8, b: 18}, hi = 10;
+    const mm = P.M[state.maintSel], [ab, bc, cd] = mm.z, d = P.histGet('VIT-' + state.maintSel, 28800), mg = {l: 34, r: 8, t: 8, b: 18}, hi = cd * 1.4;
     const Y = (v) => mg.t + (H - mg.t - mg.b) * (hi - v) / hi, X = (tt) => mg.l + (W - mg.l - mg.r) * (1 - (P.S.t - tt) / 28800);
-    [[0, 2.3, '--band'], [2.3, 4.5, '--bar'], [4.5, 7.1, '--p3'], [7.1, 10, '--p1']].forEach(([a, b, c]) => { x.globalAlpha = c === '--band' || c === '--bar' ? .5 : .18; x.fillStyle = css(c); x.fillRect(mg.l, Y(b), W - mg.l - mg.r, Y(a) - Y(b)); });
-    x.globalAlpha = 1; x.fillStyle = css('--muted'); x.font = `10px ${css('--mono')}`; x.textAlign = 'right'; [0, 2.3, 4.5, 7.1].forEach((v) => x.fillText(f(v, 1), mg.l - 4, Y(v) + 3));
+    [[0, ab, '--band'], [ab, bc, '--bar'], [bc, cd, '--p3'], [cd, hi, '--p1']].forEach(([a, b, c]) => { x.globalAlpha = c === '--band' || c === '--bar' ? .5 : .18; x.fillStyle = css(c); x.fillRect(mg.l, Y(b), W - mg.l - mg.r, Y(a) - Y(b)); });
+    x.globalAlpha = 1; x.fillStyle = css('--muted'); x.font = `10px ${css('--mono')}`; x.textAlign = 'right'; [0, ab, bc, cd].forEach((v) => x.fillText(f(v, 1), mg.l - 4, Y(v) + 3));
     if (d.length > 1) { x.strokeStyle = css('--txt'); x.lineWidth = 1.6; x.beginPath(); d.forEach(([tt, v], i) => i ? x.lineTo(X(tt), Y(Math.min(hi, v))) : x.moveTo(X(tt), Y(Math.min(hi, v)))); x.stroke(); }
   };
 
@@ -784,9 +794,10 @@
     trucks: () => `Abastecimiento: ${P.S.t < P.X.trucksHold ? 'DETENIDO' : '1 camión de 30 t por hora'}`,
     'p-rt': () => `${f(P.RECT.P / 0.975, 1)} MW`,
     'p-m100': () => `${f(mccKW('MCC-100'))} kW`, 'p-m200': () => `${f(mccKW('MCC-200'))} kW`, 'p-m300': () => `${f(mccKW('MCC-300'))} kW`, 'p-m400': () => `${f(mccKW('MCC-400'))} kW`,
-    'seq-st': () => ({t: seqStatus(), c: 'unit' + (P.seq.st === 'FAIL' ? ' bad' : P.seq.st === 'RUN' ? ' cur' : '')})
+    'seq-st': () => ({t: seqStatus(100), c: 'unit' + (P.seqs[100].st === 'FAIL' ? ' bad' : P.seqs[100].st === 'RUN' ? ' cur' : '')}),
+    'seq4-st': () => ({t: seqShort(400), c: 'unit' + (P.seqs[400].st === 'FAIL' ? ' bad' : P.seqs[400].st === 'RUN' ? ' cur' : '')})
   };
-  for (let i = 0; i < 6; i++) KEYS['seq-' + i] = () => { const l = seqLines()[i]; return l ? {t: `${l.ic}  ${l.d}${l.el}`, c: l.c} : {t: '', c: 'lbl'}; };
+  for (let i = 0; i < 6; i++) KEYS['seq-' + i] = () => { const l = seqLines(100)[i]; return l ? {t: `${l.ic}  ${l.d}${l.el}`, c: l.c} : {t: '', c: 'lbl'}; };
   const mccKW = (mcc) => Object.values(P.M).filter((m) => m.mcc === mcc && m.state === 'RUN').reduce((s, m) => s + m.kw * m.load, 0);
   for (let k = 0; k < 3; k++) KEYS['sec-' + k] = () => `${f(P.X.qMod[k])} m³/h · entrega ${f(P.X.secCu[k] / 1000, 2)} t/h de Cu`;
   [100, 200, 300, 400, 500].forEach((a) => { KEYS['acount-' + a] = () => { const n = P.AD.filter((x) => (x.st === 'U' || x.st === 'A') && x.area === a).length; return n ? n + ' alarma' + (n > 1 ? 's' : '') : 'sin alarmas'; }; });
@@ -878,7 +889,7 @@
         if (k === 'start' || k === 'stop') P.cmd[k](s2);
         else if (k === 'brk1' || k === 'brk0') P.cmd.breaker(s2.slice(4), k === 'brk1');
         else if (k.startsWith('seq:')) P.cmd.seq(k.slice(4));
-        else if (k === 'seqabort') P.cmd.seqAbort();
+        else if (k.startsWith('seqabort:')) P.cmd.seqAbort(+k.slice(9));
       });
       state.confirm = null; renderFp(); refresh(true); return;
     }
