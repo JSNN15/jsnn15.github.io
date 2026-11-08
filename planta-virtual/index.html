@@ -136,6 +136,8 @@ table.norms td.mono{font-size:.78rem;white-space:normal;min-width:9rem}
 .nst{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:10px;border:1px solid var(--line);white-space:nowrap}
 .nst.ok{border-color:var(--ok);color:var(--ok)}.nst.part{border-color:var(--sel);color:var(--sel)}.nst.real{border-color:var(--diag);color:var(--diag)}.nst.ref{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){svg .pipe.on,svg .drum.run .st,.fpw:not([hidden]),.toast{animation:none}}
+/* barra superior en una sola línea también en pantallas de 1280 px */
+@media (max-width:1400px){.bar{gap:6px 10px}.bar .home span{display:none}.bar button,.bar .grp button{padding:4px 8px}.bar .clock{padding:3px 6px}}
 button.ico{padding:5px 9px;min-width:34px;display:inline-flex;align-items:center;justify-content:center;align-self:stretch}
 .simst{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.75rem;letter-spacing:.04em;padding:3px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel2)}
 .simst i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
@@ -187,10 +189,25 @@ svg .val{font-family:var(--mono);font-size:12px;fill:var(--val);font-weight:500}
 svg .unit{font-size:10px;fill:var(--muted);font-family:var(--mono)}
 svg .vessel{fill:var(--panel);stroke:var(--eq);stroke-width:1.6}
 svg .fill{fill:var(--band);opacity:.8}
-svg .pipe{fill:none;stroke:var(--pipe);stroke-width:3}
-svg .pipe.on{stroke:var(--flow);stroke-dasharray:9 6;animation:flow 1.2s linear infinite}
+/* cañerías: línea sólida; con flujo, más contrastada y con flecha de sentido (sin animación, ISA-101) */
+svg .pipe{fill:none;stroke:var(--pipe);stroke-width:3;stroke-linejoin:round;marker-end:url(#ah)}
+svg .pipe.on{stroke:var(--flow)}
+svg .pipe.on{marker-end:url(#ahon)}
 svg .pipe.thin{stroke-width:2}
-svg .sig{fill:none;stroke:var(--sig);stroke-width:1;stroke-dasharray:3 3}
+svg .ahm{fill:var(--pipe)}svg .ahm.on{fill:var(--flow)}
+svg .sig{fill:none;stroke:var(--sig);stroke-width:1;stroke-dasharray:2 3;opacity:.8}
+/* bloques de datos de instrumentos y controladores */
+svg .db .bx,svg .cb .bx{fill:var(--panel);stroke:var(--line);stroke-width:1}
+svg .dbt{font-family:var(--mono);font-size:9px;fill:var(--muted);letter-spacing:.02em}
+svg .db .val{font-size:12.5px}
+svg .cbv{font-family:var(--mono);font-size:10px;fill:var(--txt)}
+svg .cbv .cbn{fill:var(--val)}svg .cbv .cbl{fill:var(--muted);font-size:8.5px}
+svg .cb .md rect{fill:none;stroke:var(--line)}
+svg .cb .md text{font-family:var(--mono);font-size:8.5px;font-weight:600;fill:var(--muted)}
+svg .cb.abn .md rect{fill:var(--diag);stroke:var(--diag)}svg .cb.abn .md text{fill:#fff}
+svg .cb.dev .bx{stroke:var(--diag);stroke-width:1.6}
+svg .dvb{fill:var(--bar)}svg .dvc{fill:var(--muted)}svg .dvp{fill:var(--txt)}
+svg .cb.dev .dvp{fill:var(--diag)}
 @keyframes flow{to{stroke-dashoffset:-15}}
 svg .eq circle,svg .eq rect,svg .eq path.b{stroke:var(--eq);stroke-width:1.6;fill:var(--stop)}
 svg .eq.run circle,svg .eq.run rect,svg .eq.run path.b{fill:var(--run)}
@@ -223,7 +240,7 @@ svg .almi rect{stroke:#111;stroke-width:.6}
 svg .almi.p1 rect{fill:var(--p1)} svg .almi.p2 rect{fill:var(--p2)} svg .almi.p3 rect{fill:var(--p3)}
 svg .almi text{font-family:var(--mono);font-size:9px;font-weight:700;fill:#111}
 svg .almi.p1 text{fill:#fff}
-svg .drum.run .st{stroke:var(--stop);animation:flow .8s linear infinite}
+svg .drum.run .st{stroke:var(--stop)}
 svg .drum .st{stroke:var(--eq);stroke-width:1.2;stroke-dasharray:4 10;fill:none}
 svg .crud{fill:var(--p2);opacity:.75}
 svg .org{fill:var(--eqfill);opacity:.9}
@@ -244,7 +261,7 @@ svg .btn.on text{fill:#fff}
 </head>
 <body>
 <header class="bar">
-  <a class="home" href="../">← jsnn15.github.io</a>
+  <a class="home" href="../" aria-label="Volver al portafolio">← <span>jsnn15.github.io</span></a>
   <h1>Planta virtual LX-SX-EW <abbr class="ots" title="Simulador de entrenamiento de operadores (Operator Training Simulator)">OTS</abbr></h1>
   <span class="clock" id="clock">—</span>
   <span class="simst" id="simst" title="Estado del motor de simulación"><i></i> SIM</span>
