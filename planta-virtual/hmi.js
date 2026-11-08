@@ -25,19 +25,27 @@
   const V_ = (x, y, tag, a = 'start') => `<text x="${x}" y="${y}" class="val" text-anchor="${a}"><tspan data-v="${tag}">0</tspan><tspan class="unit"> ${P.T[tag].unit}</tspan></text>`;
   const K_ = (x, y, key, cls = 'val', a = 'start') => `<text x="${x}" y="${y}" class="${cls}" text-anchor="${a}" data-k="${key}">—</text>`;
   const ALM = (x, y, tag) => `<g class="almi" data-alm="${tag}" transform="translate(${x},${y})" style="display:none"><rect x="-7" y="-7" width="14" height="14" rx="1"/><text x="0" y="3.5" text-anchor="middle">1</text></g>`;
+  // Pantalla de operación, no plano de ingeniería: en vez de la burbuja ISA-5.1, un bloque de datos (ISA-101).
+  // Indicador: tag y valor con unidad. Controlador: tag, modo, consigna, salida y barra de desvío PV-SP (±10 % del rango).
+  const loopOfPV = (tag) => Object.keys(LOOP_PV).find((l) => LOOP_PV[l] === tag);
   const bub = (x, y, tag, o = {}) => {
-    const [a, b] = tag.split('-');
-    const ctl = !!o.loop;
-    return `<g class="bub ${ctl ? 'ctl' : ''}" ${ctl ? `data-fp="${o.loop}"` : ''} transform="translate(${x},${y})">${ctl ? '<rect x="-17" y="-17" width="34" height="34"/>' : ''}<circle r="16"/><line x1="-16" x2="16" y1="0" y2="0" stroke="var(--eq)" stroke-width="${o.field ? 0 : 1}"/>` +
-      `<text class="tagt" y="-3" text-anchor="middle">${a}</text><text class="tagt" y="10" text-anchor="middle">${b}</text></g>` +
-      (o.v ? V_(x + (o.vx ?? 22), y + (o.vy ?? 4), o.v, o.va || 'start') : '') + ALM(x + 18, y - 18, o.alm || o.v || tag) +
-      (ctl ? `<g class="mb" data-mb="${o.loop}" data-fp="${o.loop}" transform="translate(${x - 17},${y + 20})" style="display:none"><rect width="34" height="13" rx="2"/><text x="17" y="9.6" text-anchor="middle">MAN</text></g>` : '');
+    if (o.loop) {
+      const w = 108, h = 38, x0 = x - w / 2, y0 = y - h / 2;
+      return `<g class="cb" data-fp="${o.loop}" data-cb="${o.loop}" transform="translate(${x0},${y0})"><rect class="bx" width="${w}" height="${h}" rx="2"/>` +
+        `<text x="6" y="12" class="dbt">${tag}</text><g class="md"><rect x="${w - 38}" y="3" width="34" height="12" rx="2"/><text x="${w - 21}" y="12.2" text-anchor="middle" data-cbm="${o.loop}">AUTO</text></g>` +
+        `<text x="6" y="27" class="cbv"><tspan class="cbl">SP </tspan><tspan class="cbn" data-sp="${o.loop}">0</tspan></text><text x="${w - 6}" y="27" class="cbv" text-anchor="end"><tspan class="cbl">OP </tspan><tspan class="cbn" data-op="${o.loop}">0</tspan><tspan class="cbl"> %</tspan></text>` +
+        `<rect class="dvb" x="6" y="${h - 6}" width="${w - 12}" height="2"/><rect class="dvc" x="${w / 2 - 0.5}" y="${h - 8}" width="1" height="6"/><rect class="dvp" data-dev="${o.loop}" x="${w / 2 - 1.5}" y="${h - 9}" width="3" height="8"/></g>`;
+    }
+    const t = o.v || tag, lp = loopOfPV(t), w = 86, h = 30, x0 = x - w / 2, y0 = y - h / 2;
+    return `<g class="db" ${lp ? `data-fp="${lp}"` : ''} transform="translate(${x0},${y0})"><rect class="bx" width="${w}" height="${h}" rx="2"/><text x="6" y="11" class="dbt">${tag}</text>` +
+      `<text x="${w - 6}" y="25" class="val" text-anchor="end"><tspan data-v="${t}">0</tspan><tspan class="unit"> ${P.T[t].unit}</tspan></text></g>` + ALM(x0 + w, y0, o.alm || t);
   };
   const pump = (x, y, id, lbl = true, dir = 1) => `<g class="eq" data-eq="${id}" data-fp="${id}" transform="translate(${x},${y})"><path class="base" d="M-9,10 L-14,18 L14,18 L9,10"/><circle r="14"/><path class="ic" d="${dir > 0 ? 'M-6,-8 L9,0 L-6,8 Z' : 'M6,-8 L-9,0 L6,8 Z'}"/></g>` + (lbl ? T_(x, y + 28, id, 'tagt', 'middle') : '') + ALM(x + 14, y - 14, id + '.TRIP');
   const motor = (x, y, id) => `<g class="eq" data-eq="${id}" data-fp="${id}" transform="translate(${x},${y})"><circle r="13"/><text class="ic" y="4.5" text-anchor="middle" style="font-size:12px;font-weight:600">M</text></g>` + T_(x, y + 27, id, 'tagt', 'middle') + ALM(x + 14, y - 14, id + '.TRIP');
   const valve = (x, y, loop, vert = false) => `<g class="valve" data-valve="${loop}" data-fp="${loop}" transform="translate(${x},${y}) rotate(${vert ? 90 : 0})"><path d="M-10,-7 L10,7 L10,-7 L-10,7 Z"/><line x1="0" y1="0" x2="0" y2="-12" stroke="var(--eq)"/><rect x="-6" y="-18" width="12" height="6" fill="var(--panel2)" stroke="var(--eq)"/></g>` +
     `<text x="${x}" y="${y + (vert ? 4 : 22)}" dx="${vert ? 16 : 0}" class="unit" text-anchor="${vert ? 'start' : 'middle'}"><tspan>${VALVE[loop] || ''} </tspan><tspan data-op="${loop}">0</tspan>%</text>`;
   const pipe = (d, flow, thr = 1, cls = '') => `<path class="pipe ${cls}" d="${d}" ${flow ? `data-flow="${flow}" data-thr="${thr}"` : ''}/>`;
+  const DEFS = '<defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="ahm"/></marker><marker id="ahon" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="ahm on"/></marker></defs>';
   const sig = (d) => `<path class="sig" d="${d}"/>`;
   const tank = (x, y, w, h, tag, name) => `<rect class="vessel" x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/><rect class="fill" data-lvl="${tag}" data-y="${y}" data-h="${h}" x="${x + 2}" y="${y}" width="${w - 4}" height="0"/>` + (name ? T_(x + w / 2, y - 6, name, 'tagt', 'middle') : '');
   let cpN = 0;
@@ -88,11 +96,11 @@
     ${pipe('M465,150 L465,176 L526,176', 'FIT-102', 0.5)}${pump(540, 176, 'P-102')}${pipe('M554,176 L610,176', 'FIT-102', 0.5)}
     ${valve(625, 176, 'FFIC-102')}${pipe('M635,176 L800,176 L800,214', 'FIT-102', 0.5)}
     ${bub(700, 130, 'FIT-102', {v: 'FIT-102', vx: 22, vy: 4})}${sig('M700,146 L700,176')}
-    ${bub(625, 90, 'FFIC-102', {loop: 'FFIC-102'})}${sig('M625,106 L625,160')}${sig('M684,130 L642,98')}${sig('M346,226 L608,92')}
+    ${bub(642, 88, 'FFIC-102', {loop: 'FFIC-102'})}${sig('M625,107 L625,160')}${sig('M684,130 L642,98')}${sig('M346,226 L608,92')}
     ${off(1060, 130, 'agua TK-502', 'a500', -1)}${pipe('M1060,130 L1030,130', 'FIT-104', 1)}${pump(1016, 130, 'P-104', true, -1)}${pipe('M1002,130 L975,130', 'FIT-104', 1)}
     ${valve(960, 130, 'FFIC-104')}${pipe('M950,130 L920,130 L920,214', 'FIT-104', 1)}
     ${bub(880, 90, 'FIT-104', {v: 'FIT-104', vx: -22, vy: 4, va: 'end'})}${sig('M880,106 L880,130 L920,130')}
-    ${bub(960, 60, 'FFIC-104', {loop: 'FFIC-104'})}${sig('M960,76 L960,114')}${K_(990, 64, 'ratio-104', 'lbl')}
+    ${bub(960, 60, 'FFIC-104', {loop: 'FFIC-104'})}${sig('M960,76 L960,114')}${K_(1012, 64, 'ratio-104', 'lbl')}
     <g class="eq drum" data-eq="M-103" data-fp="M-103"><rect x="770" y="214" width="210" height="80" rx="30"/><path class="st" d="M790,226 L960,226 M790,254 L960,254 M790,282 L960,282"/></g>
     ${T_(875, 312, 'AD-101 tambor aglomerador', 'tagt', 'middle')}
     ${motor(875, 350, 'M-103')}${ALM(892, 336, 'M-103.VIB')}
@@ -134,13 +142,13 @@
     // piscina PLS
     s += pond(950, 290, 180, 90, 'LIT-204', '') + T_(950, 398, 'TK-202 piscina PLS', 'tagt') + V_(950, 416, 'LIT-204') + K_(950, 434, 'lab-ph', 'lbl') + ALM(1132, 286, 'LIT-204');
     s += bub(990, 235, 'AIT-206', {v: 'AIT-206', vx: 0, vy: -22, va: 'middle'}) + sig('M990,251 L990,290') + bub(1080, 235, 'AIT-207', {v: 'AIT-207', vx: 0, vy: -22, va: 'middle'}) + sig('M1080,251 L1080,290');
-    s += bub(1172, 330, 'LIC-204', {loop: 'LIC-204'}) + sig('M1156,330 L1124,330');
+    s += bub(1144, 436, 'LIC-204', {loop: 'LIC-204'}) + sig('M1144,417 L1144,345 L1124,345');
     // bombas a SX
     s += pipe('M1100,380 L1100,450', 'FIT-205', 50) + pipe('M990,450 L1100,450', 'FIT-205', 50) + pipe('M990,450 L990,466', 'FIT-205', 50) + pipe('M1070,450 L1070,466', 'FIT-205', 50);
     s += pump(990, 480, 'P-202A', false, -1) + T_(970, 484, 'P-202A', 'tagt', 'end') + pump(1070, 480, 'P-202B', false, -1) + T_(1090, 484, 'P-202B', 'tagt', 'start');
     s += pipe('M990,494 L990,525 L1070,525 L1070,494', 'FIT-205', 50) + pipe('M990,525 L810,525', 'FIT-205', 50) + valve(795, 525, 'FIC-205') + pipe('M785,525 L700,525', 'FIT-205', 50) + off(700, 525, 'a SX', 'a300', -1);
-    s += bub(880, 488, 'FIT-205', {v: 'FIT-205', vx: 0, vy: -22, va: 'middle'}) + sig('M880,504 L880,525');
-    s += bub(795, 470, 'FIC-205', {loop: 'FIC-205'}) + sig('M795,487 L795,507') + sig('M864,488 L812,474') + sig('M1172,347 L1172,455 L1130,455 L1130,505 L940,505 L940,460 L812,466');
+    s += bub(892, 482, 'FIT-205', {v: 'FIT-205'}) + sig('M892,497 L892,525');
+    s += bub(795, 470, 'FIC-205', {loop: 'FIC-205'}) + sig('M795,487 L795,507') + sig('M1144,455 L1144,505 L948,505 L948,470 L849,470');
     s += '</svg>';
     return s;
   };
@@ -161,7 +169,7 @@
     s += pipe('M690,260 L745,260 L745,172 L250,172 L250,100 L300,100', 'FIT-301', 50, 'thin') + T_(500, 166, 'orgánico E2 → E1', 'unit', 'middle');
     // orgánico cargado a S1
     s += pipe('M690,100 L820,100', 'FIT-301', 50, 'thin') + `<rect class="vessel" x="820" y="70" width="80" height="60" rx="3"/><rect class="fill" x="822" y="94" width="76" height="34"/>` + T_(860, 62, 'TK-306 orgánico cargado', 'tagt', 'middle');
-    s += bub(760, 62, 'AIT-302', {v: 'AIT-302', vx: 0, vy: -22, va: 'middle'}) + sig('M760,78 L760,100');
+    s += bub(738, 62, 'AIT-302', {v: 'AIT-302'}) + sig('M738,77 L738,100');
     s += pipe('M900,115 L1160,115 L1160,368 L250,368 L250,450 L300,450', 'FIT-301', 50, 'thin');
     // orgánico descargado
     s += pipe('M690,440 L1050,440', 'FIT-301', 50, 'thin') + `<rect class="vessel" x="1050" y="410" width="80" height="90" rx="3"/><rect class="fill" x="1052" y="440" width="76" height="58"/>` + T_(1090, 404, 'TK-305 orgánico descargado', 'tagt', 'middle');
@@ -198,13 +206,13 @@
     s += pipe('M446,440 L480,440 L480,500 L446,500', 'FIT-402', 50) + pipe('M480,470 L560,470', 'FIT-402', 50);
     s += `<g transform="translate(590,470)"><circle r="26" class="vessel"/><path d="M-20,8 L-10,-8 L0,8 L10,-8 L20,8" stroke="var(--eq)" fill="none"/></g>` + T_(590, 512, 'HX-401', 'tagt', 'middle');
     s += pipe('M616,470 L700,470 L700,330', 'FIT-402', 50) + bub(650, 420, 'TIT-403', {v: 'TIT-403', vx: 0, vy: -22, va: 'middle'}) + sig('M650,436 L650,470');
-    s += pipe('M560,410 L590,410 L590,444', 'TIT-403', 0) + valve(560, 410, 'TIC-403') + T_(500, 400, 'agua caliente', 'lbl', 'end');
+    s += pipe('M560,410 L590,410 L590,444', 'TIT-403', 0) + valve(560, 410, 'TIC-403') + T_(540, 414, 'agua caliente', 'lbl', 'end');
     s += bub(560, 360, 'TIC-403', {loop: 'TIC-403'}) + sig('M560,376 L560,396') + sig('M576,360 L660,404');
     s += bub(740, 400, 'FIT-402', {v: 'FIT-402', vx: 0, vy: -22, va: 'middle'}) + sig('M724,400 L700,400');
     s += pipe('M1170,330 L1170,540 L295,540 L295,500', 'FIT-402', 50, 'thin') + T_(1120, 534, 'retorno de celdas', 'unit', 'end');
     // dosificación y sangrado
-    s += T_(372, 352, 'cobalto', 'unit', 'end') + pipe('M380,355 L380,365 L330,365 L330,380', 'FIT-404', 1, 'thin') + bub(400, 380, 'FIC-404', {loop: 'FIC-404'});
-    s += bub(820, 490, 'FIC-409', {loop: 'FIC-409'}) + valve(880, 505, 'FIC-409') + pipe('M850,540 L850,505 L870,505', 'FIT-409', 0.5, 'thin') + pipe('M890,505 L960,505', 'FIT-409', 0.5, 'thin') + off(960, 505, 'sangrado a refino', 'a200') + sig('M836,490 L880,490');
+    s += T_(372, 352, 'cobalto', 'unit', 'end') + pipe('M380,355 L380,365 L330,365 L330,380', 'FIT-404', 1, 'thin') + bub(414, 380, 'FIC-404', {loop: 'FIC-404'});
+    s += bub(800, 478, 'FIC-409', {loop: 'FIC-409'}) + valve(880, 505, 'FIC-409') + pipe('M850,540 L850,505 L870,505', 'FIT-409', 0.5, 'thin') + pipe('M890,505 L960,505', 'FIT-409', 0.5, 'thin') + off(960, 505, 'sangrado a refino', 'a200') + sig('M848,478 L880,478 L880,487');
     // analizadores
     s += `<rect x="790" y="350" width="390" height="110" rx="6" fill="var(--panel)" stroke="var(--line)"/>` + T_(802, 370, 'Analizadores del electrolito', 'ttl');
     s += T_(802, 394, 'Cu', 'lbl') + V_(830, 394, 'AIT-405') + ALM(930, 389, 'AIT-405') + T_(960, 394, 'H₂SO₄', 'lbl') + V_(1010, 394, 'AIT-406') + T_(802, 416, 'Fe', 'lbl') + V_(830, 416, 'AIT-407') + ALM(930, 411, 'AIT-407') + T_(960, 416, 'Co', 'lbl') + V_(1010, 416, 'AIT-408') + ALM(1100, 411, 'AIT-408');
@@ -617,7 +625,7 @@
   /* normativa: qué normas rigen este tipo de solución y cómo se aplican aquí */
   const NORMS = [
     ['Operación y pantallas', [
-      ['ANSI/ISA-101.01', 'Interfaces humano-máquina (HMI) para automatización de procesos', 'ok', 'Fondo neutro, color solo para lo anormal, jerarquía general → área → equipo, modos de control visibles.'],
+      ['ANSI/ISA-101.01', 'Interfaces humano-máquina (HMI) para automatización de procesos', 'ok', 'Fondo neutro, color solo para lo anormal, jerarquía general → área → equipo, bloques de datos con modo y desvío PV-SP, cañerías sin animación.'],
       ['ANSI/ISA-18.2 · IEC 62682', 'Gestión de alarmas en industrias de proceso', 'ok', 'Prioridades, estados, reconocimiento, inhibición temporal, supresión por estado de equipo y tasa de alarmas por hora.'],
       ['EEMUA 191', 'Guía de diseño y gestión de sistemas de alarma', 'part', 'Métricas de desempeño: tasa por operador y alarmas más frecuentes como candidatas a racionalización.'],
       ['ANSI/ISA-5.1 · ISO 10628-2', 'Identificación de instrumentos y símbolos de P&ID', 'part', 'Tags según ISA-5.1 (FIC, LIT, AIT…); símbolos gráficos simplificados.'],
@@ -764,7 +772,7 @@
       return;
     }
     full(false);
-    scr.innerHTML = SCREENS[state.screen]();
+    scr.innerHTML = SCREENS[state.screen]().replace(/(<svg[^>]*>)/, '$1' + DEFS);
     renderSide(); refresh(true);
   };
   const drawSpk = () => {
@@ -785,13 +793,13 @@
     'ratio-102': () => `Razón ${f(P.L['FFIC-102'].ratio, 1)} kg/t × tonelaje ${P.X.delayComp ? 'retrasado 45 s' : 'del pesómetro'} = consigna ${f(P.L['FFIC-102'].sp_(), 1)} m³/h`,
     'ratio-102b': () => `${f(P.L['FFIC-102'].ratio, 1)} kg/t`,
     'ratio-104': () => `razón ${f(P.L['FFIC-104'].ratio, 3)} m³/t`,
-    'lab-ph': () => `pH laboratorio ${P.hm(P.S.t0 + P.X.labT)}: ${f(P.X.labPH, 2)}`,
+    'lab-ph': () => `pH lab. ${P.hm(P.S.t0 + P.X.labT)}: ${f(P.X.labPH, 2)}`,
     oa: () => `O/A ${ft('KY-301')} · consigna ${f(P.L['FFIC-301'].ratio, 2)}`,
     'sx-sum': () => `O/A ${ft('KY-301')} · extracción ${ft('KY-303')} % · orgánico cargado ${f(P.X.yL, 2)} g/L · descargado ${f(P.X.ys, 2)} g/L · cobre transferido ${ft('KY-304')} t/h · arrastre ${ft('AIT-309')} ppm`,
     'cells-sum': () => `Voltaje medio ${ft('KY-402')} V · ${P.X.monitor ? 'monitoreo continuo' : `ronda cada 4 h (última ${P.hm(P.S.t0 + P.X.lastRound)})`} · ${knownShorts()} cortocircuitos conocidos`,
     'qual-a': () => `Cátodo estimado: Pb ${f(P.X.Pb, 1)} · S ${f(P.X.Sppm, 1)} · Fe ${f(P.X.FeC, 1)} ppm → ${P.X.quality ? 'grado A' : 'FUERA DE NORMA'}`,
     'qual-b': () => P.X.quality ? 'cátodo grado A' : 'cátodo fuera de norma',
-    trucks: () => `Abastecimiento: ${P.S.t < P.X.trucksHold ? 'DETENIDO' : '1 camión de 30 t por hora'}`,
+    trucks: () => `Abastecimiento: ${P.S.t < P.X.trucksHold ? 'DETENIDO' : `${f(P.X.trucksPerH * 30, 1)} t/h (camiones de 30 t)`}`,
     'p-rt': () => `${f(P.RECT.P / 0.975, 1)} MW`,
     'p-m100': () => `${f(mccKW('MCC-100'))} kW`, 'p-m200': () => `${f(mccKW('MCC-200'))} kW`, 'p-m300': () => `${f(mccKW('MCC-300'))} kW`, 'p-m400': () => `${f(mccKW('MCC-400'))} kW`,
     'seq-st': () => ({t: seqStatus(100), c: 'unit' + (P.seqs[100].st === 'FAIL' ? ' bad' : P.seqs[100].st === 'RUN' ? ' cur' : '')}),
@@ -807,7 +815,12 @@
     const root = $('screen');
     root.querySelectorAll('[data-v]').forEach((e) => { e.textContent = ft(e.dataset.v); });
     root.querySelectorAll('[data-k]').forEach((e) => { const fn = KEYS[e.dataset.k]; if (!fn) return; const r = fn(); if (r && typeof r === 'object') { e.textContent = r.t; e.setAttribute('class', r.c); } else e.textContent = r; });
-    root.querySelectorAll('[data-mb]').forEach((e) => { const c = P.L[e.dataset.mb], abn = c.mode !== c.norm; e.style.display = abn ? '' : 'none'; if (abn) e.querySelector('text').textContent = c.mode; });
+    root.querySelectorAll('[data-cb]').forEach((e) => {
+      const id = e.dataset.cb, c = P.L[id], t = P.T[LOOP_PV[id]], sp = c.sp_(), dev = (t.v - sp) / (t.hi - t.lo);
+      e.querySelector('[data-cbm]').textContent = c.mode; e.querySelector('[data-sp]').textContent = f(sp, t.dec);
+      e.classList.toggle('abn', c.mode !== c.norm); e.classList.toggle('dev', c.mode !== 'MAN' && Math.abs(dev) > 0.05);
+      const pnt = e.querySelector('[data-dev]'), w = +e.querySelector('.bx').getAttribute('width'); pnt.setAttribute('x', w / 2 - 1.5 + clamp(dev / 0.1, -1, 1) * (w / 2 - 8));
+    });
     root.querySelectorAll('[data-lvl]').forEach((e) => { const t = P.T[e.dataset.lvl], fr = Math.max(0, Math.min(1, (t.v - t.lo) / (t.hi - t.lo))), y = +e.dataset.y, h = +e.dataset.h; e.setAttribute('y', y + h * (1 - fr)); e.setAttribute('height', h * fr); });
     root.querySelectorAll('[data-lvl-fixed]').forEach((e) => { const fr = +e.dataset.lvlFixed, r = e.previousElementSibling; const y = +r.getAttribute('y'), h = +r.getAttribute('height'); e.setAttribute('y', y + h * (1 - fr)); e.setAttribute('height', h * fr); });
     root.querySelectorAll('[data-eq]').forEach((e) => { const id = e.dataset.eq, st = id === 'RT-401' ? P.RECT.state : P.M[id].state; e.classList.toggle('run', st === 'RUN'); e.classList.toggle('trip', st === 'TRIP' && (id === 'RT-401' || P.M[id].trip !== 'reset')); });

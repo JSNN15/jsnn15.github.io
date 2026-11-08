@@ -4,7 +4,12 @@ Simulador de entrenamiento de operadores (OTS, *Operator Training Simulator*) de
 
 ## Qué tiene
 
-- **P&ID en vivo** de las cinco áreas, con criterios de HMI de alto desempeño (ISA-101): equipos en grises y color solo para lo anormal. Tema oscuro de sala de control y tema claro, y modo de pantalla completa.
+- **Diagramas de proceso en vivo** de las cinco áreas, con criterios de HMI de alto desempeño (ISA-101):
+  - equipos en grises y color solo para lo anormal;
+  - bloques de datos en vez de burbujas de plano: cada instrumento muestra tag y valor, y cada controlador modo, consigna, salida y una barra de desvío PV-SP;
+  - cañerías sólidas con flecha de sentido de flujo, sin animación.
+
+  Tiene tema oscuro de sala de control, tema claro y modo de pantalla completa.
 - **Ventanas de equipo (faceplates)** flotantes y arrastrables. Las órdenes se dan en dos pasos (seleccionar y confirmar), con cuenta regresiva, y cada orden muestra un aviso: aceptada, o rechazada con su causa. Los lazos PID se operan en manual, automático o cascada, con ajustes rápidos de consigna, límites de alarma y tendencia de 30 min.
 - **Interacción de consola**: información al pasar el puntero sobre cada equipo, resalte del equipo abierto, navegación desde una alarma hasta su pantalla y su equipo, y atajos de teclado (0 a 5 para las áreas, A para alarmas, Esc para cerrar).
 - **Secuencias automáticas** (ISA-106 simplificado), con condición de avance, tiempo máximo y causa de falla en cada paso:
