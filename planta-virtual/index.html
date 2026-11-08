@@ -367,6 +367,15 @@ svg .aq{fill:none}
 .ins.p1{border-left-color:var(--p1)}.ins.p2{border-left-color:var(--p2)}.ins.k-rec{border-left-color:#c08cff}
 .ins .ik{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .insl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));gap:8px}
+.ia-box{border:1px solid #5a3d8f;border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--panel2)}
+[data-style="classic"] .ia-box{background:linear-gradient(180deg,#1a1735,#0d1528)}
+.ia-chip{font-size:.8rem;padding:4px 9px}
+.ia-ask{font-size:.8rem;padding:4px 8px;align-self:flex-start}
+.ia-a{border-top:1px solid var(--line);padding-top:8px;display:flex;flex-direction:column;gap:4px;font-size:.88rem;line-height:1.5}
+.ia-a p{margin:0}
+.ia-q{font-weight:600}
+.ia-spin{display:inline-block;width:10px;height:10px;border:2px solid var(--muted);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-1px}
+@keyframes spin{to{transform:rotate(360deg)}}
 .aicnt{display:inline-block;min-width:18px;text-align:center;font-family:var(--mono);font-weight:600;font-size:.72rem;padding:1px 4px;border-radius:2px;background:#8e5ce0;color:#fff}
 </style>
 </head>
@@ -415,6 +424,7 @@ svg .aq{fill:none}
 </div>
 
 <script src="sim.js"></script>
+<script src="ia.js"></script>
 <script src="hmi.js"></script>
 </body>
 </html>

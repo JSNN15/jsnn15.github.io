@@ -337,19 +337,42 @@
   const assistBox = (ar) => {
     const all = state.ins || [], list = all.map((it, i) => [it, i]).filter(([it]) => !ar || it.area === ar || it.k === 'causa');
     let h = `<div class="ai-box"><div class="ai-h"><span class="spark">✦</span> Asistente de turno<button data-tab="assist" class="ai-all">${all.length ? all.length + ' avisos' : 'ver'} ▸</button></div>`;
+    if (iaOn()) h += `<button class="ia-ask" data-iago>✦ Preguntar a la IA (NVIDIA)</button>`;
     const alm = P.AD.some((a) => (a.st === 'U' || a.st === 'A') && (!ar || a.area === ar));
     h += list.length ? list.slice(0, 3).map(([it, i]) => insItem(it, i, true)).join('') : `<p class="small muted" style="margin:0">${alm ? 'Sin avisos nuevos. Atiende las alarmas activas de abajo.' : 'Todo en orden en esta área. El asistente vigila tendencias, anomalías y alarmas.'}</p>`;
     return h + '</div>';
   };
-  const pageAssist = () => {
-    const all = state.ins || [];
-    let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1"><span class="spark">✦</span> Asistente de turno</h2></div>`;
-    h += `<p class="small muted" style="margin:0;max-width:80ch">Mira la planta completa cada segundo y avisa antes de que suene la alarma. Haz clic en un aviso para ir a la pantalla y al equipo.</p>`;
+  /* consulta a la IA de NVIDIA (vía servicio intermedio; ver ia.js) */
+  const iaOn = () => typeof PlantIA !== 'undefined' && !!PlantIA.endpoint();
+  const IA_Q = ['¿Qué está pasando y qué hago primero?', '¿Cuál es la causa de las alarmas?', '¿Cómo recupero la producción?', 'Resumen para el cambio de turno'];
+  const iaText = (t) => esc(t.replace(/\*\*/g, '').replace(/^#+\s*/gm, '')).replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>');
+  const iaAnswers = () => (state.iaLog || []).map((x) => `<div class="ia-a"><div class="ia-q">${esc(x.q)}<span class="mono small muted"> · ${P.hm(x.t)}</span></div>` +
+    (x.err ? `<p class="bad small">${esc(x.err)}</p>` : x.answer ? `<p>${iaText(x.answer)}</p><div class="small muted">${esc(x.model || '')} · ${f(x.ms / 1000, 1)} s · respuesta generada por IA con el estado de la planta en ese momento; verifica antes de actuar.</div>` : '<p class="muted small"><span class="ia-spin"></span> Consultando a NVIDIA…</p>') + '</div>').join('');
+  const iaBox = () => `<div class="ia-box" id="ia-box"><div class="ai-h"><span class="spark">✦</span> Pregúntale a la IA <span class="small muted" style="font-weight:400">· NVIDIA Nemotron, con el estado actual de la planta</span></div>` +
+    `<div class="row">${IA_Q.map((q) => `<button class="ia-chip" data-iaq="${esc(q)}">${esc(q)}</button>`).join('')}</div>` +
+    `<form class="row" id="ia-form"><input id="ia-in" maxlength="500" placeholder="Escribe tu pregunta sobre la planta" style="flex:1;min-width:12rem"><button class="go" type="submit">Preguntar</button></form><div id="ia-out">${iaAnswers()}</div></div>`;
+  const iaAsk = async (q) => {
+    q = String(q || '').trim(); if (!q || state.iaBusy) return;
+    const item = {q, t: P.now()}; state.iaLog = [item, ...(state.iaLog || [])].slice(0, 5); state.iaBusy = true;
+    P.S.log.unshift({t: P.now(), who: 'Operador', msg: `Consulta a la IA: ${q}`, kind: 'op'});
+    const out = $('ia-out'); if (out) out.innerHTML = iaAnswers();
+    try { Object.assign(item, await PlantIA.ask(q, PlantIA.context(P, state.ins || []))); } catch (e) { item.err = e.message; }
+    state.iaBusy = false; const o2 = $('ia-out'); if (o2) o2.innerHTML = iaAnswers();
+  };
+  const assistList = () => {
+    const all = state.ins || []; let h = '';
     [['causa', 'Causa probable de las alarmas activas'], ['pred', 'Alarmas que vienen (próximas 2 h)'], ['anom', 'Anomalías sin alarma'], ['rec', 'Recomendaciones de operación']].forEach(([k, ttl]) => {
       const it = all.map((x, i) => [x, i]).filter(([x]) => x.k === k);
       h += `<h3 class="sec">${ttl}</h3>` + (it.length ? `<div class="insl">${it.map(([x, i]) => insItem(x, i, false)).join('')}</div>` : '<p class="small muted" style="margin:0">Nada por ahora.</p>');
     });
-    h += `<div class="notice"><b>Cómo funciona</b><span class="small">Todo se calcula en el navegador, sin enviar datos a ninguna nube. <b>Alarmas que vienen:</b> regresión lineal de los últimos 20 min de cada variable con alarma, y tiempo estimado hasta su límite. <b>Causa probable:</b> agrupa las alarmas que aparecieron después de un disparo o de un interruptor abierto en las áreas que ese equipo alimenta. <b>Anomalías:</b> puntaje z del último minuto contra las últimas 2 h, para ver cambios bruscos antes de que lleguen al límite. <b>Recomendaciones:</b> reglas de operación de la planta. No usa un modelo de lenguaje y no reemplaza el criterio del operador.</span></div>`;
+    return h;
+  };
+  const pageAssist = () => {
+    let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1"><span class="spark">✦</span> Asistente de turno</h2></div>`;
+    h += `<p class="small muted" style="margin:0;max-width:80ch">Mira la planta completa cada segundo y avisa antes de que suene la alarma. Haz clic en un aviso para ir a la pantalla y al equipo.</p>`;
+    if (iaOn()) h += iaBox();
+    h += `<div id="as-list" style="display:flex;flex-direction:column;gap:14px">${assistList()}</div>`;
+    h += `<div class="notice"><b>Cómo funciona</b><span class="small">Los avisos se calculan en el navegador, sin enviar datos a ninguna nube. <b>Alarmas que vienen:</b> regresión lineal de los últimos 20 min de cada variable con alarma, y tiempo estimado hasta su límite. <b>Causa probable:</b> agrupa las alarmas que aparecieron después de un disparo o de un interruptor abierto en las áreas que ese equipo alimenta. <b>Anomalías:</b> puntaje z del último minuto contra las últimas 2 h, para ver cambios bruscos antes de que lleguen al límite. <b>Recomendaciones:</b> reglas de operación de la planta. ${iaOn() ? '<b>Pregúntale a la IA:</b> envía un resumen en texto del estado de la planta (alarmas, equipos, variables y últimos eventos) a un modelo Nemotron de NVIDIA a través de un servicio intermedio que guarda la clave; la respuesta es una ayuda y no reemplaza el criterio del operador.' : 'No reemplaza el criterio del operador.'}</span></div>`;
     return h + '</div>';
   };
   const knownShorts = () => { let n = 0; for (let k = 0; k < P.NCELL; k++) if (P.X.shorts[k] > 0 && (P.X.monitor || P.X.seen[k])) n++; return n; };
@@ -946,7 +969,8 @@
       if (state.sel && !(ae && ae.closest && ae.closest('#fpw input'))) renderFp();
       if (state.role === 'op' && !PAGES[state.screen]) { renderSide(); drawSpk(); }
       else if (state.screen === 'trends' && state.role === 'op') { drawTrends(); document.querySelectorAll('[data-pv]').forEach((e) => { const p = state.trend.pens[+e.dataset.pv]; e.textContent = ft(p) + ' ' + P.T[p].unit; }); }
-      else if (state.role === 'op' && (state.screen === 'alarms' || state.screen === 'events' || state.screen === 'model' || state.screen === 'assist')) { if (!selFoc) $('screen').innerHTML = PAGES[state.screen](); }
+      else if (state.role === 'op' && state.screen === 'assist') { const al = $('as-list'); if (al) al.innerHTML = assistList(); }
+      else if (state.role === 'op' && (state.screen === 'alarms' || state.screen === 'events' || state.screen === 'model')) { if (!selFoc) $('screen').innerHTML = PAGES[state.screen](); }
       else if (state.role === 'mt') { $('screen').innerHTML = pageMaint(); drawMaint(); }
       else if (state.role === 'mg') { $('screen').innerHTML = pageMgmt(); drawMgmt(); }
     }
@@ -954,7 +978,7 @@
 
   /* =================== eventos =================== */
   document.addEventListener('click', (ev) => {
-    const t = ev.target.closest('[data-speed],[data-role],[data-tab],[data-go],[data-fp],[data-fp2],[data-close-fp],[data-mode],[data-set],[data-cmd],[data-ask],[data-ok],[data-cancel],[data-nudge],[data-totrend],[data-csv],[data-act],[data-fixcell],[data-cell],[data-galm],[data-ins],[data-ack],[data-shelve],[data-ackall],[data-win],[data-mact],[data-msel],[data-scn],[data-close]');
+    const t = ev.target.closest('[data-speed],[data-role],[data-tab],[data-go],[data-fp],[data-fp2],[data-close-fp],[data-mode],[data-set],[data-cmd],[data-ask],[data-ok],[data-cancel],[data-nudge],[data-totrend],[data-csv],[data-act],[data-fixcell],[data-cell],[data-galm],[data-ins],[data-iaq],[data-iago],[data-ack],[data-shelve],[data-ackall],[data-win],[data-mact],[data-msel],[data-scn],[data-close]');
     if (!t) return;
     const d = t.dataset;
     if (d.speed != null) { speed = +d.speed; buildBars(); return; }
@@ -962,6 +986,8 @@
     if (d.tab) { state.screen = d.tab; state.sel = null; show(); return; }
     if (d.go) { state.role = 'op'; state.screen = d.go; state.sel = null; show(); return; }
     if (d.galm) { tipEl = null; tip.hidden = true; goAlarm(d.galm); return; }
+    if (d.iaq) { iaAsk(d.iaq); return; }
+    if (d.iago != null) { state.role = 'op'; state.screen = 'assist'; state.sel = null; show(); const i = $('ia-in'); if (i) i.focus(); return; }
     if (d.ins != null) { const it = (state.ins || [])[+d.ins]; if (!it) return; if (it.go) { goAlarm(it.go); return; } state.role = 'op'; state.screen = it.scr || 'gen'; state.sel = null; show(); if (it.fp) openFp(it.fp); return; }
     if (d.cell != null) { tipEl = null; tip.hidden = true; openFp('CELL:' + d.cell, ev); refresh(); return; }
     if (d.fp2) { openFp(d.fp2); return; }
@@ -1015,6 +1041,7 @@
     if (t.id === 'ev-f') { state.evF = t.value; $('screen').innerHTML = pageEvents(); return; }
     if (t.dataset.standby != null) { P.cmd.standby(state.sel, t.checked); return; }
   });
+  document.addEventListener('submit', (ev) => { if (ev.target.id === 'ia-form') { ev.preventDefault(); const i = $('ia-in'); iaAsk(i.value); i.value = ''; } });
   $('ack-all').onclick = () => { P.cmd.ackAll(); refresh(); };
   $('go-alarms').onclick = () => { state.role = 'op'; state.screen = 'alarms'; show(); };
   $('btn-scn').onclick = () => { $('scn-list').innerHTML = P.SCN.map((s) => `<div class="card"><b>${esc(s.name)}</b><span class="small muted">Área ${s.area}</span><p>${esc(s.desc)}</p><button data-scn="${s.id}">Provocar</button></div>`).join(''); $('m-scn').classList.add('show'); };
