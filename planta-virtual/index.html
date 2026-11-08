@@ -8,8 +8,9 @@
 <meta property="og:title" content="Planta virtual LX-SX-EW · Simulador de entrenamiento de operadores (OTS)">
 <meta property="og:description" content="Opera una planta de cobre completa: partidas, paradas y fallas sobre un modelo dinámico con parámetros de literatura, con las vistas del operador, el mantenedor y el gerente.">
 <meta property="og:image" content="https://jsnn15.github.io/img/planta.jpg">
-<script>/* tema de sala de control: oscuro por defecto, el operador puede cambiarlo */
-try { document.documentElement.dataset.theme = localStorage.getItem('pv-theme') || 'dark'; } catch (e) { document.documentElement.dataset.theme = 'dark'; }</script>
+<script>/* estilo de pantallas: clásico de faena por defecto; alternativas de alto desempeño ISA-101 oscura y clara */
+(function (r) { var lk = 'classic'; try { lk = localStorage.getItem('pv-look') || 'classic'; } catch (e) {} if (['classic', 'hp-dark', 'hp-light'].indexOf(lk) < 0) lk = 'classic';
+  r.dataset.look = lk; r.dataset.style = lk === 'classic' ? 'classic' : 'hp'; r.dataset.theme = lk === 'hp-light' ? 'light' : 'dark'; })(document.documentElement);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -257,6 +258,116 @@ svg .lbl.bad,svg .unit.bad{fill:var(--p1);font-weight:600}
 svg .lbl.done{fill:var(--txt)}
 svg .btn.on rect{fill:var(--sel);stroke:var(--sel)}
 svg .btn.on text{fill:#fff}
+/* =========================================================================================
+   Estilo clásico de faena: el SCADA de sala de control minera que todos reconocen
+   (color por fluido, verde en marcha, rojo detenido, lecturas digitales sobre negro, flujo animado),
+   con las capacidades nuevas encima. El estilo de alto desempeño ISA-101 queda como alternativa.
+   ========================================================================================= */
+svg .pipe-hl{display:none}
+svg .dband,svg .cbh{display:none}
+svg .drip{stroke:var(--pipe);stroke-width:1.5}
+svg .aq{fill:none}
+.fl{display:none}
+:root[data-style="classic"]{
+  --bg:#07121c;--panel:#0f2236;--panel2:#0b1a2b;--line:#2a4868;--eq:#b9cadb;--eqfill:#30506f;--run:#22c55e;--stop:#c0392b;
+  --txt:#e9f1f9;--muted:#90a9c3;--val:#4dff88;--pipe:#3a536c;--flow:#9db4ca;--sig:#5d7c9b;--bar:#15304b;--band:#2b4f73;--sel:#3d8bff;--diag:#22c7ea;--ok:#2fd36b;--pen4:#c08cff;
+  --f-ore:#b8823f;--f-acid:#b961e6;--f-water:#2f9fea;--f-ref:#93d13f;--f-pls:#17bf9f;--f-org:#f7a823;--f-elr:#3176ee;--f-elp:#7dbcf7;--f-co:#ee6fb3;--f-hw:#f05a3a;
+  --vbox:#01060a;--cu:#d6863f;color-scheme:dark
+}
+[data-style="classic"] body{background:var(--bg)}
+/* barra superior, botones con relieve, pestañas, reloj y banda de alarmas */
+[data-style="classic"] .bar{background:linear-gradient(180deg,#1c446f,#0e2745);border-bottom:2px solid #3c70a6}
+[data-style="classic"] .bar h1{color:#fff;letter-spacing:.03em;text-shadow:0 1px 0 #000}
+[data-style="classic"] .bar .home{color:#a9c4e0}
+[data-style="classic"] button{background:linear-gradient(180deg,#2b5c8d,#163a5f);border-color:#6293c9 #08182a #08182a #6293c9;color:#eef5fc;border-radius:3px}
+[data-style="classic"] button:hover{filter:brightness(1.18)}
+[data-style="classic"] button:disabled{filter:grayscale(.6)}
+[data-style="classic"] button.on,[data-style="classic"] button.go{background:linear-gradient(180deg,#33a85a,#1b6b35);border-color:#86e8a7 #0a2614 #0a2614 #86e8a7;color:#fff}
+[data-style="classic"] .bar .clock,[data-style="classic"] .simst{background:var(--vbox);color:var(--val);border-color:#3b5f84}
+[data-style="classic"] .alarmbar{background:#010508;border-bottom:1px solid #4a1414}
+[data-style="classic"] .alarmbar .last{color:#ffe14d}
+[data-style="classic"] .alarmbar .last.p1{color:#ff5a4d}[data-style="classic"] .alarmbar .last.p2{color:#ffa31a}
+[data-style="classic"] nav.areas{background:#06101a}
+[data-style="classic"] nav.areas button{background:linear-gradient(180deg,#21466d,#122d4a)}
+[data-style="classic"] nav.areas button.on{background:linear-gradient(180deg,#3d79b6,#1c487a);box-shadow:inset 0 -3px 0 #ffd23f;color:#fff;border-color:#7fb0e6}
+[data-style="classic"] #screen{background:#08141f}
+[data-style="classic"] #side{background:#0c1c2e}
+[data-style="classic"] .box,[data-style="classic"] .card,[data-style="classic"] .tblw,[data-style="classic"] .mnode{background:#0a1929;border-color:#2c4f73}
+[data-style="classic"] .kv b,[data-style="classic"] .card .v,[data-style="classic"] .mnode .v{color:var(--val)}
+[data-style="classic"] input,[data-style="classic"] select{background:var(--vbox);color:var(--val);border-color:#3b5f84}
+[data-style="classic"] .fpw{border-color:#3c70a6}
+[data-style="classic"] .fph{background:linear-gradient(180deg,#1c446f,#0e2745);color:#fff;border-color:#3c70a6}
+[data-style="classic"] .fpbars .b{background:var(--vbox)}
+/* diagrama: banda de título, cañerías de color con flujo animado, estanques metálicos */
+[data-style="classic"] svg .dband{display:inline;fill:url(#gBand)}
+[data-style="classic"] svg .ttl{fill:#fff}
+[data-style="classic"] svg .tagt{fill:#cbd9e7}
+[data-style="classic"] svg .pipe{stroke-width:5;opacity:.38;marker-end:none}
+[data-style="classic"] svg .pipe.thin{stroke-width:3.6}
+[data-style="classic"] svg .pipe.on{opacity:1;marker-end:none}
+[data-style="classic"] svg .pipe-hl{display:inline;fill:none;stroke:rgba(255,255,255,.6);stroke-width:1.4;stroke-dasharray:5 11;opacity:0;stroke-linecap:round}
+[data-style="classic"] svg .pipe-hl.on{opacity:1;animation:flow2 1.1s linear infinite}
+@keyframes flow2{to{stroke-dashoffset:-16}}
+[data-style="classic"] svg .f-ore{stroke:var(--f-ore)}[data-style="classic"] svg .pipe.f-acid{stroke:var(--f-acid)}[data-style="classic"] svg .pipe.f-water{stroke:var(--f-water)}
+[data-style="classic"] svg .pipe.f-ref{stroke:var(--f-ref)}[data-style="classic"] svg .pipe.f-pls{stroke:var(--f-pls)}[data-style="classic"] svg .pipe.f-org{stroke:var(--f-org)}
+[data-style="classic"] svg .pipe.f-elr{stroke:var(--f-elr)}[data-style="classic"] svg .pipe.f-elp{stroke:var(--f-elp)}[data-style="classic"] svg .pipe.f-co{stroke:var(--f-co)}[data-style="classic"] svg .pipe.f-hw{stroke:var(--f-hw)}
+[data-style="classic"] svg .pipe-hl{stroke:rgba(255,255,255,.6)}
+[data-style="classic"] svg .drip{stroke:var(--f-ref);stroke-width:2}
+[data-style="classic"] svg .vessel{fill:url(#gSteel);stroke:#9db3c8}
+[data-style="classic"] svg .vessel.pond{fill:#15222f;stroke:#6f879e}
+[data-style="classic"] svg .fill{fill:#4b6b8b;opacity:.92}
+[data-style="classic"] svg .fill.f-acid{fill:var(--f-acid)}[data-style="classic"] svg .fill.f-water{fill:var(--f-water)}[data-style="classic"] svg .fill.f-ref{fill:var(--f-ref)}
+[data-style="classic"] svg .fill.f-pls{fill:var(--f-pls)}[data-style="classic"] svg .fill.f-org{fill:var(--f-org)}[data-style="classic"] svg .fill.f-elr{fill:var(--f-elr)}
+[data-style="classic"] svg .org{fill:var(--f-org);opacity:.78}
+[data-style="classic"] svg .aq.f-pls{fill:var(--f-pls);opacity:.5}[data-style="classic"] svg .aq.f-elr{fill:var(--f-elr);opacity:.55}
+[data-style="classic"] svg .heap{fill:url(#gOre);stroke:#d6a466}
+/* equipos: verde en marcha, rojo detenido, amarillo intermitente en falla */
+[data-style="classic"] svg .eq circle{fill:url(#gStop);stroke:#e9f0f6;stroke-width:1.3}
+[data-style="classic"] svg .eq rect,[data-style="classic"] svg .eq path.b{fill:var(--stop);stroke:#e9f0f6;stroke-width:1.3}
+[data-style="classic"] svg .eq.run circle{fill:url(#gRun)}
+[data-style="classic"] svg .eq.run rect,[data-style="classic"] svg .eq.run path.b{fill:var(--run)}
+[data-style="classic"] svg .eq .ic,[data-style="classic"] svg .eq.run .ic{fill:#fff}
+[data-style="classic"] svg .eq.trip circle{fill:url(#gTrip);stroke:var(--p1);stroke-width:2.6;animation:tripb 1s steps(2,start) infinite}
+[data-style="classic"] svg .eq.trip rect,[data-style="classic"] svg .eq.trip path.b{fill:#ffd400;stroke:var(--p1);stroke-width:2.6;animation:tripb 1s steps(2,start) infinite}
+@keyframes tripb{to{opacity:.35}}
+[data-style="classic"] svg .eq path.base{stroke:#a9bdd0}
+[data-style="classic"] svg .drum .st,[data-style="classic"] svg .drum.run .st{stroke:rgba(255,255,255,.55)}
+[data-style="classic"] svg .valve path{stroke:#e9f0f6}
+[data-style="classic"] svg .brk rect{stroke:#e9f0f6}
+[data-style="classic"] svg .bus{stroke:var(--cu)}
+[data-style="classic"] svg .cell{fill:#1c4f91;stroke:#7fb2ea;stroke-width:.6}
+[data-style="classic"] svg .cell.s1{fill:#f7a823}[data-style="classic"] svg .cell.s2{fill:#e5392b}[data-style="classic"] svg .cell.fx{stroke:#22c7ea;stroke-width:2.2}
+/* lecturas digitales: verde sobre negro; controladores con encabezado azul y modo de color */
+[data-style="classic"] svg .db .bx,[data-style="classic"] svg .cb .bx{fill:var(--vbox);stroke:#5b7fa3}
+[data-style="classic"] svg .dbt{fill:#d9e5f1}
+[data-style="classic"] svg .cb .cbh{display:inline;fill:#1d4c82}
+[data-style="classic"] svg .cb .md rect{stroke:none}
+[data-style="classic"] svg .cb .md text{fill:#fff}
+[data-style="classic"] svg .cb[data-mode="AUTO"] .md rect{fill:#1f9147}[data-style="classic"] svg .cb[data-mode="MAN"] .md rect{fill:#d98a00}[data-style="classic"] svg .cb[data-mode="CAS"] .md rect{fill:#1386ad}
+[data-style="classic"] svg .cbv .cbn[data-sp]{fill:#46dcf7}[data-style="classic"] svg .cbv .cbn[data-op]{fill:#ffd23f}
+[data-style="classic"] svg .dvb{fill:#16304b}[data-style="classic"] svg .dvp{fill:#ffd23f}
+[data-style="classic"] svg .off path{fill:#18436f;stroke:#6b9bd0}[data-style="classic"] svg .off text{fill:#fff}
+[data-style="classic"] svg .btn rect{fill:#18436f;stroke:#6b9bd0}[data-style="classic"] svg .btn text{fill:#fff}[data-style="classic"] svg .btn.on rect{fill:#1f9147;stroke:#86e8a7}
+[data-style="classic"] svg .blk{fill:#0b1b2d;stroke:#2f5a85}
+[data-style="classic"] svg .ai .bg{fill:var(--vbox)}[data-style="classic"] svg .ai .nb{fill:#1e7a43}[data-style="classic"] svg .ai .ptr{fill:#ffd23f}
+[data-style="classic"] svg .spk{stroke:var(--val);opacity:.65}
+/* leyenda de fluidos y estados (solo en el estilo clásico) */
+[data-style="classic"] .fl{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.76rem;color:var(--muted)}
+.fl span{display:inline-flex;align-items:center;gap:5px}
+.fl i{display:inline-block;width:20px;height:5px;border-radius:2px}
+.fl i.st{width:10px;height:10px;border-radius:50%}.fl i.run{background:var(--run)}.fl i.stop{background:var(--stop)}.fl i.trip{background:#ffd400}
+/* asistente de turno */
+.ai-box{border:1px solid var(--line);border-radius:6px;background:var(--panel2);padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.ai-h{display:flex;align-items:center;gap:6px;font-weight:600;font-size:.88rem}
+.ai-h .ai-all{margin-left:auto;padding:2px 8px;font-size:.75rem}
+.spark{color:#c08cff}
+[data-style="classic"] .ai-box{border-color:#5a3d8f;background:linear-gradient(180deg,#1a1735,#0d1528)}
+.ins{display:flex;flex-direction:column;gap:2px;padding:6px 8px;border-radius:4px;border-left:3px solid var(--diag);background:var(--panel);cursor:pointer;font-size:.82rem}
+.ins:hover{filter:brightness(1.15)}
+.ins.p1{border-left-color:var(--p1)}.ins.p2{border-left-color:var(--p2)}.ins.k-rec{border-left-color:#c08cff}
+.ins .ik{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.insl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));gap:8px}
+.aicnt{display:inline-block;min-width:18px;text-align:center;font-family:var(--mono);font-weight:600;font-size:.72rem;padding:1px 4px;border-radius:2px;background:#8e5ce0;color:#fff}
 </style>
 </head>
 <body>
