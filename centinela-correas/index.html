@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Centinela de correas</title>
+<meta name="description" content="Detecta grietas en correas transportadoras mientras operan. Cámara, IA local y un mapa de daños en metros desde el empalme. Pruébalo en el navegador con video de una correa industrial.">
+<meta property="og:title" content="Centinela de correas · grietas detectadas con la correa en marcha">
+<meta property="og:description" content="Una cámara frente a la correa y un modelo de IA en un computador local. Cada grieta confirmada queda ubicada en la correa y genera un aviso a mantenimiento.">
+<meta property="og:image" content="https://jsnn15.github.io/img/correa.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0a0e12;--ink2:#10161c;--ink3:#18212a;--paper:#f3f5f7;--card:#fff;--line:#dbe1e6;--fg:#141b22;--muted:#5a6672;--acc:#22c3e6;--acc-ink:#0e7f99;--warn:#f5a524;--bad:#ff4d3d;--ok:#3ccf7a;--on:#e6edf2;--on-m:#9aa9b6;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;--sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0d1216;--card:#141b21;--line:#26303a;--fg:#e3eaef;--muted:#96a4b0;--acc-ink:#4fd3ef;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0d1216;--card:#141b21;--line:#26303a;--fg:#e3eaef;--muted:#96a4b0;--acc-ink:#4fd3ef;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.55}
+a{color:inherit}
+.in{max-width:76rem;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+nav.top{background:var(--ink);color:var(--on);border-bottom:1px solid #1b242d}
+nav.top .in{display:flex;justify-content:space-between;align-items:center;padding-block:11px;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:600}
+nav.top a.s{font-family:var(--mono);font-size:.78rem;color:var(--on-m);text-decoration:none}
+@media (max-width:600px){nav.top .lg{display:none}}
+.hero{background:var(--ink);color:var(--on);padding:34px 0 30px}
+.kick{font-family:var(--mono);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+.hero .top2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:30px;align-items:end}
+@media (max-width:880px){.hero .top2{grid-template-columns:1fr;gap:16px}}
+.hero h1{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(2.5rem,6vw,4.4rem);line-height:.92;margin:12px 0 14px}
+.hero h1 em{font-style:normal;color:var(--acc)}
+.hero p.sub{font-size:1.08rem;color:var(--on-m);max-width:52ch;margin:0}
+.ctas{display:flex;flex-wrap:wrap;gap:10px}
+.ctas a{text-decoration:none;padding:11px 16px;border-radius:6px;font-weight:600;font-size:.95rem;border:1px solid #34424f;color:var(--on)}
+.ctas a.p{background:var(--acc);border-color:var(--acc);color:#04212a}
+
+/* sala de control */
+.scada{margin-top:24px;background:#070a0d;border:1px solid #1f2a34;border-radius:12px;overflow:hidden;color:var(--on)}
+.sbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 12px;border-bottom:1px solid #1b252e;font-family:var(--mono);font-size:.78rem;color:var(--on-m)}
+.sbar b{color:var(--on);font-weight:500}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:inherit;font-size:.78rem;background:#0f161c;color:var(--on-m);border:1px solid #23303b;border-radius:5px;padding:5px 9px;cursor:pointer}
+.tabs button.on{background:#0e2a33;color:#d6f6ff;border-color:var(--acc)}
+.sp{flex:1}
+.state{font-weight:600;padding:4px 10px;border-radius:4px;letter-spacing:.06em;background:#13311f;color:#9ff0c0;border:1px solid #1f6b3c}
+.state.warn{background:#3a2a07;color:#ffd27a;border-color:#8a6212}
+.state.bad{background:#3d0f0b;color:#ffb1a8;border-color:#b3261e;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 4px rgba(255,77,61,.25)}}
+.sgrid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:1px;background:#17212a}
+@media (max-width:900px){.sgrid{grid-template-columns:1fr}}
+.pane{background:#0a0f13;padding:10px;min-width:0}
+.ptitle{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;color:var(--on-m);text-transform:uppercase;margin-bottom:8px;gap:8px}
+.camwrap{position:relative;background:#000;border-radius:6px;overflow:hidden;aspect-ratio:16/9}
+.camwrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.osd{position:absolute;left:8px;top:8px;font-family:var(--mono);font-size:.72rem;background:rgba(0,0,0,.6);padding:3px 7px;border-radius:3px;color:#dfe7ee}
+.osd.r{left:auto;right:8px}
+.rec::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff4d3d;margin-right:6px;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.2}}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.kpis div{background:#0f161c;border:1px solid #1d2730;border-radius:5px;padding:6px 8px}
+.kpis .l{font-size:.68rem;color:var(--on-m)}
+.kpis .v{font-family:var(--mono);font-size:1.05rem}
+@media (max-width:520px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+svg#map{width:100%;height:auto;display:block}
+.dlist{margin-top:8px;max-height:170px;overflow:auto;font-size:.82rem}
+.dlist table{width:100%;border-collapse:collapse}
+.dlist td,.dlist th{padding:4px 6px;border-bottom:1px solid #1b252e;text-align:left}
+.dlist th{font-family:var(--mono);font-size:.68rem;color:var(--on-m);font-weight:500}
+.pri{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:3px}
+.pri.alta{background:#4a1410;color:#ffb1a8}.pri.media{background:#3b2a07;color:#ffd27a}.pri.baja{background:#10303a;color:#a5ecff}
+.log{background:#0a0f13;padding:8px 10px;font-family:var(--mono);font-size:.74rem;max-height:120px;overflow:auto;border-top:1px solid #17212a}
+.log div{padding:2px 0;color:#c5d0d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log .t{color:#6f8090;margin-right:8px}
+.sfoot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid #17212a;font-size:.8rem;color:var(--on-m)}
+.sfoot button{font:inherit;font-size:.82rem;padding:7px 12px;border-radius:5px;border:1px solid #2a3846;background:#111a21;color:var(--on);cursor:pointer}
+.sfoot button.p{background:var(--acc);border-color:var(--acc);color:#04212a;font-weight:600}
+.sfoot label{display:flex;align-items:center;gap:6px}
+.sfoot input[type=range]{accent-color:var(--acc);width:90px}
+
+section.blk{padding:60px 0 6px}
+h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2rem,4.5vw,2.8rem);line-height:.95;margin:0 0 10px}
+.lead{color:var(--muted);max-width:64ch;margin:0 0 24px;font-size:1.04rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+.card .n{font-family:var(--mono);font-size:.76rem;color:var(--acc-ink);letter-spacing:.08em}
+.card h3{margin:6px 0;font-size:1.06rem}
+.card p{margin:0;color:var(--muted);font-size:.94rem}
+.big{font-family:var(--display);font-size:2.6rem;line-height:1;color:var(--acc-ink)}
+.note{font-size:.86rem;color:var(--muted)}
+.try{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.try{grid-template-columns:1fr}}
+.stage{position:relative;background:#000;border-radius:10px;overflow:hidden;aspect-ratio:16/9}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.verdict{font-size:1.3rem;font-weight:700;padding:14px;border-radius:8px;border:1px solid var(--line);background:var(--card);text-align:center}
+.verdict.bad{background:#3a0d0b;border-color:var(--bad);color:#ffd9d6}
+.verdict.ok{background:#0f2e1b;border-color:var(--ok);color:#d8ffe5}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+button,.btn{font:inherit;font-size:.92rem;padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px}
+.thumbs img{width:92px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;cursor:pointer;border:1px solid var(--line)}
+table.res{border-collapse:collapse;width:100%;font-size:.92rem;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+table.res th,table.res td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+table.res th{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+table.res td.num{font-family:var(--mono);text-align:right}
+dialog{border:1px solid var(--line);border-radius:12px;padding:0;max-width:640px;width:calc(100% - 32px);background:var(--card);color:var(--fg)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.ot{padding:20px}
+.ot h3{margin:0 0 4px;font-family:var(--display);text-transform:uppercase;font-size:1.7rem}
+.ot table{width:100%;border-collapse:collapse;font-size:.9rem;margin:12px 0}
+.ot td,.ot th{border-bottom:1px solid var(--line);padding:6px;text-align:left}
+.ot th{font-size:.74rem;color:var(--muted)}
+.cta{background:var(--ink);color:var(--on);margin-top:64px;padding:52px 0}
+.cta .in{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between}
+.cta h2{color:#fff;margin:0}
+footer{padding:22px 0 40px;font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<nav class="top"><div class="in">
+  <a class="brand" href="./"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="12" width="28" height="8" rx="4" fill="none" stroke="#22c3e6" stroke-width="2.4"/><circle cx="6" cy="16" r="2" fill="#22c3e6"/><circle cx="26" cy="16" r="2" fill="#22c3e6"/><path d="M13 9l2 5-2 4 3 5" stroke="#ff4d3d" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>Centinela de correas</a>
+  <a class="s" href="../"><span class="lg">Servicio y Soluciones Tecnológicas </span>DelaCruz →</a>
+</div></nav>
+
+<header class="hero"><div class="in">
+  <div class="top2">
+    <div>
+      <div class="kick">Minería · correas transportadoras</div>
+      <h1>Grietas en la correa, <em>detectadas en marcha</em></h1>
+      <p class="sub">Una cámara frente a la correa y un modelo de IA en un computador local. Cada grieta confirmada queda ubicada en metros desde el empalme y genera un aviso a mantenimiento.</p>
+    </div>
+    <div class="ctas"><a class="p" href="#sala">Ver la sala de control</a><a href="#prueba">Probar con una foto</a></div>
+  </div>
+
+  <div class="scada" id="sala" aria-label="Sala de control simulada con video real de correas industriales; la IA corre en este navegador">
+    <div class="sbar">
+      <div class="tabs" id="tabs"></div>
+      <span class="sp"></span>
+      <span>vel. <b id="s-v">—</b></span><span>largo <b id="s-L">—</b></span><span>vuelta <b id="s-lap">—</b></span>
+      <span class="state" id="s-state">NORMAL</span>
+    </div>
+    <div class="sgrid">
+      <div class="pane">
+        <div class="ptitle"><span id="p-cam">Cámara</span><span id="p-ia">cargando IA…</span></div>
+        <div class="camwrap"><canvas id="cam" width="1280" height="720"></canvas><span class="osd rec" id="osd-l">EN VIVO</span><span class="osd r" id="osd-r">—</span></div>
+        <div class="kpis">
+          <div><div class="l">Grietas confirmadas</div><div class="v" id="k-n">0</div></div>
+          <div><div class="l">Prioridad alta</div><div class="v" id="k-alta">0</div></div>
+          <div><div class="l">Tiempo por cuadro</div><div class="v" id="k-ms">—</div></div>
+          <div><div class="l">Cuadros revisados</div><div class="v" id="k-f">0</div></div>
+        </div>
+      </div>
+      <div class="pane">
+        <div class="ptitle"><span>Mapa de daños de la correa</span><span id="p-map">—</span></div>
+        <svg id="map" viewBox="0 0 400 190" role="img" aria-label="Correa vista como un circuito cerrado, con las grietas detectadas viajando con ella"></svg>
+        <div class="dlist"><table><thead><tr><th>Metro</th><th>Prioridad</th><th>Tamaño</th><th>Vista en</th></tr></thead><tbody id="dl"><tr><td colspan="4" style="color:#6f8090">Sin grietas confirmadas</td></tr></tbody></table></div>
+      </div>
+    </div>
+    <div class="log" id="log" aria-live="polite"></div>
+    <div class="sfoot">
+      <button class="p" id="b-ot">Generar orden de trabajo</button>
+      <button id="b-play">Pausar</button>
+      <label>Sensibilidad <input type="range" id="c-conf" min="0.25" max="0.65" step="0.05" value="0.45"><b id="c-conf-v"></b></label>
+      <span class="sp"></span><span id="f-note">Video real de una correa industrial · IA en tu navegador</span>
+    </div>
+  </div>
+</div></header>
+
+<main>
+<section class="blk"><div class="in">
+  <h2>El problema</h2>
+  <p class="lead">Una grieta pequeña en la correa puede terminar en un corte longitudinal que la destruye en minutos. Hoy se detecta con rondas a pie o cuando ya hay derrame.</p>
+  <div class="cards">
+    <div class="card"><div class="n">01</div><h3>Rondas cada varias horas</h3><p>Entre una ronda y otra la correa da cientos de vueltas. Una grieta que nace después de la ronda pasa el turno sin que nadie la vea.</p></div>
+    <div class="card"><div class="n">02</div><h3>Una correa cuesta caro y demora</h3><p>Reemplazar tramos de correa significa días de detención y repuestos con plazos de semanas.</p></div>
+    <div class="card"><div class="n">03</div><h3>Sin ubicación precisa</h3><p>Cuando alguien ve un daño, ubicarlo de nuevo en una correa de cientos de metros toma tiempo. La cuadrilla busca a ojo.</p></div>
+  </div>
+</div></section>
+
+<section class="blk"><div class="in">
+  <h2>Cómo lo hace</h2>
+  <p class="lead">Lo que ves arriba es la misma lógica que correría junto a la correa.</p>
+  <div class="cards">
+    <div class="card"><div class="n">DETECTA</div><h3>Grietas cuadro a cuadro</h3><p>Un detector YOLO revisa cada cuadro. Lo entrené primero con recortes a resolución completa, para las grietas pequeñas, y después con cuadros enteros.</p></div>
+    <div class="card"><div class="n">CONFIRMA</div><h3>Seguimiento entre cuadros</h3><p>Una detección aislada no genera aviso. La grieta debe aparecer en varios cuadros seguidos.</p></div>
+    <div class="card"><div class="n">UBICA</div><h3>Metros desde el empalme</h3><p>Con la velocidad y el tiempo, cada grieta queda en un punto de la correa. En la vuelta siguiente se reconoce la misma.</p></div>
+    <div class="card"><div class="n">AVISA</div><h3>Prioridad y orden de trabajo</h3><p>El tamaño define la prioridad. La orden de trabajo sale con el metro, el tamaño y las vueltas en que se vio.</p></div>
+  </div>
+</div></section>
+
+<section class="blk"><div class="in">
+  <h2>Resultados en video que no vio</h2>
+  <p class="lead" id="r-lead"></p>
+  <div class="cards" id="proof"></div>
+  <div style="overflow-x:auto;margin-top:16px"><table class="res" id="t-seq"><thead><tr><th>Video de prueba</th><th>Cuadros revisados</th><th>Avisos correctos</th><th>Avisos falsos</th></tr></thead><tbody></tbody></table></div>
+  <div class="cards" style="margin-top:16px">
+    <div class="card"><div class="n">DÓNDE FALLA</div><h3>Correas con chevrón vistas de cerca</h3><p>En tres videos de correas con dibujo en V y roturas abiertas no dio ningún aviso correcto. Ese tipo de correa casi no aparece en los videos de entrenamiento.</p></div>
+    <div class="card"><div class="n">QUÉ FALTA MEDIR</div><h3>Correa sana durante horas</h3><p>El conjunto de datos solo trae cuadros con grietas, así que los avisos falsos sobre correa sana no se pueden medir con él. En un piloto es lo primero que se mide.</p></div>
+    <div class="card"><div class="n">CÓMO SE CORRIGE</div><h3>Entrenar con la correa del cliente</h3><p>Con dos a cuatro semanas de video de la correa real, incluidas horas sin daño, el modelo aprende ese dibujo y esa luz, y el umbral se fija junto a mantenimiento.</p></div>
+  </div>
+</div></section>
+
+<section class="blk" id="prueba"><div class="in">
+  <h2>Probar con una foto</h2>
+  <p class="lead">Sube una foto de una correa o elige un cuadro de ejemplo. La imagen se analiza en tu equipo y no se envía a ningún servidor.</p>
+  <div class="try">
+    <div class="stage"><canvas id="t-cv" width="1280" height="720"></canvas></div>
+    <div>
+      <div class="verdict" id="t-res">Elige una imagen</div>
+      <p class="note" id="t-det" style="margin:8px 0 0"></p>
+      <div class="btns"><label class="btn">Subir foto<input type="file" id="t-file" accept="image/*" style="display:none"></label></div>
+      <p class="note" style="margin:6px 0">Cuadros de ejemplo (de las secuencias de prueba):</p>
+      <div class="thumbs" id="t-thumbs"></div>
+      <p class="note" style="margin-top:12px">Funciona mejor con fotos tomadas de cerca y con la correa ocupando gran parte de la imagen, como en los videos de entrenamiento.</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="blk"><div class="in">
+  <h2>En terreno</h2>
+  <p class="lead">El piloto parte con una correa crítica y se mide contra las rondas actuales.</p>
+  <div class="cards">
+    <div class="card"><div class="n">PASO 1</div><h3>Cámara y luz</h3><p>Cámara industrial bajo el tramo de retorno, iluminación fija y un computador con salida a la red de planta o al PLC.</p></div>
+    <div class="card"><div class="n">PASO 2</div><h3>Ajuste con la correa real</h3><p>Dos a cuatro semanas grabando la correa del cliente. El modelo se reentrena con esas imágenes y se fija el umbral con mantenimiento.</p></div>
+    <div class="card"><div class="n">PASO 3</div><h3>Aviso integrado</h3><p>La alarma llega al SCADA o por mensaje, con el metro y la foto. La posición se toma del tacómetro y de una marca en el empalme.</p></div>
+  </div>
+</div></section>
+</main>
+
+<dialog id="otd"><div class="ot" id="ot-body"></div></dialog>
+
+<section class="cta"><div class="in"><div><h2>¿Tienes una correa crítica?</h2><p style="color:var(--on-m);margin:6px 0 0">Conversemos sobre el largo, la velocidad y cómo se inspecciona hoy.</p></div><div class="ctas"><a class="p" href="https://www.linkedin.com/in/julian-neira-nova/">Escríbeme por LinkedIn</a><a href="../">Ver otras máquinas</a></div></div></section>
+
+<footer><div class="in">Centinela de correas es una demostración de Servicio y Soluciones Tecnológicas DelaCruz SpA · Julián Neira Nova. Video y anotaciones: BeltCrack (Huang, Ji, Ma y Ye, 2026), <i>Pattern Recognition</i>, doi:10.1016/j.patcog.2026.113598, dataset en Science Data Bank, doi:10.57760/sciencedb.31181, licencia CC BY-SA 4.0. Los cuadros de esta página están reducidos y se publican bajo la misma licencia. Detector YOLOv8 (Ultralytics, AGPL-3.0) ejecutado con ONNX Runtime Web.</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js"></script>
+<script src="det.js"></script>
+<script>
+(async () => {
+  const $ = (id) => document.getElementById(id);
+  const M = {"seqs": 9, "frames": 977, "gt": 1244, "recall": 0.23553054662379422, "videos_ok": 6, "alarm_real": 44, "alarm_false": 16, "alarm_prec": 0.7333333333333333, "ms": 27, "per_seq": [{"name": "Vista lateral, grietas pequeñas", "frames": 162, "recall": 0.3076923076923077, "real": 11, "false": 4}, {"name": "Correa con chevrón, primer plano", "frames": 86, "recall": 0.0, "real": 0, "false": 3}, {"name": "Retorno, primer plano", "frames": 58, "recall": 0.6551724137931034, "real": 4, "false": 0}, {"name": "Correa con chevrón, cámara inclinada", "frames": 124, "recall": 0.10344827586206896, "real": 4, "false": 2}, {"name": "Retorno, vista general", "frames": 167, "recall": 0.5402298850574713, "real": 18, "false": 0}, {"name": "Correa con chevrón, sobre el tambor", "frames": 67, "recall": 0.0, "real": 0, "false": 0}, {"name": "Correa con chevrón, rotura abierta", "frames": 108, "recall": 0.0, "real": 0, "false": 4}, {"name": "Retorno, primer plano", "frames": 52, "recall": 0.7307692307692307, "real": 3, "false": 0}, {"name": "Correa con chevrón, primer plano", "frames": 153, "recall": 0.05752212389380531, "real": 4, "false": 3}], "sample_src": ["test_data38_160.jpg", "test_data42_150.jpg", "test_data36_56.jpg", "test_data41_50.jpg", "test_data34_100.jpg", "test_data37_120.jpg"], "samples": ["m/m0.jpg", "m/m1.jpg", "m/m2.jpg", "m/m3.jpg", "m/m4.jpg", "m/m5.jpg"]}, CLIPS = [{"id": "CV-101", "cam": "CAM-01", "name": "retorno, vista general", "dir": "f/a", "n": 120, "step": 2, "fps": 30, "v": 5.0, "L": 40.0}, {"id": "CV-102", "cam": "CAM-02", "name": "vista lateral", "dir": "f/b", "n": 120, "step": 2, "fps": 30, "v": 5.0, "L": 40.0}, {"id": "CV-103", "cam": "CAM-03", "name": "chevrón, primer plano", "dir": "f/c", "n": 120, "step": 2, "fps": 30, "v": 5.0, "L": 40.0}];
+  const nf = (v, d = 0) => new Intl.NumberFormat('es-CL', {minimumFractionDigits: d, maximumFractionDigits: d}).format(v);
+
+  /* ---------- resultados ---------- */
+  $('r-lead').textContent = `Lo probé en ${M.seqs} videos que no usé para entrenar: ${nf(M.frames)} cuadros de correas distintas, con ${nf(M.gt)} marcas de grieta hechas a mano, cuadro a cuadro, por los autores del conjunto de datos.`;
+  $('proof').innerHTML = [
+    [`${M.videos_ok} de ${M.seqs}`, 'videos de prueba con al menos un aviso correcto'],
+    [nf(M.alarm_prec * 100, 0) + ' %', `de los avisos confirmados son grietas reales (${M.alarm_real} de ${M.alarm_real + M.alarm_false})`],
+    [nf(M.recall * 100, 0) + ' %', 'de las grietas detectadas en cada cuadro por separado; el aviso exige verla varias veces'],
+    ['≈ ' + nf(M.ms, 0) + ' ms', 'por cuadro en un computador de 2 núcleos, sin GPU. En el navegador tarda más: mira el contador de la sala de control.']
+  ].map(([a, b]) => `<div class="card"><div class="big">${a}</div><p>${b}</p></div>`).join('');
+  $('t-seq').querySelector('tbody').innerHTML = M.per_seq.map((s) => `<tr><td>${s.name}</td><td class="num">${nf(s.frames)}</td><td class="num">${s.real}</td><td class="num">${s.false}</td></tr>`).join('');
+
+  /* ---------- sala de control ---------- */
+  const cam = $('cam'), cx = cam.getContext('2d');
+  let ci = 0, frames = [], idx = 0, loops = 0, playing = true, busy = false, lastDet = null, nFrames = 0, msAvg = 0, iaReady = false;
+  const belts = CLIPS.map(() => ({defects: [], tracks: [], log: []}));
+  const conf = () => +$('c-conf').value;
+  const updConf = () => { const c = conf(); $('c-conf-v').textContent = c <= 0.35 ? 'alta' : c >= 0.55 ? 'baja' : 'media'; };
+  $('c-conf').addEventListener('input', updConf); updConf();
+  const clip = () => CLIPS[ci];
+  const tNow = () => (loops * clip().n + idx) * clip().step / clip().fps;
+  const hhmm = (t) => { const d = new Date(Date.now()); return d.toTimeString().slice(0, 8); };
+  const log = (msg, cls = '') => { const b = belts[ci]; b.log.unshift({t: hhmm(), msg, cls}); b.log = b.log.slice(0, 40); drawLog(); };
+  const drawLog = () => { $('log').innerHTML = belts[ci].log.map((l) => `<div><span class="t">${l.t}</span>${l.msg}</div>`).join('') || '<div><span class="t">—</span>Esperando el primer cuadro</div>'; };
+  const sev = (b, W, H) => { const r = Math.hypot(b.w, b.h) / Math.hypot(W, H); return r >= 0.32 ? 'alta' : r >= 0.14 ? 'media' : 'baja'; };
+  const SEVN = {alta: 'Alta', media: 'Media', baja: 'Baja'};
+
+  $('tabs').innerHTML = CLIPS.map((c, i) => `<button data-i="${i}">${c.id}</button>`).join('');
+  $('tabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) select(+b.dataset.i); });
+
+  const loadFrames = (c) => Promise.all(Array.from({length: c.n}, (_, k) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = `${c.dir}/${String(k).padStart(3, '0')}.jpg`; })));
+  const cache = {};
+  async function select(i) {
+    ci = i; idx = 0; loops = 0; lastDet = null;
+    [...$('tabs').children].forEach((b, j) => b.classList.toggle('on', j === i));
+    const c = clip();
+    $('p-cam').textContent = `${c.cam} · ${c.name}`; $('s-v').textContent = nf(c.v, 1) + ' m/s'; $('s-L').textContent = nf(c.L) + ' m';
+    $('p-map').textContent = `${c.id} · ${nf(c.L)} m`;
+    cx.fillStyle = '#000'; cx.fillRect(0, 0, 1280, 720); cx.fillStyle = '#9aa9b6'; cx.font = '28px IBM Plex Mono, monospace'; cx.fillText('cargando video…', 40, 60);
+    frames = cache[i] || (cache[i] = await loadFrames(c));
+    if (ci !== i) return;
+    drawLog(); drawList(); drawState();
+  }
+
+  const drawList = () => {
+    const d = belts[ci].defects;
+    $('dl').innerHTML = d.length ? d.slice().sort((a, b) => a.m0 - b.m0).map((x) => `<tr><td>${nf(x.m0, 1)} m</td><td><span class="pri ${x.sev}">${SEVN[x.sev]}</span></td><td>${nf(x.size * 100, 0)} %</td><td>${x.laps.size} ${x.laps.size === 1 ? 'vuelta' : 'vueltas'}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#6f8090">Sin grietas confirmadas</td></tr>';
+    $('k-n').textContent = d.length; $('k-alta').textContent = d.filter((x) => x.sev === 'alta').length;
+  };
+  const drawState = () => {
+    const d = belts[ci].defects, el = $('s-state');
+    if (d.some((x) => x.sev === 'alta')) { el.className = 'state bad'; el.textContent = 'DETENER Y REVISAR'; }
+    else if (d.length) { el.className = 'state warn'; el.textContent = 'AVISO A MANTENCIÓN'; }
+    else { el.className = 'state'; el.textContent = 'NORMAL'; }
+  };
+
+  /* mapa: la correa como un circuito; las grietas viajan con ella y pasan frente a la cámara */
+  const map = $('map'), X0 = 70, X1 = 330, Y0 = 50, Y1 = 140, R = 45, LS = X1 - X0, P = 2 * LS + 2 * Math.PI * R;
+  const at = (s) => { s = ((s % P) + P) % P;
+    if (s < LS) return [X0 + s, Y1];                                   // tramo inferior (retorno), avanza hacia la cola
+    s -= LS; if (s < Math.PI * R) { const a = Math.PI / 2 - s / R; return [X1 + R * Math.cos(a), (Y0 + Y1) / 2 + R * Math.sin(a)]; }
+    s -= Math.PI * R; if (s < LS) return [X1 - s, Y0];
+    s -= LS; const a = -Math.PI / 2 - s / R; return [X0 + R * Math.cos(a), (Y0 + Y1) / 2 + R * Math.sin(a)]; };
+  const SCAM = LS * 0.42;
+  const drawMap = () => {
+    const c = clip(), t = tNow(), off = c.v * t * P / c.L;   // avance de la correa en unidades del dibujo
+    const ptsSplice = at(SCAM + off);
+    let h = `<path d="M${X0},${Y1} L${X1},${Y1} A${R},${R} 0 0 0 ${X1},${Y0} L${X0},${Y0} A${R},${R} 0 0 0 ${X0},${Y1}" fill="none" stroke="#2c3a46" stroke-width="10" stroke-linejoin="round"/>`;
+    h += `<path d="M${X0},${Y1} L${X1},${Y1} A${R},${R} 0 0 0 ${X1},${Y0} L${X0},${Y0} A${R},${R} 0 0 0 ${X0},${Y1}" fill="none" stroke="#45596a" stroke-width="1" stroke-dasharray="3 9" stroke-dashoffset="${-off}"/>`;
+    h += `<circle cx="${X1}" cy="${(Y0 + Y1) / 2}" r="${R - 10}" fill="#0f161c" stroke="#2c3a46"/><circle cx="${X0}" cy="${(Y0 + Y1) / 2}" r="${R - 10}" fill="#0f161c" stroke="#2c3a46"/>`;
+    h += `<text x="${X1}" y="${(Y0 + Y1) / 2 + 4}" fill="#6f8090" font-size="9" text-anchor="middle" font-family="IBM Plex Mono">COLA</text><text x="${X0}" y="${(Y0 + Y1) / 2 + 4}" fill="#6f8090" font-size="9" text-anchor="middle" font-family="IBM Plex Mono">MOTRIZ</text>`;
+    const [cxp] = at(SCAM);
+    h += `<path d="M${cxp - 9},${Y1 + 30} L${cxp + 9},${Y1 + 30} L${cxp + 5},${Y1 + 20} L${cxp - 5},${Y1 + 20} Z" fill="#22c3e6"/><path d="M${cxp - 16},${Y1 + 6} L${cxp + 16},${Y1 + 6} L${cxp + 5},${Y1 + 20} L${cxp - 5},${Y1 + 20} Z" fill="rgba(34,195,230,.18)"/>`;
+    h += `<text x="${cxp}" y="${Y1 + 42}" fill="#9aa9b6" font-size="9" text-anchor="middle" font-family="IBM Plex Mono">CÁMARA</text>`;
+    h += `<rect x="${ptsSplice[0] - 2}" y="${ptsSplice[1] - 7}" width="4" height="14" fill="#e6edf2"/><text x="${ptsSplice[0]}" y="${ptsSplice[1] - 10}" fill="#e6edf2" font-size="8" text-anchor="middle" font-family="IBM Plex Mono">EMPALME</text>`;
+    for (const d of belts[ci].defects) {
+      const [x, y] = at(SCAM + off - d.m0 * P / c.L), col = d.sev === 'alta' ? '#ff4d3d' : d.sev === 'media' ? '#f5a524' : '#4fd3ef';
+      h += `<circle cx="${x}" cy="${y}" r="7" fill="${col}" stroke="#070a0d" stroke-width="2"/><text x="${x}" y="${y + 3}" fill="#070a0d" font-size="8" font-weight="700" text-anchor="middle">!</text>`;
+    }
+    h += `<text x="200" y="${Y0 - 18}" fill="#6f8090" font-size="9" text-anchor="middle" font-family="IBM Plex Mono">← CARGA</text><text x="200" y="${Y1 + 62}" fill="#6f8090" font-size="9" text-anchor="middle" font-family="IBM Plex Mono">RETORNO →  (cámara bajo la correa)</text>`;
+    map.innerHTML = h;
+  };
+
+  const draw = () => {
+    const im = frames[idx]; if (!im) return;
+    cx.drawImage(im, 0, 0, 1280, 720);
+    if (lastDet && lastDet.idx === idx) for (const b of lastDet.boxes) {
+      const tr = b.track && b.track.def, ok = !!tr, col = ok ? (tr.sev === 'alta' ? '#ff4d3d' : tr.sev === 'media' ? '#f5a524' : '#4fd3ef') : 'rgba(255,255,255,.55)';
+      const fs = Math.round(Math.max(22, 13 * 1280 / (cam.clientWidth || 1280))); cx.lineWidth = Math.max(4, fs / 5); cx.strokeStyle = col; cx.setLineDash(ok ? [] : [10, 8]); cx.strokeRect(b.x, b.y, b.w, b.h); cx.setLineDash([]);
+      const t = ok ? `GRIETA ${nf(tr.m0, 1)} m · ${SEVN[tr.sev].toUpperCase()}` : `posible grieta ${nf(b.score * 100, 0)} %`;
+      cx.font = `600 ${fs}px IBM Plex Mono, monospace`; const tw = cx.measureText(t).width + 14, lh = fs + 8, ly = b.y > lh + 4 ? b.y - lh - 4 : b.y + b.h + 4, lx = Math.min(b.x, 1280 - tw);
+      cx.fillStyle = ok ? col : 'rgba(0,0,0,.65)'; cx.fillRect(lx, ly, tw, lh); cx.fillStyle = ok ? '#070a0d' : '#e6edf2'; cx.fillText(t, lx + 7, ly + fs - 1);
+    }
+    const c = clip(), t = tNow();
+    $('osd-r').textContent = `${nf((c.v * t) % c.L, 1)} m desde empalme`;
+    $('s-lap').textContent = Math.floor(c.v * t / c.L) + 1;
+  };
+
+  // seguimiento: asocia cajas entre cuadros; confirma tras 3 apariciones en 5 cuadros.
+  // Una grieta larga sigue a la vista varios cuadros: mientras se siga viendo, es el mismo defecto.
+  const med = (a) => { const b = a.slice().sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; };
+  const ring = (a, b, L) => { const d = Math.abs(a - b) % L; return Math.min(d, L - d); };
+  const track = (boxes, W, H) => {
+    const b = belts[ci], c = clip(), t = tNow(), lap = Math.floor(c.v * t / c.L) + 1, mNow = (c.v * t) % c.L;
+    for (const tr of b.tracks) tr.age++;
+    for (const bx of boxes) {
+      const sz = Math.hypot(bx.w, bx.h) / Math.hypot(W, H);
+      if (sz > 0.6) continue;                                  // cajas que cubren media imagen: se descartan
+      let best = null, bs = 0;
+      for (const tr of b.tracks) { if (tr.age > 5) continue; const s = Centinela.iou(tr.box, bx) + (Math.hypot(tr.box.x + tr.box.w / 2 - bx.x - bx.w / 2, tr.box.y + tr.box.h / 2 - bx.y - bx.h / 2) < 0.12 * W ? 0.2 : 0); if (s > bs) { bs = s; best = tr; } }
+      if (!best || bs < 0.1) { best = {box: bx, hits: 0, age: 0, confirmed: false}; b.tracks.push(best); }
+      best.box = bx; best.hits++; best.age = 0; bx.track = best;
+      if (best.def) { const d = best.def; d.sizes.push(sz); d.lastT = t; d.lastBox = bx; if (d.laps.size === 1) d.m1 = mNow; continue; }
+      if (best.hits < 3) continue;
+      best.confirmed = true;
+      const cx0 = bx.x + bx.w / 2, cy0 = bx.y + bx.h / 2;
+      let d = b.defects.find((x) => x.lastLap === lap && t - x.lastT < 1.2 && Math.hypot(x.lastBox.x + x.lastBox.w / 2 - cx0, x.lastBox.y + x.lastBox.h / 2 - cy0) < 0.25 * W);
+      if (!d) d = b.defects.find((x) => x.lastLap !== lap && (ring(x.m0, mNow, c.L) < 2.5 || (mNow >= x.m0 - 2.5 && mNow <= x.m1 + 2.5)));
+      if (d) {
+        if (!d.laps.has(lap)) log(`Grieta en ${nf(d.m0, 1)} m vista otra vez en la vuelta ${lap}`);
+        d.laps.add(lap); d.lastLap = lap; d.lastT = t; d.lastBox = bx; d.sizes.push(sz);
+      } else {
+        d = {m0: mNow, m1: mNow, sizes: [sz], laps: new Set([lap]), lastLap: lap, lastT: t, lastBox: bx, first: hhmm()};
+        b.defects.push(d);
+      }
+      best.def = d;
+      const old = d.sev;
+      d.size = med(d.sizes); d.sev = d.size >= 0.32 ? 'alta' : d.size >= 0.14 ? 'media' : 'baja'; d.m = d.m0;
+      if (!old) log(`<b style="color:${d.sev === 'alta' ? '#ff8a7d' : d.sev === 'media' ? '#ffd27a' : '#a5ecff'}">Prioridad ${d.sev}</b> · grieta nueva en ${nf(d.m0, 1)} m desde el empalme`);
+      drawList(); drawState();
+    }
+    for (const d of b.defects) { if (d.sizes.length) { d.size = med(d.sizes); d.sev = d.size >= 0.32 ? 'alta' : d.size >= 0.14 ? 'media' : 'baja'; } }
+    b.tracks = b.tracks.filter((tr) => tr.age <= 6);
+  };
+
+  try { await Centinela.load(); iaReady = true; $('p-ia').textContent = `IA · ${Centinela.backend === 'webgpu' ? 'GPU' : 'CPU'}`; }
+  catch (e) { $('p-ia').textContent = 'este navegador no pudo cargar la IA'; $('f-note').textContent = 'Sin IA: el video se muestra sin detecciones.'; }
+  await select(0);
+
+  // ciclo: el video avanza al ritmo que alcanza la IA, hasta 12 cuadros por segundo, para que las cajas calcen con el cuadro
+  let lastTick = 0;
+  const loop = async (ts) => {
+    requestAnimationFrame(loop);
+    drawMap();
+    if (!playing || busy || !frames.length || document.hidden || ts - lastTick < 83) return;
+    lastTick = ts; busy = true;
+    try {
+      const im = frames[idx];
+      if (im && iaReady) {
+        const r = await Centinela.detect(im, {conf: conf()});
+        const k = 1280 / r.W; r.boxes.forEach((b) => { b.x *= k; b.y *= k; b.w *= k; b.h *= k; });
+        track(r.boxes, 1280, 720); lastDet = {idx, boxes: r.boxes};
+        nFrames++; msAvg = msAvg ? msAvg * 0.85 + r.ms * 0.15 : r.ms;
+        $('k-ms').textContent = nf(msAvg, 0) + ' ms'; $('k-f').textContent = nf(nFrames);
+      }
+      draw();
+      idx++; if (idx >= frames.length) { idx = 0; loops++; belts[ci].tracks = []; }
+    } finally { busy = false; }
+  };
+  requestAnimationFrame(loop);
+  $('b-play').onclick = () => { playing = !playing; $('b-play').textContent = playing ? 'Pausar' : 'Seguir'; };
+
+  /* orden de trabajo */
+  $('b-ot').onclick = () => {
+    const c = clip(), d = belts[ci].defects.slice().sort((a, b) => ({alta: 0, media: 1, baja: 2}[a.sev] - {alta: 0, media: 1, baja: 2}[b.sev] || a.m - b.m));
+    const n = 'OT-' + new Date().toISOString().slice(2, 10).replace(/-/g, '') + '-' + String(Math.floor(Math.random() * 900) + 100);
+    $('ot-body').innerHTML = `<h3>Orden de trabajo ${n}</h3><p class="note" style="margin:0">Generada por Centinela · ${c.id} (${nf(c.L)} m, ${nf(c.v, 1)} m/s) · ${new Date().toLocaleString('es-CL')}</p>` +
+      (d.length ? `<p style="margin:12px 0 0">Inspeccionar la correa en los puntos indicados, medidos desde la marca del empalme en el sentido de avance.${d.some((x) => x.sev === 'alta') ? ' <b>Hay una grieta de prioridad alta: coordinar detención antes de seguir operando.</b>' : ''}</p>
+      <table><thead><tr><th>Metro</th><th>Prioridad</th><th>Tamaño en imagen</th><th>Vista en</th><th>Primera vez</th></tr></thead><tbody>${d.map((x) => `<tr><td>${nf(x.m, 1)} m</td><td>${SEVN[x.sev]}</td><td>${nf(x.size * 100, 0)} %</td><td>${x.laps.size} vuelta(s)</td><td>${x.first}</td></tr>`).join('')}</tbody></table>
+      <p class="note">Tamaño en imagen: largo de la grieta respecto de la diagonal del cuadro. En terreno se convierte a centímetros con la calibración de la cámara.</p>` : '<p>No hay grietas confirmadas en esta correa todavía. Deja correr el video unos segundos.</p>') +
+      `<div class="btns" style="margin-bottom:0"><button onclick="document.getElementById('otd').close()">Cerrar</button><button onclick="window.print()">Imprimir</button></div>`;
+    $('otd').showModal();
+  };
+
+  /* prueba con una foto */
+  const tcv = $('t-cv'), tx = tcv.getContext('2d');
+  const run = async (img) => {
+    if (!iaReady) { $('t-res').textContent = 'La IA no cargó en este navegador'; return; }
+    const W = img.naturalWidth, H = img.naturalHeight; tcv.width = W > H ? 1280 : Math.round(1280 * W / H); tcv.height = W > H ? Math.round(1280 * H / W) : 1280;
+    tx.drawImage(img, 0, 0, tcv.width, tcv.height);
+    const r = await Centinela.detect(img, {conf: conf()}), k = tcv.width / W;
+    for (const b of r.boxes) { tx.lineWidth = Math.max(3, tcv.width / 320); tx.strokeStyle = '#ff4d3d'; tx.strokeRect(b.x * k, b.y * k, b.w * k, b.h * k); tx.font = `600 ${Math.round(tcv.width / 50)}px IBM Plex Mono, monospace`; tx.fillStyle = '#ff4d3d'; tx.fillText(`grieta ${nf(b.score * 100, 0)} %`, b.x * k, Math.max(20, b.y * k - 6)); }
+    const el = $('t-res'); el.className = 'verdict ' + (r.boxes.length ? 'bad' : 'ok');
+    el.textContent = r.boxes.length ? `${r.boxes.length} ${r.boxes.length === 1 ? 'posible grieta' : 'posibles grietas'}` : 'Sin grietas detectadas';
+    $('t-det').textContent = `${nf(r.ms, 0)} ms en tu equipo · sensibilidad ${$('c-conf-v').textContent}`;
+  };
+  const useSrc = (src) => { const im = new Image(); im.onload = () => run(im); im.src = src; };
+  $('t-thumbs').innerHTML = M.samples.map((s) => `<img src="${s}" alt="Cuadro de ejemplo de correa">`).join('');
+  $('t-thumbs').addEventListener('click', (e) => { const t = e.target.closest('img'); if (t) useSrc(t.getAttribute('src')); });
+  $('t-file').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) useSrc(URL.createObjectURL(f)); });
+})();
+</script>
+</body>
+</html>
