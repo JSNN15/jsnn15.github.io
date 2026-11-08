@@ -102,6 +102,10 @@ h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.1rem,4.
 .tile .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
 .tile .go{font-weight:600;font-size:.92rem;text-decoration:none;color:var(--paper);background:var(--fg);padding:8px 13px;border-radius:6px}
 .tile .go:hover{background:var(--copper-ink)}
+.tile.wide{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+.tile.wide .vw{aspect-ratio:auto;min-height:100%}
+.tile.wide .b{padding:20px 22px}
+@media (max-width:680px){.tile.wide{display:flex}.tile.wide .vw{aspect-ratio:16/9;min-height:0}}
 details.tech{font-size:.88rem;color:var(--muted)}
 details.tech summary{cursor:pointer;font-family:var(--mono);font-size:.74rem;letter-spacing:.04em;list-style:none;display:inline-flex;align-items:center;gap:6px}
 details.tech summary::-webkit-details-marker{display:none}
@@ -174,7 +178,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
       <div class="bar"><i></i><i></i><i></i><span class="rec">EN VIVO</span></div>
       <div class="scr" id="scr">
         <a href="inspector/" class="on" data-t="Inspector de terreno" data-s="Foto → hallazgos → orden de trabajo"><video muted playsinline preload="auto" poster="img/v/inspector.jpg" src="img/v/inspector.mp4"></video></a>
-        <a href="vigia/" data-t="Vigía EPP" data-s="Casco en tiempo real, sin nube"><video muted playsinline preload="none" poster="img/v/vigia.jpg" src="img/v/vigia.mp4"></video></a>
+        <a href="vigia/" data-t="Vigía EPP" data-s="El EPP de cada persona, con reporte"><video muted playsinline preload="none" poster="img/v/epp.jpg" src="img/v/epp.mp4"></video></a>
         <a href="normativa/" data-t="Consulta RIC" data-s="La norma eléctrica, con la cita"><video muted playsinline preload="none" poster="img/v/ric.jpg" src="img/v/ric.mp4"></video></a>
         <a href="monitor-correas/" data-t="Monitor de correas" data-s="Grietas detectadas en marcha"><video muted playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video></a>
         <a href="lector/" data-t="Lector de instrumentos" data-s="Del dial al dato"><video muted playsinline preload="none" poster="img/v/lector.jpg" src="img/v/lector.mp4"></video></a>
@@ -234,17 +238,28 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
           <details class="tech"><summary>Detalle técnico</summary><div><span><b>Simulación:</b> P&amp;ID en vivo, lazos PID, alarmas ISA-18.2, vibraciones ISO 10816-3 y KPI de turno.</span><span><b>IA:</b> el chat envía una foto del estado de la planta y Nemotron responde citando los tags; al tocarlos se abre su placa.</span><span><b>Roles:</b> pantallas distintas para operación, mantenimiento y gerencia.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/planta-virtual">github.com/JSNN15/planta-virtual</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
       </div>
     </article>
+    <article class="tile wide">
+      <a class="vw" href="vigia/" aria-label="Abrir Vigía EPP"><video muted loop playsinline preload="none" poster="img/v/epp.jpg" src="img/v/epp.mp4"></video><span class="tag nv"><i></i>FOTO, CÁMARA O VIDEO</span></a>
+      <div class="b">
+        <div class="sector">Seguridad · prevención de riesgos</div>
+        <h4>Vigía EPP</h4>
+        <p>Eliges el sector (construcción, minería, eléctrico, soldadura, alimentos, agrícola o industrial) y la IA revisa a cada persona: casco, guantes, lentes, chaleco, calzado, arnés y ropa adecuada para la tarea. Sale la matriz de cumplimiento y el reporte con riesgo y acción por persona.</p>
+        <p>Funciona con una foto, la cámara del celular o PC, o compartiendo una pestaña con un video de una obra.</p>
+        <div class="row"><a class="go" href="vigia/">Revisar EPP</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> Nemotron VL por la API de NVIDIA, con la lista de EPP de cada sector fija en el servidor.</span><span><b>Cómo:</b> cada EPP vuelve como en uso, falta, mal usado, no se ve o no aplica; "no se ve" evita que la IA adivine y el porcentaje cuenta solo lo verificable.</span><span><b>Video:</b> en escritorio revisa la pestaña compartida a pedido o cada 10 s.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/vigia">github.com/JSNN15/vigia</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
+      </div>
+    </article>
   </div>
 
   <div class="grp"><h3>Visión en el borde</h3><span class="pill">sin nube</span><span>la IA corre junto a la cámara; las imágenes no salen de la faena</span></div>
   <div class="gal three">
     <article class="tile">
-      <a class="vw" href="vigia/" aria-label="Abrir Vigía EPP"><video muted loop playsinline preload="none" poster="img/v/vigia.jpg" src="img/v/vigia.mp4"></video><span class="tag"><i></i>PRUEBA CON TU CÁMARA</span></a>
+      <a class="vw" href="vigia/app.html#sala" aria-label="Abrir la sala de control EPP"><video muted loop playsinline preload="none" poster="img/v/vigia.jpg" src="img/v/vigia.mp4"></video><span class="tag"><i></i>4 CÁMARAS EN VIVO</span></a>
       <div class="b">
         <div class="sector">Seguridad · faena</div>
-        <h4>Vigía EPP</h4>
-        <p>Mira las cámaras, detecta a quien trabaja sin casco y avisa al supervisor con la foto.</p>
-        <div class="row"><a class="go" href="vigia/">Probar Vigía</a>
+        <h4>Sala de control EPP</h4>
+        <p>Mira las cámaras de faena, detecta a quien trabaja sin casco y avisa al supervisor con la foto, varias veces por segundo.</p>
+        <div class="row"><a class="go" href="vigia/app.html#sala">Ver la sala</a>
           <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> detector YOLOv8 propio, corriendo en el equipo local.</span><span><b>Prueba:</b> en 100 fotos con infracción que no había visto detectó 93; en 100 sin infracción dio 2 falsas alarmas (el mejor modelo de NVIDIA probado dio 25).</span><span><b>Código:</b> <a href="https://github.com/JSNN15/vigia">github.com/JSNN15/vigia</a></span></div></details></div>
       </div>
     </article>
