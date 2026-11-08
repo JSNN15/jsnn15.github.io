@@ -1,11 +1,9 @@
-/* Planta virtual · consulta a un modelo de lenguaje de NVIDIA sobre el estado de la planta.
-   El navegador no llama a NVIDIA directo: la API no acepta llamadas desde páginas web (CORS) y la clave no puede
-   quedar en un sitio público. La consulta pasa por un servicio intermedio (ia-proxy/worker.js, un Cloudflare Worker)
-   que guarda la clave, fija el modelo y el mensaje de sistema, y solo acepta preguntas sobre esta planta. */
+/* Propuesta · asistente con IA de NVIDIA para la planta virtual (no activo en GitHub Pages; ver README.md).
+   context(): resume en texto el estado de la planta para el modelo de lenguaje.
+   ask(): envía la pregunta y el resumen al servicio del servidor (servicio.js), que guarda la clave de NVIDIA. */
 (function (G) {
   'use strict';
-  // URL del servicio intermedio. Vacía = consulta a la IA desactivada (el asistente local sigue funcionando).
-  // Para probar otro servicio sin tocar el código: abrir la página con ?ia=https://mi-worker.workers.dev (se recuerda en este navegador).
+  // URL del servicio en el servidor propio (por ejemplo, '/api/ask' en el mismo dominio). Vacía = desactivado.
   const DEFAULT_ENDPOINT = '';
 
   const endpoint = () => {
