@@ -16,7 +16,7 @@ Simulador de entrenamiento de operadores (OTS, *Operator Training Simulator*) de
   - recomendaciones de operación.
 
   Estos avisos corren en el navegador, sin nube.
-- **Pregúntale a la IA** (NVIDIA Nemotron): el operador pregunta en lenguaje natural ("¿qué está pasando y qué hago primero?", "resumen para el cambio de turno") y la IA responde con el estado real de la planta. Usa un servicio intermedio que guarda la clave de NVIDIA (`ia-proxy/`, con su guía de despliegue). Se activa al configurar la URL del servicio en `ia.js`.
+- **Propuesta: asistente con IA de NVIDIA.** Necesita un servidor propio, así que no está publicada. Está descrita y probada en [`propuesta-ia/`](propuesta-ia/README.md).
 - **Ventanas de equipo (faceplates)** flotantes y arrastrables. Las órdenes se dan en dos pasos (seleccionar y confirmar), con cuenta regresiva, y cada orden muestra un aviso: aceptada, o rechazada con su causa. Los lazos PID se operan en manual, automático o cascada, con ajustes rápidos de consigna, límites de alarma y tendencia de 30 min.
 - **Interacción de consola**: información al pasar el puntero sobre cada equipo, resalte del equipo abierto, navegación desde una alarma hasta su pantalla y su equipo, y atajos de teclado (0 a 5 para las áreas, A para alarmas, Esc para cerrar).
 - **Secuencias automáticas** (ISA-106 simplificado), con condición de avance, tiempo máximo y causa de falla en cada paso:
@@ -66,15 +66,10 @@ Los parámetros vienen de literatura (ENAMI, encuesta de Sole y otros a plantas 
 
 - `sim.js`: motor de simulación con paso de 1 s. Incluye lazos PID, enclavamientos, secuencias, alarmas e historiador. No depende del navegador.
 - `hmi.js`: interfaz del operador, mantenimiento y gerencia.
-- `ia.js`: resumen del estado de la planta para la IA y consulta al servicio intermedio.
-- `ia-proxy/`: Cloudflare Worker que guarda la clave de NVIDIA y fija modelo, mensaje de sistema y límites.
+- `propuesta-ia/`: propuesta de asistente con IA de NVIDIA para un servidor propio, con código y pruebas.
 - `test/sim.test.js`: 13 pruebas del motor. Revisan el régimen de diseño, la ley de Faraday, los escenarios, las secuencias de las áreas 100 y 400, el plomo tras un corte, la supresión de alarmas, las zonas de vibración por grupo, la compensación de retardo y que el régimen de 72 h no derive.
 - `REVISION.md`: revisión de ingeniería y metalurgia del modelo, con chequeos de consistencia, correcciones y limitaciones.
 
 ```bash
 node planta-virtual/test/sim.test.js
-```
-
-```bash
-node planta-virtual/test/proxy.test.mjs
 ```

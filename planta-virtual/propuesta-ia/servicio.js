@@ -1,4 +1,6 @@
-/* Servicio intermedio entre la planta virtual y la API de NVIDIA (Cloudflare Worker).
+/* Propuesta · servicio entre la planta virtual y la API de NVIDIA (ver README.md).
+   Escrito con la interfaz fetch(request, env): corre tal cual como Cloudflare Worker y se porta en pocas líneas
+   a un endpoint /api/ask de Node o Python en el servidor propio.
    - Guarda la clave como secreto (NVIDIA_API_KEY); nunca llega al navegador ni al repositorio.
    - Fija el modelo, el mensaje de sistema y el largo de la respuesta: no sirve como acceso general a un modelo de lenguaje.
    - Solo acepta llamadas desde el sitio publicado y limita consultas por IP. */

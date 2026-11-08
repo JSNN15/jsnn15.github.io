@@ -1,7 +1,7 @@
-/* Pruebas del servicio intermedio de IA (sin red: se reemplaza fetch). Ejecutar: node planta-virtual/test/proxy.test.mjs */
+/* Pruebas de la propuesta de IA (sin red: se reemplaza la llamada a NVIDIA). Ejecutar: node planta-virtual/propuesta-ia/prueba.test.mjs */
 import assert from 'assert';
 import {createRequire} from 'module';
-import worker, {SYSTEM} from '../ia-proxy/worker.js';
+import worker, {SYSTEM} from './servicio.js';
 const require = createRequire(import.meta.url);
 
 let sent = null;
@@ -34,7 +34,7 @@ await test('limita consultas por IP', async () => {
   assert.strictEqual(last.status, 429);
 });
 await test('el contexto de la planta resume alarmas, equipos y variables', async () => {
-  require('../sim.js'); require('../ia.js');
+  require('../sim.js'); require('./contexto.js');
   const P = globalThis.PlantSim.create(); for (let i = 0; i < 600; i++) P.step(); P.scenario('mcc'); for (let i = 0; i < 300; i++) P.step();
   const c = globalThis.PlantIA.context(P, []);
   assert.match(c, /MCC-200/); assert.match(c, /P-201A/); assert.match(c, /ALARMAS ACTIVAS \(\d+/); assert.match(c, /RELACIONES DEL MODELO/);
