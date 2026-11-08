@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta RIC</title>
+<meta name="description" content="Pregunta por la normativa eléctrica chilena y recibe la respuesta con la cita exacta del pliego RIC, la sección y la página del PDF oficial de la SEC.">
+<meta property="og:title" content="Consulta RIC · los 19 pliegos de la SEC con citas">
+<meta property="og:description" content="Búsqueda semántica sobre los 19 pliegos técnicos RIC y respuesta con citas verificables. Ves en qué parte del reglamento está la respuesta.">
+<meta property="og:image" content="https://jsnn15.github.io/img/normativa.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0b0d;--panel:#121418;--panel2:#181b21;--line:#252a33;--fg:#ebeef2;--muted:#959cab;--acc:#4da3ff;--nv:#76b900;--hot:#ffd166;--ok:#3ccf7a;--cell:#1b1f26;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;--sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.5}
+a{color:inherit}
+button{font:inherit}
+.in{max-width:84rem;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+nav{border-bottom:1px solid var(--line)}
+nav .in{display:flex;justify-content:space-between;align-items:center;padding-block:10px;gap:12px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:600;text-decoration:none}
+nav a.s{font-family:var(--mono);font-size:.76rem;color:var(--muted);text-decoration:none}
+@media (max-width:600px){nav .lg{display:none}}
+header .in{padding-block:22px 14px;display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:14px}
+h1{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(2.2rem,5vw,3.6rem);line-height:.9;margin:0}
+h1 em{font-style:normal;color:var(--acc)}
+.sub{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.nvb{font-family:var(--mono);font-size:.72rem;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:4px 8px}
+.nvb b{color:var(--nv)}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.st{font-family:var(--mono);font-size:.74rem;padding:5px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);display:flex;align-items:center;gap:6px;transition:all .3s}
+.st i{width:8px;height:8px;border-radius:50%;background:var(--line);display:inline-block}
+.st.on{color:var(--fg);border-color:#4a4f5a}.st.on i{background:var(--acc);box-shadow:0 0 8px var(--acc)}
+.st.done i{background:var(--ok)}
+.st small{color:var(--muted);font-size:.7rem}
+.tool{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;padding-bottom:22px;align-items:start}
+@media (max-width:980px){.tool{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+form.q{display:flex;gap:8px}
+form.q input{flex:1;min-width:0;font:inherit;font-size:1rem;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:11px 12px}
+form.q input:focus{outline:2px solid var(--acc);outline-offset:1px}
+.btn{font-size:.9rem;font-weight:600;padding:9px 14px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#04121f}
+.btn:disabled{opacity:.5;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips button{font-size:.8rem;border-radius:999px;padding:5px 11px;border:1px solid var(--line);background:none;color:var(--fg);cursor:pointer;text-align:left}
+.chips button:hover{border-color:var(--acc)}
+.filt{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+.filt b{color:var(--fg);font-weight:600}
+.filt button{font-size:.74rem;border:1px solid var(--line);background:none;color:var(--muted);border-radius:4px;padding:2px 7px;cursor:pointer}
+.ans{margin-top:14px;min-height:150px}
+.ans .qq{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-bottom:6px}
+.ans p{margin:6px 0}
+.ans ul{margin:6px 0;padding-left:20px}
+.ans .verify{font-size:.82rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px}
+.cit{font-family:var(--mono);font-size:.74rem;font-weight:600;min-width:1.6em;padding:0 5px;margin:0 1px;border-radius:4px;border:1px solid var(--acc);background:#0d2236;color:#bfe0ff;cursor:pointer;vertical-align:1px}
+.cit:hover,.cit.on{background:var(--acc);color:#04121f}
+.meta{font-family:var(--mono);font-size:.68rem;color:var(--muted);margin-top:8px}
+.sk{height:12px;border-radius:4px;background:linear-gradient(90deg,var(--panel2),#232833,var(--panel2));background-size:200% 100%;animation:sk 1.2s linear infinite;margin:9px 0}
+@keyframes sk{to{background-position:-200% 0}}
+.srcs{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.src{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--fg)}
+.src:hover,.src.on{border-color:var(--acc)}
+.src .n{font-family:var(--mono);font-weight:600;color:var(--acc)}
+.src .t{font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.src .t small{display:block;color:var(--muted);font-family:var(--mono);font-size:.7rem}
+.src .bar{width:54px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.src .bar i{display:block;height:100%;background:var(--hot)}
+/* mapa del reglamento */
+.maph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.maph b{font-size:.95rem}
+.maph span{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.legend{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.legend i{width:70px;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--cell),#1f4a7a,var(--acc),var(--hot))}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.pl{border:1px solid var(--line);border-radius:8px;padding:7px 8px 8px;background:var(--panel2);cursor:pointer;transition:border-color .3s,opacity .3s;text-align:left;color:var(--fg)}
+.pl:hover{border-color:#4a4f5a}
+.pl.hit{border-color:var(--acc)}
+.pl.sel{outline:2px solid var(--acc)}
+.pl.dim{opacity:.35}
+.pl h3{margin:0 0 5px;font-size:.72rem;font-weight:500;line-height:1.2;display:flex;gap:6px;color:var(--muted)}
+.pl h3 b{font-family:var(--mono);color:var(--fg);font-weight:600}
+.pl h3 span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cells{display:grid;grid-template-columns:repeat(20,1fr);gap:1px}
+.cells i{display:block;aspect-ratio:1;border-radius:1px;background:var(--cell);transition:background .5s,box-shadow .5s}
+.cells i.top{box-shadow:0 0 0 1.5px #fff;position:relative;z-index:1}
+.cells i:hover{box-shadow:0 0 0 1.5px var(--acc)}
+.tip{position:fixed;pointer-events:none;z-index:60;max-width:300px;background:#05070a;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:.76rem;display:none}
+.tip b{font-family:var(--mono);color:var(--acc)}
+/* visor de fragmento */
+.viewer{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px}
+.viewer.open{display:flex}
+.viewer .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:760px;width:100%;max-height:86vh;display:flex;flex-direction:column}
+.viewer header{display:flex;gap:10px;align-items:start;padding:12px 14px;border-bottom:1px solid var(--line)}
+.viewer header div{flex:1;min-width:0}
+.viewer header b{display:block}
+.viewer header small{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.viewer pre{margin:0;padding:14px;overflow:auto;white-space:pre-wrap;font-family:var(--sans);font-size:.88rem;line-height:1.55;flex:1}
+.viewer mark{background:#5a4a12;color:#fff4cc;border-radius:2px;padding:0 1px}
+.viewer footer{border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.viewer footer span{font-size:.74rem;color:var(--muted);flex:1;min-width:180px}
+.x{background:none;border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:4px 9px;cursor:pointer}
+.how{border-top:1px solid var(--line)}
+.how .in{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding-block:22px}
+@media (max-width:760px){.how .in{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.how b{display:block;font-size:.92rem}.how span{color:var(--muted);font-size:.84rem}
+.how .n{font-family:var(--display);font-size:2rem;color:var(--acc);line-height:1}
+footer.f{border-top:1px solid var(--line)}
+footer.f .in{padding-block:16px 30px;font-size:.76rem;color:var(--muted)}
+.load{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="brand" href="./"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="3" width="20" height="26" rx="2" fill="none" stroke="#4da3ff" stroke-width="2.2"/><path d="M10 10h12M10 15h12M10 20h7" stroke="#4da3ff" stroke-width="2" stroke-linecap="round"/><path d="M21 18l-3 5h3l-2 4" stroke="#ffd166" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Consulta RIC</a>
+  <a class="s" href="../"><span class="lg">Julián Neira Nova · </span>Portafolio →</a>
+</div></nav>
+
+<header><div class="in">
+  <div>
+    <h1>La norma, <em>con la cita</em></h1>
+    <p class="sub">Pregunta por los pliegos técnicos RIC de la SEC. La respuesta trae el pliego, la sección y la página del PDF oficial, y el mapa muestra dónde está en el reglamento.</p>
+  </div>
+  <span class="nvb">búsqueda y respuesta con <b>NVIDIA Nemotron</b></span>
+</div></header>
+
+<main class="in">
+  <div class="steps" id="steps">
+    <span class="st" data-s="1"><i></i>1 · Pregunta a vector</span>
+    <span class="st" data-s="2"><i></i>2 · Busca en <span id="nfrag">…</span> fragmentos <small>en tu navegador</small></span>
+    <span class="st" data-s="3"><i></i>3 · Redacta con citas</span>
+    <span class="st" data-s="4"><i></i>4 · Verifica en el PDF</span>
+  </div>
+  <div class="tool">
+    <div class="card">
+      <form class="q" id="f"><input id="q" maxlength="400" placeholder="Ej.: ¿qué sección mínima tiene el conductor de protección?" autocomplete="off" aria-label="Pregunta"><button class="btn p" id="go" type="submit" disabled>Preguntar</button></form>
+      <div class="chips" id="chips"></div>
+      <div class="filt" id="filt" hidden>Buscando solo en <b id="filt-n"></b><button id="filt-x">ver todos</button></div>
+      <div class="ans" id="ans"><p class="load" id="load">Cargando los 19 pliegos…</p></div>
+    </div>
+    <div class="card">
+      <div class="maph"><div><b>Mapa del reglamento</b> <span id="mapn"></span></div><div class="legend">menos <i></i> más parecido</div></div>
+      <div class="map" id="map"></div>
+      <p class="load" style="margin:10px 0 0">Cada cuadro es un fragmento de un pliego. Toca un pliego para buscar solo ahí; toca un cuadro para leerlo.</p>
+    </div>
+  </div>
+</main>
+
+<section class="how"><div class="in">
+  <div><div class="n">1</div><b>Los 19 pliegos, indexados</b><span>Los PDF oficiales de la SEC se cortan por sección numerada, con su página. Cada fragmento se convierte en un vector de 512 números.</span></div>
+  <div><div class="n">2</div><b>Búsqueda híbrida</b><span>Tu pregunta se vectoriza con Nemotron Embed. La comparación contra todo el reglamento, más una búsqueda por palabras clave, corre en tu navegador.</span></div>
+  <div><div class="n">3</div><b>Respuesta acotada</b><span>Nemotron recibe solo los 6 fragmentos más cercanos y responde con ellos. Si no alcanzan, lo dice.</span></div>
+  <div><div class="n">4</div><b>Cita verificable</b><span>Cada afirmación lleva su número. Al tocarlo ves el texto original y el enlace a la página exacta del PDF de la SEC.</span></div>
+</div></section>
+
+<footer class="f"><div class="in">Consulta RIC · Servicio y Soluciones Tecnológicas DelaCruz SpA · Julián Neira Nova. Corpus: los 19 pliegos técnicos RIC del Reglamento de Seguridad de las Instalaciones de Consumo de Energía Eléctrica (DS N°8/2019), descargados de sec.cl en noviembre de 2026 (RIC N°15 versión 2024). Es una herramienta de consulta: no reemplaza la lectura del pliego vigente ni el criterio de un instalador autorizado. La pregunta y los fragmentos elegidos se envían a la API de NVIDIA a través de un servidor intermedio.</div></footer>
+
+<div class="tip" id="tip"></div>
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-labelledby="v-t"><div class="box">
+  <header><div><b id="v-t"></b><small id="v-s"></small></div><button class="x" id="v-x" aria-label="Cerrar">✕</button></header>
+  <pre id="v-b"></pre>
+  <footer><span>Texto extraído del PDF oficial. Las tablas pueden verse desordenadas: revísalas en el original.</span><a class="btn p" id="v-pdf" target="_blank" rel="noopener">Abrir PDF en la página</a></footer>
+</div></div>
+
+<script>
+(() => {
+  const NV = ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:8787' : 'https://nv-portafolio.jneiranova.workers.dev'), SAMPLES = [{"q": "¿Cuál es el valor máximo de resistencia de puesta a tierra de servicio?", "qv": "f/bW8kMxAQ8SwDrP+/Esxye+Ekbi889H3Pn98/ULKusYJtwpCSQkAA4R2vXv4+8P/Sf8DD0UCC0iQvv+EfxF2fDb2/gGDA35H/YRBAwQ/PABHBEI9wPnNjH8C/oU2h3r7gwE8hkaJiFq1j3t8QUky9YF3jcb8hf3Pyf7C9AC1c/5Idf87/z61Cnq6AMo80nvCwgx2tcv28beCOHaDOXTBf8p/wunxTvq/SH09BgJzijR3Af93zg1RTkMI8ke4/5A3ib4C8UFIAne+PM7zA4M9wP5ARXy4RzLOeca3fwy+joE4xQN9J/oDCw255vg5+D98CP65/YtFsJHEuYK9xfnRBYrA/wv6hDvQOkEDeTu1+r+0+kC+QXX4dz0FQUW4/PqEtEgAdUXzDPP/xsKDALrMvzUMT0sxSX1Hv4rPADf8Po7I/Iczh0h8gfq8fEkhfzqzhHzXBfdCCDtFx41+BkSBh3iETodNeLzB/3i7ckc2vfs6QosOzAmEM/73RflyfvlDUvtrOziDjTv/Ss+5Pz/Ey8P7SrE69XV/y0LFgfvo/8U9ezW5wDQ9BTpC/zsCRdX9yL/NhPRGAAq5PkyEQkMSPAMANPm2wLFBusFBPcW+/Xs9QLLFfQ1BfzezzMFLdsxIgIb+goNKgYK4irw02UoWSUR1iMk9uLn6uALw+7/2hs=", "top": [878, 326, 1065, 331, 327, 330], "answer": "El valor máximo de resistencia de puesta a tierra de servicio es 20 Ohm [2], salvo que la instalación cumpla con los requisitos del punto 6.2, en cuyo caso puede superar este valor hasta 80 Ohm [5].", "ms": 872, "model": "nvidia/nemotron-3.5-lightning-30b-a3b"}, {"q": "¿Qué exigencias tiene una sala eléctrica respecto de puertas y accesos?", "qv": "fw/G+AbkG+0IBhj6/gIcAPTu6xkJDAgaC+TP9A74C+ji3hzmtOrgAfsAFiAFGvTkPOgB5hohAgja2xod+gPm8wsZ1g7r/SXOFj8X+vjwEAH3ESD5+A0H+9kNHe4EFyIBDOjuATAM7vkf8yXx/xki8AME1gHnCvn08ukT/s0z9/ftKS/mAOkQzDwd8BkHABH3FP0g9Q7/JQ8VERIB4NYqGhbs6fMVHP3DDfouFwPe//ACCAvpGicH8PrtSP721ScP4PdIB/z7BgjvEfz7NOn94PH66yP6EgccG+f7+iohOgoqKPoc/w3OCPca7gf+/t7SDhTnDQz6F+hB9O0j4BAJAOv6CRwE3f//HvMD9xDvI/LtC9MUHeXlIeHUAfsN7uPVFfv9DPTz//PV+/P1ChkPCTfQDR0M8wDrFffV5PQYAgX8MQzu9u3T1QUOvOn+CPjFAQX//AoU8Ajw4ADk7wj46zDjEgAdF+Cz8A3m+9cKMAP11QxZGgcW/f0JByni8uofHkT/Ju4VA/z/BecbBfT6H/UF/fze+g8F6+EV/hQS3xErDMkNCf4AF/wPy/Xm+kD8Fv3h1eHrARP8DQLq0wYV9fIE4hLdHBsLJgr75CYU9Ogf6tcQHPUS8wIAAS4H0QYaByq93hvoBPnT+fP+CP4f7g0R5BTZ3hgeEeq9EOkJ4yI=", "top": [51, 860, 861, 135, 855, 573], "answer": "Las salas eléctricas deben contar con dos puertas: una de acceso de materiales y equipos y otra de servicio, siendo esta última de al menos 0,80 x 2,10 m, que se abra hacia el exterior y tenga cerradura de seguridad para apertura desde dentro sin llaves. Si el transformador cabe por la puerta de servicio, se puede omitir la de materiales. Las puertas y los recubrimientos deben ser incombustibles y está prohibido usar baldosines plásticos en subestaciones con transformadores en aceite. Verifica siempre en el pliego vigente publicado por la SEC.", "ms": 1280, "model": "nvidia/nemotron-3.5-lightning-30b-a3b"}, {"q": "¿Qué protección exige un punto de carga de vehículo eléctrico?", "qv": "f/n/9REMIQXmExvN3PrxDAHpNuzi6+vQIe4YCtgN8zUIEtff4gbh9w/L5Cja9Qet9hIP2Q70/wUI3AkeGzXnD/4YBxoFyB7d3xD0FL7x/f0PNgMu8B8dAQUJJQ3LIBDq/f/nG9XqBBvx+DoGMx77runYCw0OE/Dv/O8mBtz5HvwPEE/t1gX7xijT5yIfHQ0j9/8r//cC+S8GGPMQNv/4JA/VxxEhCffk7PoLKAgHAeD1Eur4F06/LwP2I2T9/RQrGzoQMBH2sB3y/wA9B/oI9B/03gnr9gQQHbD0ERT2JwMR8jg08RnEQNUo3CDc3+bXD8j/shAMwvJQyNMmBQbo3xYUKtwF5fzmDB7qGfj/4c7W8OQ6ARryDREJPtEk0cDi7OcyKOjvzD3v8PcW/DfZ/AOw2OLd1NO8Av4XERkbLeIrCQEVF/Pz0BDZ4xoU8y7kEfXP9r8f/NwA+y7y3iMb4SPlGBsyDz6/6vPwNq/6Pso66BVYF/bT7ClCGuPiAcgJ/w4T+d4tUAfaEva33QASDR4vCVDxA9nuufz5/yIVBjUt+gHj5SwFGP73CQkpLwzXOPQD3Qr9F1vw9RTsLCz/Exsr0wztIQja8fEKABbPx/76Es/YC+Le0ub1RysARssG3QsQ9tw/KyjxIyzw1EoK00Ic6ksF/iYL993q/vYKDDE=", "top": [914, 950, 970, 969, 967, 935], "answer": "Un punto de carga de vehículo eléctrico exige protección diferencial de corriente con sensibilidad máxima de 30 mA, protección contra sobrecorriente según la capacidad nominal del dispositivo (10A para carga modo 1, al menos 16A para carga modo 2), y protección general con estudio de coordinación y selectividad. Además, requiere protección antivandálica y, para instalaciones exteriores, grado IP54 mínimo. Verifica siempre en el pliego vigente publicado por la SEC.", "ms": 1572, "model": "nvidia/nemotron-3.5-lightning-30b-a3b"}, {"q": "¿Cómo se clasifican las zonas en ambientes con gases explosivos?", "qv": "byTo7fAqNeQ01+hUGMc2EAcE3d/Y5tzvCgLT/O7u+trX2T/W53/z7P7nNPrvJAYf5Qbs8c4V3Aoq2eQvAwDk3kH9BL7z7f0fESLVC/EH2OQD6dzw6+jjShQR/bjq9C7YAQ4xPAcSAQvl4gAo8B4X1yn+8PPRDCPr7x7u6A8Pz+8B7CTcIiM0B+4F7vrXNUfeFQYouykMvzUKJPr4F8/3B+n22twbQ9D+DxzoCfcBWfAXIQQv/vDbKjkmNvfqASrb7wEH9AHl8wwF/yYEJcsa8/z16QtJPuGbDwA9AUhGCyUjBTg4KQvR5wH2Igr67QMtKf/w7u75HuksI9YEE/gW+BkF4APvPRnvABoN1xX2MuHyB8T24NvVBhDM3h3zHf/bHyT5Ktf0HQPqzvLoAuItAOERBgf1GTPi+f35rwXwKwYdAOQuzf39ygfdsen46yb9N/YNBtbwHg4+MSk3FijY7RcT1jnzVcYG+B8FFuYjM/cP4PIa/eTyKQX1PtXD3+lK8jH6NicnANzEBzXy5lHO9uYVAxH2BNveNOnABgHzJisD8+wP6AsJBBQnAwT++P7y1gkuAvX+3wq9Gfv3+Cft5e8kBgnaFPYa7utAB/XR9hQBNP/PLRHUFgLnFSMLEb8T+EPJSC2oLgYJCuL2wkAA/O7w5Qg0DejUMf/LKL/r8xc=", "top": [823, 804, 801, 821, 794, 796], "answer": "Las zonas se clasifican según la presencia y duración de atmósferas explosivas: Zona 0 para presencia permanente o frecuente, Zona 1 para formación ocasional durante funcionamiento normal, y Zona 2 para atmósfera que solo subsiste por espacios de tiempo muy breves si se forma. [2][3][4] Verifica siempre en el pliego vigente publicado por la SEC.", "ms": 1064, "model": "nvidia/nemotron-3.5-lightning-30b-a3b"}];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+  const step = (n) => document.querySelectorAll('.st').forEach((e) => { const s = +e.dataset.s; e.classList.toggle('on', s === n); e.classList.toggle('done', s < n || n === 5); });
+  const nf = (v, d = 0) => new Intl.NumberFormat('es-CL', {maximumFractionDigits: d, minimumFractionDigits: d}).format(v);
+  let IDX, VEC, DIM, N, cells = [], plEls = {}, filter = null, busy = false, lastTop = [], lastQ = '';
+
+  // ---------- búsqueda por palabras (BM25) ----------
+  const STOP = new Set('a al algo con como cual cuál cuales de del desde donde el ella en entre es esa ese esta este esto hay la las le lo los mas más me mi muy no o para pero por que qué se ser si sí sin sobre son su sus tiene tienen un una uno unos y ya debe deben deberá deberán será serán cada otro otra otros otras puede pueden según cuando'.split(' '));
+  const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const stem = (w) => w.length > 4 ? w.replace(/(es|s)$/, '') : w;
+  const toks = (s) => (norm(s).match(/[a-z0-9]+(?:[.,][0-9]+)?/g) || []).filter((w) => !STOP.has(w) && w.length > 1).map(stem);
+  let INV, DL, AVG;
+  const buildBM = () => {
+    INV = new Map(); DL = new Float32Array(N);
+    IDX.c.forEach((c, i) => { const t = toks(c[2] + ' ' + c[4]); DL[i] = t.length; const tf = new Map(); t.forEach((w) => tf.set(w, (tf.get(w) || 0) + 1)); tf.forEach((f, w) => { if (!INV.has(w)) INV.set(w, []); INV.get(w).push([i, f]); }); });
+    AVG = DL.reduce((a, b) => a + b, 0) / N;
+  };
+  const bm25 = (q) => {
+    const s = new Float32Array(N), k1 = 1.2, b = 0.75;
+    new Set(toks(q)).forEach((w) => { const L = INV.get(w); if (!L) return; const idf = Math.log(1 + (N - L.length + .5) / (L.length + .5)); L.forEach(([i, f]) => { s[i] += idf * f * (k1 + 1) / (f + k1 * (1 - b + b * DL[i] / AVG)); }); });
+    return s;
+  };
+  // ---------- búsqueda semántica (int8) ----------
+  const cosAll = (qv) => {
+    let n = 0; for (const x of qv) n += x * x; n = Math.sqrt(n) || 1;
+    const s = new Float32Array(N), k = 1 / (n * IDX.scale);
+    for (let i = 0; i < N; i++) { let d = 0; const o = i * DIM; for (let j = 0; j < DIM; j++) d += VEC[o + j] * qv[j]; s[i] = d * k; }
+    return s;
+  };
+  const rank = (s) => Array.from(s.keys()).filter((i) => !filter || IDX.c[i][0] === filter).sort((a, b) => s[b] - s[a]);
+  // fusión por rango recíproco: lo que ambos métodos ponen arriba sube
+  const fuse = (sem, kw) => {
+    const r1 = rank(sem).slice(0, 80), r2 = rank(kw).filter((i) => kw[i] > 0).slice(0, 80), f = new Map();
+    r1.forEach((i, k) => f.set(i, (f.get(i) || 0) + 1 / (60 + k)));
+    r2.forEach((i, k) => f.set(i, (f.get(i) || 0) + 0.7 / (60 + k)));
+    return [...f.entries()].sort((a, b) => b[1] - a[1]).map(([i]) => i);
+  };
+
+  // ---------- mapa ----------
+  const label = (i) => { const c = IDX.c[i]; return `RIC N°${String(c[0]).padStart(2, '0')} · ${c[1]}`; };
+  const heat = (t) => { // 0..1 → oscuro, azul, celeste, amarillo
+    const st = [[27, 31, 38], [31, 74, 122], [77, 163, 255], [255, 209, 102]];
+    const x = Math.max(0, Math.min(.999, t)) * 3, k = Math.floor(x), f = x - k, a = st[k], b = st[k + 1];
+    return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * f)).join(',')})`;
+  };
+  const buildMap = () => {
+    const by = {}; IDX.c.forEach((c, i) => (by[c[0]] = by[c[0]] || []).push(i));
+    const m = $('map'); m.innerHTML = '';
+    Object.keys(by).map(Number).sort((a, b) => a - b).forEach((p) => {
+      const d = document.createElement('button'); d.className = 'pl'; d.dataset.p = p;
+      d.innerHTML = `<h3><b>N°${String(p).padStart(2, '0')}</b><span>${esc(IDX.mat[p])}</span></h3><div class="cells">${by[p].map((i) => `<i data-i="${i}"></i>`).join('')}</div>`;
+      d.title = `RIC N°${p} · ${IDX.mat[p]} · ${by[p].length} fragmentos`;
+      m.appendChild(d); plEls[p] = d;
+    });
+    cells = Array.from(m.querySelectorAll('.cells i'));
+    $('mapn').textContent = `${N} fragmentos · 19 pliegos`;
+    m.addEventListener('click', (e) => {
+      const c = e.target.closest('.cells i'); if (c) { e.stopPropagation(); openFrag(+c.dataset.i); return; }
+      const pl = e.target.closest('.pl'); if (pl) setFilter(filter === +pl.dataset.p ? null : +pl.dataset.p);
+    });
+    m.addEventListener('mousemove', (e) => {
+      const c = e.target.closest('.cells i'), tp = $('tip');
+      if (!c) { tp.style.display = 'none'; return; }
+      const i = +c.dataset.i, x = IDX.c[i];
+      tp.innerHTML = `<b>${esc(label(i))}</b><br>${esc(x[2] || IDX.mat[x[0]])} · pág. ${x[3]}`;
+      tp.style.display = 'block'; tp.style.left = Math.min(e.clientX + 12, innerWidth - 310) + 'px'; tp.style.top = (e.clientY + 14) + 'px';
+    });
+    m.addEventListener('mouseleave', () => ($('tip').style.display = 'none'));
+  };
+  const paint = (score, top) => {
+    let mx = -1e9, mn = 1e9; for (let i = 0; i < N; i++) { if (score[i] > mx) mx = score[i]; if (score[i] < mn) mn = score[i]; }
+    const lo = mn + (mx - mn) * .35, topSet = new Set(top), hitP = new Set(top.map((i) => IDX.c[i][0]));
+    // ola: se encienden en orden de parecido
+    const order = Array.from(score.keys()).sort((a, b) => score[b] - score[a]);
+    order.forEach((i, k) => {
+      const t = Math.max(0, 1 - k / (N * .14)) ** 1.4, el = cells[i];
+      setTimeout(() => { el.style.background = heat(t); el.classList.toggle('top', topSet.has(i)); }, Math.min(900, k * .9));
+    });
+    Object.entries(plEls).forEach(([p, el]) => el.classList.toggle('hit', hitP.has(+p)));
+  };
+  const setFilter = (p) => {
+    filter = p;
+    Object.entries(plEls).forEach(([k, el]) => { el.classList.toggle('sel', +k === p); el.classList.toggle('dim', p != null && +k !== p); });
+    $('filt').hidden = p == null; if (p != null) $('filt-n').textContent = `RIC N°${p} · ${IDX.mat[p]}`;
+  };
+  $('filt-x').onclick = () => setFilter(null);
+
+  // ---------- visor ----------
+  const openFrag = (i) => {
+    const c = IDX.c[i];
+    $('v-t').textContent = `RIC N°${c[0]} · ${IDX.mat[c[0]]}`;
+    $('v-s').textContent = `Sección ${c[1]}${c[2] ? ' · ' + c[2] : ''} · pág. ${c[3]}`;
+    const qt = new Set(toks(lastQ));
+    $('v-b').innerHTML = esc(c[4]).replace(/[A-Za-zÁÉÍÓÚÑáéíóúñü0-9]+/g, (w) => (qt.has(stem(norm(w))) ? `<mark>${w}</mark>` : w));
+    $('v-pdf').href = `${IDX.url[c[0]]}#page=${c[3]}`;
+    $('viewer').classList.add('open'); $('v-x').focus();
+  };
+  const closeV = () => $('viewer').classList.remove('open');
+  $('v-x').onclick = closeV; $('viewer').onclick = (e) => { if (e.target.id === 'viewer') closeV(); };
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') closeV(); });
+
+  // ---------- respuesta ----------
+  const render = (txt, top) => {
+    const cite = (s) => s.replace(/\[(\d+(?:\s*[,–-]\s*\d+)*)\]/g, (m, g) => g.split(/\s*[,–-]\s*/).map((n) => (top[+n - 1] != null ? `<button class="cit" data-k="${+n - 1}">${n}</button>` : '')).join(''));
+    const inline = (s) => cite(esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'));
+    const out = []; let list = null;
+    txt.split('\n').forEach((line) => {
+      if (/verifica siempre/i.test(line)) { out.push(`<p class="verify">${inline(line)}</p>`); return; }
+      const li = line.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/);
+      if (li) { (list = list || []).push(`<li>${inline(li[1])}</li>`); return; }
+      if (list) { out.push(`<ul>${list.join('')}</ul>`); list = null; }
+      if (line.trim()) out.push(`<p>${inline(line.replace(/^#+\s*/, ''))}</p>`);
+    });
+    if (list) out.push(`<ul>${list.join('')}</ul>`);
+    return out.join('');
+  };
+  const sources = (top, fusedScore) => {
+    const mx = Math.max(...top.map((i) => fusedScore[i]));
+    return `<div class="srcs">${top.map((i, k) => { const c = IDX.c[i]; return `<button class="src" data-k="${k}"><span class="n">${k + 1}</span><span class="t">${esc(c[2] || IDX.mat[c[0]])}<small>${esc(label(i))} · pág. ${c[3]}</small></span></button>`; }).join('')}</div>`;
+  };
+  $('ans').addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b && lastTop[+b.dataset.k] != null) openFrag(lastTop[+b.dataset.k]); });
+  $('ans').addEventListener('mouseover', (e) => {
+    const b = e.target.closest('[data-k]'); document.querySelectorAll('.cit.on,.src.on').forEach((x) => x.classList.remove('on'));
+    cells.forEach((c) => (c.style.outline = ''));
+    if (!b) return; const k = b.dataset.k; document.querySelectorAll(`[data-k="${k}"]`).forEach((x) => x.classList.add('on'));
+    const el = cells[lastTop[+k]]; if (el) el.style.outline = '2px solid var(--hot)';
+  });
+
+  const b64i8 = (s) => { const b = atob(s), a = new Int8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = (b.charCodeAt(i) << 24) >> 24; return a; };
+  const show = (q, qv, answer, ms, model, fixedTop) => {
+    lastQ = q;
+    const sem = cosAll(qv), kw = bm25(q), fused = fuse(sem, kw);
+    const top = fixedTop || fused.slice(0, 6); lastTop = top;
+    const fs = new Float32Array(N); fused.forEach((i, k) => (fs[i] = 1 / (60 + k)));
+    paint(sem, top);
+    return {top, fs};
+  };
+  const ask = async (q, sample) => {
+    q = q.trim(); if (!q || busy || !IDX) return;
+    busy = true; $('go').disabled = true; $('q').value = q;
+    $('ans').innerHTML = `<div class="qq">${esc(q)}</div><div class="sk" style="width:90%"></div><div class="sk" style="width:75%"></div><div class="sk" style="width:82%"></div>`;
+    const t0 = performance.now();
+    try {
+      step(1);
+      let qv;
+      if (sample) { qv = Float32Array.from(b64i8(sample.qv)); await new Promise((r) => setTimeout(r, 350)); }
+      else {
+        const r = await fetch(NV + '/embed', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({texts: [q], type: 'query', dim: DIM})});
+        const d = await r.json(); if (!r.ok || !d.ok) throw new Error(d.error || 'sin respuesta'); qv = d.vectors[0];
+      }
+      step(2);
+      const {top, fs} = show(q, qv, null, 0, null, sample && !filter ? sample.top : null);
+      await new Promise((r) => setTimeout(r, 650));
+      step(3);
+      let answer, ms, model;
+      if (sample && !filter) { await new Promise((r) => setTimeout(r, 500)); answer = sample.answer; ms = sample.ms; model = sample.model; }
+      else {
+        const chunks = top.map((i) => { const c = IDX.c[i]; return {title: `RIC N°${c[0]} ${IDX.mat[c[0]]} · sección ${c[1]}${c[2] ? ' · ' + c[2] : ''} · pág. ${c[3]}`, text: c[4]}; });
+        const r = await fetch(NV + '/ric', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({question: q, chunks})});
+        const d = await r.json(); if (!r.ok || !d.ok) throw new Error(d.error || 'sin respuesta'); answer = d.answer; ms = d.ms; model = d.model;
+      }
+      step(4);
+      $('ans').innerHTML = `<div class="qq">${esc(q)}</div>${render(answer, top)}${sources(top, fs)}<div class="meta">${sample && !filter ? 'respuesta guardada · ' : ''}${nf((performance.now() - t0) / 1000, 1)} s · ${esc(String(model).split('/').pop())}</div>`;
+      setTimeout(() => step(5), 600);
+    } catch (e) {
+      step(0); $('ans').innerHTML = `<div class="qq">${esc(q)}</div><p>No pude consultar a la IA: ${esc(e.message)}. Intenta de nuevo en un minuto o prueba una de las preguntas de ejemplo.</p>`;
+    }
+    busy = false; $('go').disabled = false;
+  };
+  window.__ric = () => ({top: lastTop, q: lastQ});
+  $('f').addEventListener('submit', (e) => { e.preventDefault(); const q = $('q').value; const s = SAMPLES.find((x) => x.q === q.trim()); ask(q, s); });
+  $('chips').innerHTML = SAMPLES.map((s, i) => `<button data-i="${i}">${esc(s.q)}</button>`).join('');
+  $('chips').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) ask(SAMPLES[+b.dataset.i].q, SAMPLES[+b.dataset.i]); });
+
+  // ---------- carga ----------
+  Promise.all([fetch('s/ric.json').then((r) => r.json()), fetch('s/vec.bin').then((r) => r.arrayBuffer())]).then(([j, b]) => {
+    IDX = j; DIM = j.dim; VEC = new Int8Array(b); N = j.c.length;
+    $('nfrag').textContent = nf(N);
+    buildBM(); buildMap();
+    $('go').disabled = false; $('load').textContent = 'Listo. Elige una pregunta o escribe la tuya.';
+    if (SAMPLES[0]) ask(SAMPLES[0].q, SAMPLES[0]);
+  }).catch((e) => { $('load').textContent = 'No se pudo cargar el índice: ' + e.message; });
+})();
+</script>
+</body>
+</html>
