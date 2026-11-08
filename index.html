@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Julián Neira Nova</title>
-<meta name="description" content="Ingeniero eléctrico con 10 años en faena. Herramientas de IA, visión artificial y automatización para minería, industria y agro, que se pueden probar en el navegador.">
+<meta name="description" content="Ingeniero eléctrico con 10 años en faena. Máquinas de IA y automatización para minería, industria y agro: inspección por foto, lectura de instrumentos, normativa con citas y salas de control que se prueban en el navegador.">
 <meta property="og:title" content="Julián Neira Nova · Máquinas que resuelven dolores de operación">
-<meta property="og:description" content="Vigía EPP, Selector IA de fruta, una sala de control de planta de cobre y agentes de IA: herramientas que funcionan y se pueden probar en el navegador.">
+<meta property="og:description" content="Inspector de terreno, Lector de instrumentos, Consulta RIC, Vigía EPP, Centinela de correas y una planta de cobre virtual. Todas se prueban en el navegador.">
 <meta property="og:image" content="https://jsnn15.github.io/img/vigia.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -61,7 +61,7 @@ nav.top ul a:hover{color:var(--on-ink)}
 .mon .scr{position:relative;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#000}
 .mon .scr a{position:absolute;inset:0;opacity:0;transition:opacity .8s ease;display:block}
 .mon .scr a.on{opacity:1}
-.mon .scr img{width:100%;height:100%;object-fit:cover;display:block}
+.mon .scr img,.mon .scr video{width:100%;height:100%;object-fit:cover;display:block}
 .mon .mcap{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 4px 2px;min-height:2.6em}
 .mon .mcap b{font-weight:600;font-size:.95rem}
 .mon .mcap span{font-size:.82rem;color:var(--on-ink-muted)}
@@ -69,87 +69,90 @@ nav.top ul a:hover{color:var(--on-ink)}
 .mon .dots button{width:22px;height:4px;border:0;border-radius:2px;background:#2a333c;cursor:pointer;padding:0}
 .mon .dots button.on{background:var(--copper)}
 
-/* franja de pruebas */
-.proof{background:var(--ink-2);color:var(--on-ink);border-top:1px solid #1d252e}
-.proof .in{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
-@media (max-width:820px){.proof .in{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.proof div.k{padding:20px 16px;border-left:1px solid #222b34}
-.proof div.k:first-child{border-left:0}
-@media (max-width:820px){.proof div.k:nth-child(3){border-left:0}.proof div.k:nth-child(n+3){border-top:1px solid #222b34}}
-.proof .v{font-family:var(--display);font-size:2.3rem;line-height:1;color:var(--copper)}
-.proof .l{font-size:.86rem;color:var(--on-ink-muted);margin-top:4px}
 
 /* secciones */
-section.blk{padding:72px 0 8px}
+section.blk{padding:64px 0 8px}
 .eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--copper-ink)}
 h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.1rem,4.6vw,3rem);letter-spacing:.01em;margin:6px 0 8px;line-height:.95}
-.lead{color:var(--muted);margin:0 0 30px;max-width:62ch;font-size:1.05rem}
+.lead{color:var(--muted);margin:0 0 26px;max-width:58ch;font-size:1.05rem}
+.grp{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:34px 0 14px}
+.grp h3{margin:0;font-size:1.05rem}
+.grp span{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+.grp .pill{font-family:var(--mono);font-size:.7rem;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--fg)}
+.grp .pill.nv{border-color:#76b900;color:#4e7d00}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .grp .pill.nv{color:#9bd43a}}
+:root[data-theme="dark"] .grp .pill.nv{color:#9bd43a}
 
-/* máquinas */
-.mach{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:34px;align-items:center;padding:30px 0;border-top:1px solid var(--line)}
-.mach:nth-of-type(even) .shot{order:2}
-@media (max-width:860px){.mach{grid-template-columns:1fr;gap:18px}.mach:nth-of-type(even) .shot{order:0}}
-.shot{display:block;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#000;position:relative}
-.shot img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;transition:transform .5s ease}
-.shot:hover img{transform:scale(1.025)}
-.shot .live{position:absolute;left:12px;top:12px;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;background:rgba(0,0,0,.72);color:#fff;padding:4px 8px;border-radius:4px}
-.mach h3{font-size:1.5rem;margin:4px 0 14px;line-height:1.2}
-.mach .sector{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.dl{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:8px 14px;margin:0 0 18px}
-@media (max-width:480px){.dl{grid-template-columns:1fr;gap:2px}.dl dd{margin-bottom:8px}}
-.dl dt{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--copper-ink);padding-top:3px}
-.dl dd{margin:0;color:var(--fg)}
-.dl dd.res{font-weight:600}
-.btn{display:inline-block;text-decoration:none;font-weight:600;font-size:.94rem;padding:10px 16px;border-radius:5px;background:var(--fg);color:var(--paper)}
-.btn:hover{background:var(--copper-ink)}
-.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line);margin-left:6px}
-
-/* capacidades */
-.caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:16px}
-.cap{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:10px}
-.cap .ic{width:40px;height:40px;border-radius:8px;background:var(--tint);display:grid;place-items:center;color:var(--copper-ink)}
-.cap h3{margin:0;font-size:1.08rem}
-.cap p{margin:0;color:var(--muted);font-size:.94rem}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chips span{font-family:var(--mono);font-size:.72rem;color:var(--fg);background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:2px 7px}
-.cap .by{margin-top:auto;padding-top:8px;border-top:1px dashed var(--line);font-size:.86rem;color:var(--muted)}
-.cap .by a{color:var(--copper-ink);font-weight:600;text-decoration:none}
-.cap .by a:hover{text-decoration:underline}
-.cap.base{grid-column:1/-1;display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:10px 20px;align-items:start;background:var(--tint)}
-.cap.base .ic{background:var(--card)}
-.cap.base .by{grid-column:2/-1}
-@media (max-width:760px){.cap.base{grid-template-columns:1fr}.cap.base .by{grid-column:auto}}
-.stack{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-family:var(--mono);font-size:.82rem;color:var(--muted)}
-.stack b{font-family:var(--sans);color:var(--fg);font-weight:600;margin-right:4px}
+/* galería de máquinas */
+.gal{display:grid;gap:18px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.gal.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:980px){.gal.three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:680px){.gal,.gal.three{grid-template-columns:minmax(0,1fr)}}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s ease,transform .2s ease}
+.tile:hover{border-color:var(--copper);transform:translateY(-2px)}
+.tile .vw{position:relative;display:block;aspect-ratio:16/9;background:#05080b;overflow:hidden}
+.tile video,.tile .vw img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.tile .tag{position:absolute;left:10px;bottom:10px;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;background:rgba(0,0,0,.74);color:#fff;padding:4px 8px;border-radius:4px;display:flex;align-items:center;gap:6px}
+.tile .tag i{width:6px;height:6px;border-radius:50%;background:#ff4d3d;animation:blink 1.4s infinite}
+.tile .tag.nv i{background:#76b900}
+.tile .b{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.tile .sector{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tile h4{margin:0;font-size:1.22rem;line-height:1.2}
+.tile p{margin:0;color:var(--fg);font-size:.96rem}
+.tile .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
+.tile .go{font-weight:600;font-size:.92rem;text-decoration:none;color:var(--paper);background:var(--fg);padding:8px 13px;border-radius:6px}
+.tile .go:hover{background:var(--copper-ink)}
+details.tech{font-size:.88rem;color:var(--muted)}
+details.tech summary{cursor:pointer;font-family:var(--mono);font-size:.74rem;letter-spacing:.04em;list-style:none;display:inline-flex;align-items:center;gap:6px}
+details.tech summary::-webkit-details-marker{display:none}
+details.tech summary::before{content:"+";display:inline-grid;place-items:center;width:16px;height:16px;border:1px solid var(--line);border-radius:3px;font-size:.8rem}
+details.tech[open] summary::before{content:"−"}
+details.tech div{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:6px}
+details.tech b{color:var(--fg);font-weight:600}
+.mini{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none}
+.mini:hover{border-color:var(--copper)}
+.mini img{width:120px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;display:block}
+.mini b{display:block}
+.mini span{color:var(--muted);font-size:.9rem}
+.mini em{font-style:normal;font-weight:600;font-size:.9rem;color:var(--copper-ink);white-space:nowrap}
+@media (max-width:560px){.mini{grid-template-columns:minmax(0,1fr)}.mini img{width:100%}}
 
 /* pruebas */
-.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:18px}
+.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:16px}
 .proj{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;transition:transform .2s ease,border-color .2s ease}
 .proj:hover{transform:translateY(-3px);border-color:var(--copper)}
 .proj img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid var(--line)}
-.proj .b{padding:16px;display:flex;flex-direction:column;gap:7px;flex:1}
-.proj h3{margin:0;font-size:1.02rem;font-weight:600;line-height:1.3}
-.proj p{margin:0;color:var(--muted);font-size:.9rem}
-.go{margin-top:auto;padding-top:6px;font-size:.86rem;font-weight:600;color:var(--copper-ink)}
+.proj .b{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.proj h3{margin:0;font-size:1rem;font-weight:600;line-height:1.3}
+.proj p{margin:0;color:var(--muted);font-size:.88rem}
+
+/* capacidades, compactas */
+.caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:0;border-top:1px solid var(--line)}
+.cap{padding:16px 4px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:30px minmax(0,1fr);gap:4px 12px;align-items:start}
+.cap .ic{color:var(--copper-ink);padding-top:2px}
+.cap h3{margin:0;font-size:1rem}
+.cap .chips{grid-column:2}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chips span{font-family:var(--mono);font-size:.7rem;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:4px;padding:2px 7px}
 
 /* cómo trabajo */
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:22px;counter-reset:s}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));gap:20px;counter-reset:s}
 .steps div{border-top:2px solid var(--copper);padding-top:12px}
 .steps div::before{counter-increment:s;content:"0" counter(s);font-family:var(--mono);font-size:.78rem;color:var(--copper-ink)}
-.steps h3{margin:4px 0 6px;font-size:1.04rem}
-.steps p{margin:0;color:var(--muted);font-size:.94rem}
-.cta{background:var(--ink);color:var(--on-ink);margin-top:80px}
-.cta .in{padding-block:56px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between}
+.steps h3{margin:4px 0 4px;font-size:1.02rem}
+.steps p{margin:0;color:var(--muted);font-size:.92rem}
+.cta{background:var(--ink);color:var(--on-ink);margin-top:72px}
+.cta .in{padding-block:52px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between}
 .cta h2{color:#fff;margin:0}
-.cta p{color:var(--on-ink-muted);margin:8px 0 0;max-width:52ch}
+.cta p{color:var(--on-ink-muted);margin:8px 0 0;max-width:50ch}
 footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
-@media (prefers-reduced-motion:reduce){.proj,.shot img,.mon .scr a{transition:none}.hero canvas#sig{display:none}.mon .bar .rec::before{animation:none}}
+@media (prefers-reduced-motion:reduce){.proj,.tile,.mon .scr a{transition:none}.hero canvas#sig{display:none}.mon .bar .rec::before,.tile .tag i{animation:none}}
 </style>
 </head>
 <body>
 <nav class="top"><div class="in">
   <a class="me" href="#">Julián Neira <span>Nova</span></a>
-  <ul><li class="opt"><a href="#maquinas">Máquinas</a></li><li><a href="#capacidades">Capacidades</a></li><li class="opt"><a href="#pruebas">Pruebas</a></li><li><a href="#contacto">Contacto</a></li></ul>
+  <ul><li><a href="#maquinas">Máquinas</a></li><li class="opt"><a href="#pruebas">Estudios</a></li><li class="opt"><a href="#capacidades">Capacidades</a></li><li><a href="#contacto">Contacto</a></li></ul>
 </div></nav>
 
 <header class="hero">
@@ -159,7 +162,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
       <div class="kick">Ingeniero eléctrico · 10 años en faena</div>
       <h1>Máquinas <em>que resuelven dolores de operación</em></h1>
       <div class="rule"></div>
-      <p class="who">Hago herramientas de IA, visión artificial y automatización para minería, industria y agro. Las que están en esta página <b>corren en el navegador</b>: puedes abrirlas y probarlas.</p>
+      <p class="who">Herramientas de IA y automatización para minería, industria y agro. <b>Todas se abren y se prueban aquí mismo.</b></p>
       <div class="links">
         <a class="main" href="#maquinas">Ver las máquinas</a>
         <a href="https://www.linkedin.com/in/julian-neira-nova/">LinkedIn</a>
@@ -169,184 +172,145 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
     <div class="mon" aria-label="Las máquinas funcionando">
       <div class="bar"><i></i><i></i><i></i><span class="rec">EN VIVO</span></div>
       <div class="scr" id="scr">
-        <a href="vigia/" class="on" data-t="Vigía EPP" data-s="Casco en tiempo real · seguridad"><img src="img/vigia.jpg" alt="Sala de control de Vigía EPP con cámaras de faena y detecciones de casco"></a>
-        <a href="centinela-correas/" data-t="Centinela de correas" data-s="Grietas en correas transportadoras · minería"><img src="img/correa.jpg" alt="Video de correa con grietas detectadas y mapa de daños" loading="lazy"></a>
-        <a href="selector-fruta/" data-t="Selector IA" data-s="Calidad de fruta en línea · agro"><img src="img/fruta.jpg" alt="Línea de selección: la IA marca fruta buena y mala y el expulsor saca la mala" loading="lazy"></a>
-        <a href="planta-virtual/" data-t="Planta virtual LX-SX-EW" data-s="Sala de control · minería"><img src="img/planta.jpg" alt="Sala de control de una planta de cobre con P&amp;ID y alarmas" loading="lazy"></a>
-        <a href="https://github.com/JSNN15/prama-agent" data-t="prama-agent" data-s="Equipos de agentes de IA · trabajo"><img src="img/prama.jpg" alt="Menú de prama-agent con un equipo de agentes" loading="lazy"></a>
+        <a href="inspector/" class="on" data-t="Inspector de terreno" data-s="Foto → hallazgos → orden de trabajo"><video muted playsinline preload="auto" poster="img/v/inspector.jpg" src="img/v/inspector.mp4"></video></a>
+        <a href="vigia/" data-t="Vigía EPP" data-s="Casco en tiempo real, sin nube"><video muted playsinline preload="none" poster="img/v/vigia.jpg" src="img/v/vigia.mp4"></video></a>
+        <a href="normativa/" data-t="Consulta RIC" data-s="La norma eléctrica, con la cita"><video muted playsinline preload="none" poster="img/v/ric.jpg" src="img/v/ric.mp4"></video></a>
+        <a href="centinela-correas/" data-t="Centinela de correas" data-s="Grietas detectadas en marcha"><video muted playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video></a>
+        <a href="lector/" data-t="Lector de instrumentos" data-s="Del dial al dato"><video muted playsinline preload="none" poster="img/v/lector.jpg" src="img/v/lector.mp4"></video></a>
+        <a href="planta-virtual/" data-t="Planta virtual LX-SX-EW" data-s="Pregúntale a la planta qué pasa"><video muted playsinline preload="none" poster="img/v/planta.jpg" src="img/v/planta.mp4"></video></a>
+        <a href="selector-fruta/" data-t="Selector IA" data-s="Cada fruta mala, fuera de la línea"><video muted playsinline preload="none" poster="img/v/fruta.jpg" src="img/v/fruta.mp4"></video></a>
       </div>
-      <div class="mcap"><div><b id="cap-t">Vigía EPP</b><br><span id="cap-s">Casco en tiempo real · seguridad</span></div><div class="dots" id="dots"></div></div>
+      <div class="mcap"><div><b id="cap-t">Inspector de terreno</b><br><span id="cap-s">Foto → hallazgos → orden de trabajo</span></div><div class="dots" id="dots"></div></div>
     </div>
   </div>
 </header>
-
-<div class="proof"><div class="in">
-  <div class="k"><div class="v">93 de 100</div><div class="l">fotos con trabajadores sin casco detectadas por Vigía, en fotos que nunca vio</div></div>
-  <div class="k"><div class="v">98,8 %</div><div class="l">de acierto del Selector IA en 480 fotos de fruta que nunca vio</div></div>
-  <div class="k"><div class="v">12× menos</div><div class="l">falsas alarmas que el mejor modelo de visión de NVIDIA probado (2 contra 25)</div></div>
-  <div class="k"><div class="v">Sin nube</div><div class="l">la IA corre en un equipo local y las imágenes no salen de la faena</div></div>
-</div></div>
 
 <main>
 <section class="blk" id="maquinas"><div class="in">
   <div class="eyebrow">Máquinas</div>
   <h2>Pruébalas</h2>
-  <p class="lead">Cinco herramientas, cada una para un problema concreto. Todas abren en el navegador.</p>
+  <p class="lead">Cada una resuelve un problema concreto de operación. Abre cualquiera y úsala.</p>
 
-  <article class="mach">
-    <a class="shot" href="vigia/"><img src="img/vigia.jpg" alt="Vigía EPP: sala de control con cuatro cámaras, cascos detectados y alertas" loading="lazy"><span class="live">PRUEBA CON TU CÁMARA</span></a>
-    <div>
-      <div class="sector">Minería · seguridad</div>
-      <h3>Vigía EPP</h3>
-      <dl class="dl">
-        <dt>Problema</dt><dd>Un supervisor no puede mirar cuatro cámaras durante todo el turno. Las infracciones se descubren al revisar la grabación, cuando ya pasó algo.</dd>
-        <dt>Qué hace</dt><dd>Mira las cámaras, detecta a quien trabaja sin casco, avisa al supervisor con la foto y escribe el informe de turno. Las caras salen pixeladas.</dd>
-        <dt>Resultado</dt><dd class="res">En 100 fotos con infracción que no había visto detectó 93. En 100 fotos sin infracción dio 2 falsas alarmas; el mejor modelo de NVIDIA que probé dio 25.</dd>
-      </dl>
-      <a class="btn" href="vigia/">Probar Vigía</a>
-    </div>
-  </article>
-
-  <article class="mach">
-    <a class="shot" href="centinela-correas/"><img src="img/correa.jpg" alt="Centinela de correas: video de una correa con grietas marcadas y mapa de daños" loading="lazy"><span class="live">SALA DE CONTROL</span></a>
-    <div>
-      <div class="sector">Minería · mantenimiento</div>
-      <h3>Centinela de correas</h3>
-      <dl class="dl">
-        <dt>Problema</dt><dd>Una grieta en la correa puede terminar en un corte longitudinal. Hoy se busca con rondas a pie cada varias horas.</dd>
-        <dt>Qué hace</dt><dd>Una cámara bajo el retorno detecta grietas con la correa en marcha, las ubica en metros desde el empalme y genera la orden de trabajo.</dd>
-        <dt>Resultado</dt><dd class="res">En 9 videos de prueba dio aviso correcto en 6, y el 73 % de sus avisos fueron grietas reales. Todavía falla en correas con chevrón vistas de cerca.</dd>
-      </dl>
-      <a class="btn" href="centinela-correas/">Ver la sala de control</a>
-    </div>
-  </article>
-
-  <article class="mach">
-    <a class="shot" href="selector-fruta/"><img src="img/fruta.jpg" alt="Selector IA: línea con cámara, fruta clasificada y expulsor" loading="lazy"><span class="live">LÍNEA EN VIVO</span></a>
-    <div>
-      <div class="sector">Agro · calidad</div>
-      <h3>Selector IA de fruta</h3>
-      <dl class="dl">
-        <dt>Problema</dt><dd>En la línea de embalaje la selección es manual. Al final del turno se escapa más fruta mala, cada persona descarta con su criterio y no queda registro.</dd>
-        <dt>Qué hace</dt><dd>Una cámara mira cada fruta, la IA decide si está buena o mala y comanda el expulsor. Registra por lote y hora.</dd>
-        <dt>Resultado</dt><dd class="res">En 480 fotos nuevas acertó el 98,8 % entre buena y mala, no descartó ninguna fruta buena y tardó unos 3 ms por fruta.</dd>
-      </dl>
-      <a class="btn" href="selector-fruta/">Ver la línea funcionando</a>
-    </div>
-  </article>
-
-  <article class="mach">
-    <a class="shot" href="planta-virtual/"><img src="img/planta.jpg" alt="Planta virtual: sala de control de electroobtención con alarmas" loading="lazy"><span class="live">PROVOCA UNA FALLA</span></a>
-    <div>
-      <div class="sector">Minería · automatización</div>
-      <h3>Planta virtual LX-SX-EW</h3>
-      <dl class="dl">
-        <dt>Problema</dt><dd>Cuando falla un equipo, el operador, el mantenedor y el jefe de planta necesitan información distinta, pero todos miran la misma lista de alarmas.</dd>
-        <dt>Qué hace</dt><dd>Sala de control de una planta de cobre completa: P&amp;ID en vivo, lazos PID, alarmas ISA-18.2, vibraciones ISO 10816 y KPI de turno.</dd>
-        <dt>Resultado</dt><dd class="res">Cada rol tiene su pantalla. El operador ve qué hacer, mantenimiento ve la causa y gerencia ve cuánto cuesta la detención.</dd>
-      </dl>
-      <a class="btn" href="planta-virtual/">Entrar a la sala de control</a>
-    </div>
-  </article>
-
-  <article class="mach">
-    <a class="shot" href="https://github.com/JSNN15/prama-agent"><img src="img/prama.jpg" alt="prama-agent: menú con un equipo de agentes y su coordinador" loading="lazy"><span class="live">CÓDIGO ABIERTO</span></a>
-    <div>
-      <div class="sector">Trabajo · agentes de IA</div>
-      <h3>prama-agent</h3>
-      <dl class="dl">
-        <dt>Problema</dt><dd>Un agente de IA puede reportar una tarea como terminada sin haberla terminado.</dd>
-        <dt>Qué hace</dt><dd>Corre equipos de agentes en paralelo en un servidor propio. Un coordinador revisa cada entrega y solo se integra lo que pasa los tests.</dd>
-        <dt>Resultado</dt><dd class="res">Código abierto (Apache-2.0), con tablero del avance de cada agente y control desde Telegram.</dd>
-      </dl>
-      <a class="btn" href="https://github.com/JSNN15/prama-agent">Ver en GitHub</a>
-    </div>
-  </article>
-</div></section>
-
-<section class="blk" id="capacidades"><div class="in">
-  <div class="eyebrow">Tecnologías y capacidades</div>
-  <h2>Con qué trabajo</h2>
-  <p class="lead">Cada área enlaza a una máquina o prueba publicada donde se puede ver aplicada.</p>
-  <div class="caps">
-    <div class="cap">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
-      <h3>Visión artificial en el borde</h3>
-      <p>Detectores y clasificadores que corren en un computador junto a la cámara o la línea, sin mandar imágenes a internet.</p>
-      <div class="chips"><span>YOLOv8</span><span>MobileNetV3</span><span>PyTorch</span><span>ONNX Runtime</span><span>WebGPU</span></div>
-      <div class="by">Aplicado en: <a href="vigia/">Vigía EPP</a> · <a href="centinela-correas/">Centinela de correas</a> · <a href="selector-fruta/">Selector IA</a></div>
-    </div>
-    <div class="cap">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
-      <h3>Evaluación de modelos de IA</h3>
-      <p>Medir un modelo con fotos reales antes de comprarlo o instalarlo: cuánto acierta, cuántas falsas alarmas da y cuánto demora.</p>
-      <div class="chips"><span>NVIDIA NIM</span><span>Nemotron VL</span><span>Llama Vision</span><span>embeddings</span><span>auditoría de errores</span></div>
-      <div class="by">Aplicado en: <a href="ia-epp/">Inspección de EPP con IA</a></div>
-    </div>
-    <div class="cap">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="1.5"/><path d="M8 21h8M12 17v4M6 13l3-3 3 2 5-5"/></svg></div>
-      <h3>Automatización, SCADA y HMI</h3>
-      <p>Pantallas de operación con alarmas priorizadas, lazos de control y estado de equipos, según ISA-101 e ISA-18.2.</p>
-      <div class="chips"><span>P&amp;ID ISA-5.1</span><span>lazos PID</span><span>alarmas ISA-18.2</span><span>HMI ISA-101</span></div>
-      <div class="by">Aplicado en: <a href="planta-virtual/">Planta virtual LX-SX-EW</a></div>
-    </div>
-    <div class="cap">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7 15h10"/></svg></div>
-      <h3>Simulación de procesos</h3>
-      <p>Modelos dinámicos de procesos del cobre para capacitar operadores, probar estrategias de control y estimar pérdidas.</p>
-      <div class="chips"><span>balances de masa</span><span>ley de Faraday</span><span>LX-SX-EW</span><span>dinámica de estanques</span></div>
-      <div class="by">Aplicado en: <a href="simulador-ew/">Simulador EW</a> · <a href="procesos/">Curso de procesos</a></div>
-    </div>
-    <div class="cap">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div>
-      <h3>Datos y machine learning</h3>
-      <p>Sensores virtuales que estiman una medición de laboratorio a partir de variables de proceso, evaluados con validación temporal.</p>
-      <div class="chips"><span>Python</span><span>series de tiempo</span><span>validación temporal</span><span>sensores virtuales</span></div>
-      <div class="by">Aplicado en: <a href="lab-virtual-flotacion/">Laboratorio virtual de flotación</a></div>
-    </div>
-    <div class="cap">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M12 7.5v4M12 11.5l-5.5 4.5M12 11.5l5.5 4.5"/></svg></div>
-      <h3>Agentes de IA</h3>
-      <p>Equipos de agentes que se reparten tareas de ingeniería y oficina y revisan el trabajo de los demás.</p>
-      <div class="chips"><span>LLM</span><span>multiagente</span><span>verificación</span><span>servidor propio</span></div>
-      <div class="by">Aplicado en: <a href="https://github.com/JSNN15/prama-agent">prama-agent</a></div>
-    </div>
-    <div class="cap base">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
-      <div><h3>Energía e instrumentación</h3><p style="margin-top:6px">Instalador eléctrico SEC clase A, con 10 años en faena. Diseño gabinetes, instalo sensores y hago la puesta en marcha en terreno.</p></div>
-      <div class="chips"><span>Instalador SEC clase A</span><span>instrumentación</span><span>sensores inalámbricos</span><span>gabinetes</span><span>integración y puesta en marcha</span></div>
-      <div class="by">Trayectoria: <a href="https://www.linkedin.com/in/julian-neira-nova/">perfil de LinkedIn</a></div>
-    </div>
+  <div class="grp"><h3>Con IA de NVIDIA, en vivo</h3><span class="pill nv">Nemotron · API de NVIDIA</span><span>tú subes la foto o haces la pregunta</span></div>
+  <div class="gal">
+    <article class="tile">
+      <a class="vw" href="inspector/" aria-label="Abrir Inspector de terreno"><video muted loop playsinline preload="none" poster="img/v/inspector.jpg" src="img/v/inspector.mp4"></video><span class="tag nv"><i></i>SACA UNA FOTO</span></a>
+      <div class="b">
+        <div class="sector">Mantenimiento · inspección</div>
+        <h4>Inspector de terreno</h4>
+        <p>Foto de un tablero, una correa o un equipo. La IA marca lo que ve mal, dice qué hacer y arma la orden de trabajo.</p>
+        <div class="row"><a class="go" href="inspector/">Probar con una foto</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> Nemotron VL (visión y lenguaje) por la API de NVIDIA.</span><span><b>Cómo:</b> la IA devuelve cada hallazgo con severidad, acción y su caja en la foto; la página dibuja las marcas y la orden imprimible.</span><span><b>Seguridad:</b> la clave vive en un servidor intermedio que solo acepta este sitio y limita las consultas.</span></div></details></div>
+      </div>
+    </article>
+    <article class="tile">
+      <a class="vw" href="lector/" aria-label="Abrir Lector de instrumentos"><video muted loop playsinline preload="none" poster="img/v/lector.jpg" src="img/v/lector.mp4"></video><span class="tag nv"><i></i>DEL DIAL AL DATO</span></a>
+      <div class="b">
+        <div class="sector">Instrumentación · terreno</div>
+        <h4>Lector de instrumentos</h4>
+        <p>Foto de un manómetro o termómetro de aguja y sale el número, con alarma y registro.</p>
+        <div class="row"><a class="go" href="lector/">Leer un instrumento</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>IA + geometría:</b> la IA ubica los números de la escala; un ajuste robusto arma el dial y la relación ángulo-valor.</span><span><b>Visión clásica:</b> un barrido radial encuentra la aguja. Con cámara fija, la IA calibra una vez y el seguimiento corre en el navegador.</span><span><b>Control:</b> la lectura se compara con una estimación independiente de la IA y avisa si no calzan.</span></div></details></div>
+      </div>
+    </article>
+    <article class="tile">
+      <a class="vw" href="normativa/" aria-label="Abrir Consulta RIC"><video muted loop playsinline preload="none" poster="img/v/ric.jpg" src="img/v/ric.mp4"></video><span class="tag nv"><i></i>PREGUNTA A LA NORMA</span></a>
+      <div class="b">
+        <div class="sector">Normativa eléctrica · SEC</div>
+        <h4>Consulta RIC</h4>
+        <p>Preguntas por la normativa eléctrica chilena y la respuesta trae la cita exacta: pliego, sección y página del PDF oficial.</p>
+        <div class="row"><a class="go" href="normativa/">Hacer una pregunta</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Corpus:</b> los 19 pliegos técnicos RIC de la SEC, cortados por sección con su página.</span><span><b>Búsqueda:</b> vectores de Nemotron Embed más palabras clave, en el navegador. El mapa muestra dónde está la respuesta.</span><span><b>Respuesta:</b> Nemotron redacta solo con los fragmentos encontrados y cita cada afirmación.</span></div></details></div>
+      </div>
+    </article>
+    <article class="tile">
+      <a class="vw" href="planta-virtual/" aria-label="Abrir Planta virtual"><video muted loop playsinline preload="none" poster="img/v/planta.jpg" src="img/v/planta.mp4"></video><span class="tag nv"><i></i>PROVOCA UNA FALLA</span></a>
+      <div class="b">
+        <div class="sector">Minería · sala de control</div>
+        <h4>Planta virtual LX-SX-EW</h4>
+        <p>Sala de control de una planta de cobre. Provocas una falla y le preguntas a la planta qué está pasando.</p>
+        <div class="row"><a class="go" href="planta-virtual/">Entrar a la sala</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Simulación:</b> P&amp;ID en vivo, lazos PID, alarmas ISA-18.2, vibraciones ISO 10816-3 y KPI de turno.</span><span><b>IA:</b> el chat envía una foto del estado de la planta y Nemotron responde citando los tags; al tocarlos se abre su placa.</span><span><b>Roles:</b> pantallas distintas para operación, mantenimiento y gerencia.</span></div></details></div>
+      </div>
+    </article>
   </div>
-  <div class="stack"><b>Herramientas:</b> Python · PyTorch · Ultralytics · ONNX · NVIDIA NIM · JavaScript · WebGPU · SVG/Canvas · Linux · Git</div>
+
+  <div class="grp"><h3>Visión en el borde</h3><span class="pill">sin nube</span><span>la IA corre junto a la cámara; las imágenes no salen de la faena</span></div>
+  <div class="gal three">
+    <article class="tile">
+      <a class="vw" href="vigia/" aria-label="Abrir Vigía EPP"><video muted loop playsinline preload="none" poster="img/v/vigia.jpg" src="img/v/vigia.mp4"></video><span class="tag"><i></i>PRUEBA CON TU CÁMARA</span></a>
+      <div class="b">
+        <div class="sector">Seguridad · faena</div>
+        <h4>Vigía EPP</h4>
+        <p>Mira las cámaras, detecta a quien trabaja sin casco y avisa al supervisor con la foto.</p>
+        <div class="row"><a class="go" href="vigia/">Probar Vigía</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> detector YOLOv8 propio, corriendo en el equipo local.</span><span><b>Prueba:</b> en 100 fotos con infracción que no había visto detectó 93; en 100 sin infracción dio 2 falsas alarmas (el mejor modelo de NVIDIA probado dio 25).</span></div></details></div>
+      </div>
+    </article>
+    <article class="tile">
+      <a class="vw" href="centinela-correas/" aria-label="Abrir Centinela de correas"><video muted loop playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video><span class="tag"><i></i>SALA DE CONTROL</span></a>
+      <div class="b">
+        <div class="sector">Minería · correas</div>
+        <h4>Centinela de correas</h4>
+        <p>Detecta grietas con la correa en marcha y las ubica en metros desde el empalme.</p>
+        <div class="row"><a class="go" href="centinela-correas/">Ver la sala</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> YOLOv8 entrenado con videos públicos de correas; una grieta se confirma si aparece en 3 de 5 cuadros.</span><span><b>Prueba:</b> aviso correcto en 6 de 9 videos; el 73 % de los avisos fueron grietas reales. Falla aún en correas con chevrón vistas de cerca.</span></div></details></div>
+      </div>
+    </article>
+    <article class="tile">
+      <a class="vw" href="selector-fruta/" aria-label="Abrir Selector IA"><video muted loop playsinline preload="none" poster="img/v/fruta.jpg" src="img/v/fruta.mp4"></video><span class="tag"><i></i>LÍNEA EN VIVO</span></a>
+      <div class="b">
+        <div class="sector">Agro · calidad</div>
+        <h4>Selector IA de fruta</h4>
+        <p>La IA decide si cada fruta va o sale y comanda el expulsor, con registro por lote.</p>
+        <div class="row"><a class="go" href="selector-fruta/">Ver la línea</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> clasificador MobileNetV3 en el navegador, unos 3 ms por fruta.</span><span><b>Prueba:</b> 98,8 % de acierto en 480 fotos nuevas, sin descartar fruta buena.</span></div></details></div>
+      </div>
+    </article>
+  </div>
+
+  <a class="mini" href="https://github.com/JSNN15/prama-agent"><img src="img/prama.jpg" alt="" loading="lazy"><div><b>prama-agent</b><span>Equipos de agentes de IA que se reparten tareas; un coordinador revisa cada entrega antes de integrarla. Código abierto.</span></div><em>Ver en GitHub →</em></a>
 </div></section>
 
 <section class="blk" id="pruebas"><div class="in">
-  <div class="eyebrow">Pruebas y cursos</div>
-  <h2>Estudios y simuladores</h2>
+  <div class="eyebrow">Estudios y cursos</div>
+  <h2>Simuladores y pruebas</h2>
   <p class="lead">Pruebas con datos públicos de planta, simuladores y un curso abierto sobre procesos del cobre.</p>
   <div class="projects">
-    <a class="proj" href="ia-epp/"><img src="img/ia-epp.jpg" alt="Fotos de faena evaluadas por modelos de IA, con cascos marcados" loading="lazy"><div class="b"><h3>Inspección de EPP con IA: ¿cuánto acierta?</h3><p>Comparé modelos de visión de NVIDIA con un conjunto público de 5.000 fotos de obras y faenas.</p><span class="go">Ver la prueba →</span></div></a>
-    <a class="proj" href="procesos/"><img src="img/procesos.jpg" alt="Corte interactivo de un pórfido de cobre" loading="lazy"><div class="b"><h3>Procesos del cobre para ingenieros eléctricos</h3><p>Del mineral al cátodo, explicado con circuitos eléctricos y simuladores.</p><span class="go">Empezar el curso →</span></div></a>
-    <a class="proj" href="simulador-ew/"><img src="img/ew.jpg" alt="Simulador de nave de electroobtención con cortocircuitos" loading="lazy"><div class="b"><h3>Simulador de nave de electroobtención</h3><p>Una nave de celdas en serie. Provocas cortocircuitos y ves cuánto cobre se deja de producir.</p><span class="go">Abrir simulador →</span></div></a>
-    <a class="proj" href="lab-virtual-flotacion/"><img src="img/flotacion.jpg" alt="Gráficos de sílice real y estimación del modelo" loading="lazy"><div class="b"><h3>Laboratorio virtual de flotación</h3><p>Probé si un modelo estima la sílice antes que el laboratorio. Solo funciona si conoce el último análisis.</p><span class="go">Ver la prueba →</span></div></a>
+    <a class="proj" href="ia-epp/"><img src="img/ia-epp.jpg" alt="Fotos de faena evaluadas por modelos de IA, con cascos marcados" loading="lazy"><div class="b"><h3>Inspección de EPP con IA: ¿cuánto acierta?</h3><p>Modelos de visión de NVIDIA contra 5.000 fotos de obras y faenas.</p></div></a>
+    <a class="proj" href="procesos/"><img src="img/procesos.jpg" alt="Corte interactivo de un pórfido de cobre" loading="lazy"><div class="b"><h3>Procesos del cobre para ingenieros eléctricos</h3><p>Del mineral al cátodo, con circuitos y simuladores.</p></div></a>
+    <a class="proj" href="simulador-ew/"><img src="img/ew.jpg" alt="Simulador de nave de electroobtención con cortocircuitos" loading="lazy"><div class="b"><h3>Nave de electroobtención</h3><p>Provocas cortocircuitos y ves cuánto cobre se pierde.</p></div></a>
+    <a class="proj" href="lab-virtual-flotacion/"><img src="img/flotacion.jpg" alt="Gráficos de sílice real y estimación del modelo" loading="lazy"><div class="b"><h3>Laboratorio virtual de flotación</h3><p>¿Se puede estimar la sílice antes que el laboratorio?</p></div></a>
+  </div>
+</div></section>
+
+<section class="blk" id="capacidades"><div class="in">
+  <div class="eyebrow">Capacidades</div>
+  <h2>Con qué trabajo</h2>
+  <div class="caps">
+    <div class="cap"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div><h3>Visión artificial en el borde</h3><div class="chips"><span>YOLOv8</span><span>MobileNetV3</span><span>PyTorch</span><span>ONNX</span><span>WebGPU</span></div></div>
+    <div class="cap"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></div><h3>IA generativa aplicada</h3><div class="chips"><span>NVIDIA NIM</span><span>Nemotron VL</span><span>embeddings</span><span>búsqueda con citas</span><span>Cloudflare Workers</span></div></div>
+    <div class="cap"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="1.5"/><path d="M8 21h8M12 17v4M6 13l3-3 3 2 5-5"/></svg></div><h3>Automatización, SCADA y HMI</h3><div class="chips"><span>P&amp;ID ISA-5.1</span><span>lazos PID</span><span>alarmas ISA-18.2</span><span>HMI ISA-101</span></div></div>
+    <div class="cap"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7 15h10"/></svg></div><h3>Simulación de procesos</h3><div class="chips"><span>LX-SX-EW</span><span>balances de masa</span><span>ley de Faraday</span><span>dinámica de estanques</span></div></div>
+    <div class="cap"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>Datos y evaluación de modelos</h3><div class="chips"><span>Python</span><span>series de tiempo</span><span>validación temporal</span><span>auditoría de errores</span></div></div>
+    <div class="cap"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div><h3>Energía e instrumentación</h3><div class="chips"><span>Instalador SEC clase A</span><span>gabinetes</span><span>sensores</span><span>puesta en marcha</span></div></div>
   </div>
 </div></section>
 
 <section class="blk" id="servicios"><div class="in">
   <div class="eyebrow">Servicios</div>
   <h2>Cómo trabajo</h2>
-  <p class="lead">Trabajo a través de Servicio y Soluciones Tecnológicas DelaCruz SpA, en proyectos cortos y con datos del cliente.</p>
+  <p class="lead">A través de Servicio y Soluciones Tecnológicas DelaCruz SpA, en proyectos cortos y con datos del cliente.</p>
   <div class="steps">
-    <div><h3>Diagnóstico</h3><p>Revisamos el problema, qué se mide hoy y si la IA sirve para ese caso.</p></div>
-    <div><h3>Piloto</h3><p>Ajusto la herramienta con datos de tu faena o tu línea y la comparo con cómo se hace hoy.</p></div>
-    <div><h3>Puesta en marcha</h3><p>Hardware, gabinete, integración con los sistemas existentes y puesta en marcha en terreno.</p></div>
+    <div><h3>Diagnóstico</h3><p>Qué se mide hoy y si la IA sirve para ese caso.</p></div>
+    <div><h3>Piloto</h3><p>Ajusto la herramienta con tus datos y la comparo con cómo se hace hoy.</p></div>
+    <div><h3>Puesta en marcha</h3><p>Hardware, gabinete, integración y puesta en marcha en terreno.</p></div>
   </div>
 </div></section>
 </main>
 
 <section class="cta" id="contacto"><div class="in">
-  <div><h2>Conversemos</h2><p>Si tienes un problema de operación que se pueda medir o automatizar, escríbeme. Te digo si una herramienta como estas sirve y qué resultado esperar antes de instalar algo.</p></div>
+  <div><h2>Conversemos</h2><p>Si tienes un problema de operación que se pueda medir o automatizar, escríbeme. Te digo si una herramienta así sirve antes de instalar nada.</p></div>
   <div class="links" style="margin:0"><a class="main" href="https://www.linkedin.com/in/julian-neira-nova/">Escríbeme por LinkedIn</a><a href="https://www.linkedin.com/company/systdelacruzspa/">DelaCruz SpA</a></div>
 </div></section>
 
@@ -370,17 +334,31 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
   };
   size(); addEventListener('resize', size); draw();
 })();
-// Monitor: rota entre las máquinas.
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
+// Monitor: cada máquina se reproduce completa y pasa a la siguiente.
 (() => {
-  const s = [...document.querySelectorAll('#scr a')], dots = document.getElementById('dots'); let i = 0, tm;
-  s.forEach((_, k) => { const b = document.createElement('button'); b.setAttribute('aria-label', s[k].dataset.t); b.onclick = () => go(k, true); dots.appendChild(b); });
-  const go = (k, user) => {
+  const s = [...document.querySelectorAll('#scr a')], dots = document.getElementById('dots'); let i = 0, tm, seen = true;
+  s.forEach((_, k) => { const b = document.createElement('button'); b.setAttribute('aria-label', s[k].dataset.t); b.onclick = () => go(k); dots.appendChild(b); });
+  const go = (k) => {
+    const prev = s[i].querySelector('video'); prev.pause();
     s[i].classList.remove('on'); i = k; s[i].classList.add('on');
     document.getElementById('cap-t').textContent = s[i].dataset.t; document.getElementById('cap-s').textContent = s[i].dataset.s;
     [...dots.children].forEach((d, j) => d.classList.toggle('on', j === i));
-    clearTimeout(tm); if (!matchMedia('(prefers-reduced-motion: reduce)').matches) tm = setTimeout(() => go((i + 1) % s.length), user ? 9000 : 4200);
+    clearTimeout(tm);
+    const v = s[i].querySelector('video'); s[(i + 1) % s.length].querySelector('video').preload = 'auto';
+    if (still) return;
+    v.currentTime = 0; if (seen) v.play().catch(() => {});
+    tm = setTimeout(() => go((i + 1) % s.length), 15000); // por si el video no termina
   };
+  s.forEach((a) => a.querySelector('video').addEventListener('ended', () => go((i + 1) % s.length)));
+  new IntersectionObserver(([e]) => { seen = e.isIntersecting; const v = s[i].querySelector('video'); if (still) return; seen ? v.play().catch(() => {}) : v.pause(); }).observe(document.getElementById('scr'));
   go(0);
+})();
+// Galería: cada video corre solo mientras está a la vista.
+(() => {
+  if (still) return;
+  const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target; if (e.isIntersecting) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause(); }), {threshold: .45});
+  document.querySelectorAll('.tile video').forEach((v) => io.observe(v));
 })();
 </script>
 </body>
