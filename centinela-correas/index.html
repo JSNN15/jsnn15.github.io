@@ -185,7 +185,7 @@ footer{padding:22px 0 40px;font-size:.82rem;color:var(--muted)}
     <div class="card"><div class="n">DETECTA</div><h3>Grietas cuadro a cuadro</h3><p>Un detector YOLO revisa cada cuadro. Lo entrené primero con recortes a resolución completa, para las grietas pequeñas, y después con cuadros enteros.</p></div>
     <div class="card"><div class="n">CONFIRMA</div><h3>Seguimiento entre cuadros</h3><p>Una detección aislada no genera aviso. La grieta debe aparecer en varios cuadros seguidos.</p></div>
     <div class="card"><div class="n">UBICA</div><h3>Metros desde el empalme</h3><p>Con la velocidad y el tiempo, cada grieta queda en un punto de la correa. En la vuelta siguiente se reconoce la misma.</p></div>
-    <div class="card"><div class="n">AVISA</div><h3>Prioridad y orden de trabajo</h3><p>El tamaño define la prioridad. La orden de trabajo sale con el metro, el tamaño y las vueltas en que se vio.</p></div>
+    <div class="card"><div class="n">AVISA</div><h3>Prioridad y orden de trabajo</h3><p>El tamaño define la prioridad. Una grieta grande vista en dos vueltas pide detener la correa. La orden de trabajo sale con el metro, el tamaño y las vueltas en que se vio.</p></div>
   </div>
 </div></section>
 
@@ -291,7 +291,7 @@ footer{padding:22px 0 40px;font-size:.82rem;color:var(--muted)}
   };
   const drawState = () => {
     const d = belts[ci].defects, el = $('s-state');
-    if (d.some((x) => x.sev === 'alta')) { el.className = 'state bad'; el.textContent = 'DETENER Y REVISAR'; }
+    if (d.some((x) => x.sev === 'alta' && x.laps.size >= 2)) { el.className = 'state bad'; el.textContent = 'DETENER Y REVISAR'; }   // prioridad alta confirmada en una segunda vuelta
     else if (d.length) { el.className = 'state warn'; el.textContent = 'AVISO A MANTENCIÓN'; }
     else { el.className = 'state'; el.textContent = 'NORMAL'; }
   };
@@ -367,11 +367,11 @@ footer{padding:22px 0 40px;font-size:.82rem;color:var(--muted)}
       }
       best.def = d;
       const old = d.sev;
-      d.size = med(d.sizes); d.sev = d.size >= 0.32 ? 'alta' : d.size >= 0.14 ? 'media' : 'baja'; d.m = d.m0;
+      d.size = med(d.sizes); d.sev = d.size >= 0.45 ? 'alta' : d.size >= 0.22 ? 'media' : 'baja'; d.m = d.m0;
       if (!old) log(`<b style="color:${d.sev === 'alta' ? '#ff8a7d' : d.sev === 'media' ? '#ffd27a' : '#a5ecff'}">Prioridad ${d.sev}</b> · grieta nueva en ${nf(d.m0, 1)} m desde el empalme`);
       drawList(); drawState();
     }
-    for (const d of b.defects) { if (d.sizes.length) { d.size = med(d.sizes); d.sev = d.size >= 0.32 ? 'alta' : d.size >= 0.14 ? 'media' : 'baja'; } }
+    for (const d of b.defects) { if (d.sizes.length) { d.size = med(d.sizes); d.sev = d.size >= 0.45 ? 'alta' : d.size >= 0.22 ? 'media' : 'baja'; } }
     b.tracks = b.tracks.filter((tr) => tr.age <= 6);
   };
 
