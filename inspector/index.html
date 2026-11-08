@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inspector de terreno</title>
+<meta name="description" content="Saca una foto de un tablero, una correa o un equipo. Un modelo de visión de NVIDIA marca lo que ve mal y arma la orden de trabajo.">
+<meta property="og:title" content="Inspector de terreno · IA de NVIDIA">
+<meta property="og:description" content="Saca una foto de un tablero, una correa o un equipo. La IA marca lo que ve mal y arma la orden de trabajo.">
+<meta property="og:image" content="https://jsnn15.github.io/img/inspector.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#090c0f;--panel:#10161b;--panel2:#151d24;--line:#222d37;--fg:#e8eef2;--muted:#93a2ae;--acc:#76b900;--alta:#ff4d3d;--media:#f5a524;--baja:#4fd3ef;--ok:#3ccf7a;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;--sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.5}
+a{color:inherit}
+.in{max-width:80rem;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+nav{border-bottom:1px solid var(--line)}
+nav .in{display:flex;justify-content:space-between;align-items:center;padding-block:10px;gap:12px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:600;text-decoration:none}
+nav a.s{font-family:var(--mono);font-size:.76rem;color:var(--muted);text-decoration:none}
+@media (max-width:600px){nav .lg{display:none}}
+header .in{padding-block:22px 14px;display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:14px}
+h1{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(2.2rem,5vw,3.6rem);line-height:.9;margin:0}
+h1 em{font-style:normal;color:var(--acc)}
+.sub{color:var(--muted);margin:6px 0 0;max-width:52ch}
+.nvb{font-family:var(--mono);font-size:.72rem;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:4px 8px;white-space:nowrap}
+.nvb b{color:var(--acc);font-weight:600}
+
+.tool{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:14px;padding-bottom:18px}
+@media (max-width:900px){.tool{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;background:#000;border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:340px;display:grid;place-items:center}
+.stage canvas{display:block;max-width:100%;height:auto;max-height:76vh;width:auto}
+.drop{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;color:var(--muted);border:2px dashed transparent;border-radius:12px;transition:border-color .2s}
+.drop.over{border-color:var(--acc);background:rgba(118,185,0,.06)}
+.drop .big{font-family:var(--display);font-size:1.8rem;text-transform:uppercase;color:var(--fg);letter-spacing:.02em}
+.scan{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent);box-shadow:0 0 18px 4px rgba(118,185,0,.55);top:0;display:none;animation:sweep 1.6s ease-in-out infinite alternate}
+.scan.on{display:block}
+@keyframes sweep{to{top:calc(100% - 3px)}}
+.veil{position:absolute;inset:0;background:rgba(0,0,0,.35);display:none}
+.veil.on{display:block}
+.status{position:absolute;left:10px;bottom:10px;font-family:var(--mono);font-size:.76rem;background:rgba(0,0,0,.7);border:1px solid var(--line);padding:4px 9px;border-radius:4px;display:none}
+.status.on{display:block}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:inherit;font-size:.84rem;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer}
+.chip.on{border-color:var(--acc);color:var(--fg);background:#16210a}
+.btn{font:inherit;font-size:.9rem;font-weight:600;padding:9px 14px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#0b1300}
+.btn:disabled{opacity:.5;cursor:default}
+.sp{flex:1}
+.thumbs{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:thin}
+.thumbs button{flex:0 0 auto;width:104px;aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:2px solid var(--line);padding:0;cursor:pointer;background:#000}
+.thumbs button.on{border-color:var(--acc)}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+
+.res{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:340px}
+.empty{color:var(--muted);margin:auto;text-align:center;max-width:30ch}
+.skel{height:28px;border-radius:6px;background:linear-gradient(90deg,#151d24,#1f2a33,#151d24);background-size:200% 100%;animation:sh 1.2s linear infinite;width:40%}
+.skel.s2{height:56px;width:100%}.skel.s3{height:84px;width:100%}
+@keyframes sh{to{background-position:-200% 0}}
+.head{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.estado{font-family:var(--mono);font-weight:600;font-size:.78rem;letter-spacing:.08em;padding:5px 10px;border-radius:4px}
+.estado.bueno{background:#103020;color:#9ff0c0}.estado.observaciones{background:#3a2a07;color:#ffd27a}.estado.critico{background:#3d0f0b;color:#ffb1a8}
+.resumen{margin:0;font-size:.98rem}
+.f{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;padding:10px;border-radius:9px;background:var(--panel2);border:1px solid transparent;cursor:default;transition:border-color .15s}
+.f:hover,.f.hl{border-color:#3a4a58}
+.num{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:.85rem;color:#000}
+.f h3{margin:0;font-size:.98rem;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sev{font-family:var(--mono);font-size:.68rem;padding:1px 6px;border-radius:3px;font-weight:600}
+.f p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.f .acc{color:var(--fg)}
+.f .acc::before{content:"→ ";color:var(--acc)}
+.nse{font-size:.82rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.meta{font-family:var(--mono);font-size:.7rem;color:var(--muted);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+
+.how{border-top:1px solid var(--line);margin-top:10px}
+.how .in{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding-block:22px}
+@media (max-width:760px){.how .in{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.step{display:flex;gap:10px;align-items:flex-start}
+.step svg{flex:0 0 auto;color:var(--acc)}
+.step b{display:block;font-size:.92rem}
+.step span{color:var(--muted);font-size:.84rem}
+footer{border-top:1px solid var(--line)}
+footer .in{padding-block:16px 30px;font-size:.76rem;color:var(--muted)}
+dialog{border:1px solid var(--line);border-radius:12px;padding:0;max-width:720px;width:calc(100% - 32px);background:#fff;color:#111}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.ot{padding:22px}
+.ot h2{font-family:var(--display);text-transform:uppercase;margin:0;font-size:1.8rem}
+.ot table{width:100%;border-collapse:collapse;font-size:.88rem;margin:12px 0}
+.ot th,.ot td{border-bottom:1px solid #ddd;padding:6px;text-align:left;vertical-align:top}
+.ot th{font-size:.72rem;color:#666;text-transform:uppercase}
+.ot img{max-width:100%;border-radius:6px;margin-top:6px}
+.ot .btns{display:flex;gap:8px;margin-top:12px}
+.ot button{font:inherit;padding:8px 14px;border-radius:6px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer}
+@media print{body>*:not(dialog){display:none}dialog{position:static;border:0;max-width:none;width:auto}.ot .btns{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="brand" href="./"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="19" rx="3" fill="none" stroke="#76b900" stroke-width="2.4"/><circle cx="16" cy="16.5" r="5" fill="none" stroke="#76b900" stroke-width="2.4"/><path d="M11 7l2-3h6l2 3" fill="none" stroke="#76b900" stroke-width="2.4"/><circle cx="24" cy="11" r="1.6" fill="#ff4d3d"/></svg>Inspector de terreno</a>
+  <a class="s" href="../"><span class="lg">Julián Neira Nova · </span>Portafolio →</a>
+</div></nav>
+
+<header><div class="in">
+  <div>
+    <h1>Saca una foto. <em>La IA inspecciona.</em></h1>
+    <p class="sub">Tableros, correas o equipos. Marca lo que ve mal, dice qué hacer y arma la orden de trabajo.</p>
+  </div>
+  <span class="nvb">visión <b>NVIDIA Nemotron VL</b></span>
+</div></header>
+
+<main class="in">
+  <div class="tool">
+    <div>
+      <div class="stage" id="stage">
+        <canvas id="cv" width="1280" height="800"></canvas>
+        <div class="veil" id="veil"></div><div class="scan" id="scan"></div>
+        <div class="drop" id="drop"><div><div class="big">Arrastra una foto aquí</div><div>o usa los botones de abajo</div></div></div>
+        <div class="status" id="status"></div>
+      </div>
+      <div class="bar">
+        <div class="chips" id="kinds" role="radiogroup" aria-label="Qué hay en la foto">
+          <button class="chip on" data-k="tablero" role="radio" aria-checked="true">Tablero eléctrico</button>
+          <button class="chip" data-k="correa" role="radio" aria-checked="false">Correa</button>
+          <button class="chip" data-k="equipo" role="radio" aria-checked="false">Equipo</button>
+          <button class="chip" data-k="general" role="radio" aria-checked="false">Otro</button>
+        </div>
+        <span class="sp"></span>
+        <label class="btn p"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Tomar foto<input type="file" accept="image/*" capture="environment" id="cam" hidden></label>
+        <label class="btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Subir<input type="file" accept="image/*" id="file" hidden></label>
+      </div>
+      <div class="thumbs" id="thumbs" aria-label="Fotos de ejemplo"></div>
+    </div>
+    <section class="res" id="res" aria-live="polite">
+      <p class="empty" id="empty">Elige una foto de ejemplo o sube la tuya. El resultado aparece aquí en unos segundos.</p>
+    </section>
+  </div>
+</main>
+
+<section class="how"><div class="in">
+  <div class="step"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><div><b>Foto</b><span>Desde el celular, en terreno. Se reduce en tu equipo antes de enviarla.</span></div></div>
+  <div class="step"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/></svg><div><b>Modelo de visión</b><span>Nemotron VL de NVIDIA revisa la foto con criterio de mantenimiento y seguridad.</span></div></div>
+  <div class="step"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 15l3-3 3 2 4-5"/></svg><div><b>Hallazgos ubicados</b><span>Cada problema marcado en la foto, con prioridad y acción.</span></div></div>
+  <div class="step"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M9 8h4"/></svg><div><b>Orden de trabajo</b><span>Lista para imprimir o enviar. La decisión final la toma una persona.</span></div></div>
+</div></section>
+
+<dialog id="otd"><div class="ot" id="ot"></div></dialog>
+
+<footer><div class="in">Inspector de terreno · Servicio y Soluciones Tecnológicas DelaCruz SpA · Julián Neira Nova. Las fotos que subes se envían a la API de NVIDIA a través de un servidor intermedio y no se guardan. Es una ayuda para inspeccionar; no reemplaza la revisión de una persona calificada ni la desenergización. Fotos de ejemplo: <span id="credits"></span></div></footer>
+
+<script>
+(() => {
+  const NV = ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:8787' : 'https://nv-portafolio.jneiranova.workers.dev');
+  const $ = (id) => document.getElementById(id);
+  const SAMPLES = [{"img": "s/n0.jpg", "kind": "tablero", "credit": "Electrical Panel · peretzp · CC BY-SA 2.0", "link": "https://www.flickr.com/photos/68877611@N00/5397919963", "ms": 11094, "result": {"resumen": "El tablero eléctrico presenta un estado crítico debido a la presencia de material combustible (paja o hierba seca) dentro del gabinete, en contacto directo con conductores y equipos energizados, lo que representa un riesgo severo de incendio y falla eléctrica.", "estado": "critico", "hallazgos": [{"titulo": "Material combustible dentro del gabinete", "detalle": "Se observa paja o hierba seca acumulada en el interior del tablero, entre los cables y alrededor de los interruptores automáticos. Este material es altamente inflamable y puede encenderse por chispas, arcos eléctricos o sobrecalentamiento de conexiones.", "severidad": "alta", "accion": "Desenergizar el tablero, retirar todo el material extraño y limpiar el interior. Verificar que no haya daños en el aislamiento de los cables antes de reenergizar.", "caja": [110, 400, 890, 930]}, {"titulo": "Cableado desordenado y sin protección", "detalle": "Los conductores (cables rosados, azules, verdes y otros) están enredados, sin canalización ni sujetadores adecuados, lo que dificulta la inspección, aumenta el riesgo de contacto accidental y puede dañar el aislamiento por roce o calor.", "severidad": "media", "accion": "Reorganizar el cableado, instalar canaletas o sujetadores y separar los conductores de circuitos diferentes según normativa eléctrica.", "caja": [120, 410, 880, 920]}, {"titulo": "Interruptores automáticos expuestos y sin cubierta", "detalle": "Los tres interruptores automáticos (dos de marca LGN y uno Schneider Electric) están visibles y sin una cubierta protectora adicional, lo que expone los bornes y mecanismos a contacto accidental, polvo y humedad.", "severidad": "media", "accion": "Instalar una cubierta o puerta protectora sobre los interruptores y asegurar que el cierre del gabinete funcione correctamente.", "caja": [200, 430, 690, 630]}, {"titulo": "Indicadores y medidores con posible deterioro", "detalle": "Los tres amperímetros/voltímetros y las luces piloto (verde, roja y amarilla) muestran signos de antigüedad y suciedad. No se puede confirmar desde la foto si están operativos o calibrados.", "severidad": "baja", "accion": "Realizar prueba de funcionamiento de los indicadores y luces piloto; reemplazar los que no respondan.", "caja": [140, 110, 840, 380]}], "no_se_puede_evaluar": "No se puede confirmar si el tablero está energizado, si existe puesta a tierra adecuada, si los interruptores están cerrados o abiertos, ni el estado real de las conexiones internas debido al desorden del cableado y la presencia de material extraño."}, "error": null}, {"img": "s/n1.jpg", "kind": "tablero", "credit": "square-d distribution board · h080 · CC BY-SA 2.0", "link": "https://www.flickr.com/photos/7718908@N04/3225348374", "ms": 10768, "result": {"resumen": "Gabinete eléctrico con componentes quemados y acumulación de hollín, indicando falla térmica o arco eléctrico previo.", "estado": "critico", "hallazgos": [{"titulo": "Componentes quemados", "detalle": "Varios módulos plásticos presentan zonas carbonizadas y derretidas, lo que indica sobrecalentamiento severo o arco eléctrico.", "severidad": "alta", "accion": "Desenergizar el equipo, retirar los componentes dañados y reemplazar por repuestos originales antes de reenergizar.", "caja": [100, 100, 760, 760]}, {"titulo": "Hollín en barra colectora", "detalle": "La barra de conexión inferior muestra manchas negras y residuos de combustión, comprometiendo el aislamiento y contacto eléctrico.", "severidad": "alta", "accion": "Limpiar la barra colectora, inspeccionar continuidad y reemplazar si hay daño estructural o pérdida de aislamiento.", "caja": [330, 560, 840, 720]}, {"titulo": "Gabinete sucio y deteriorado", "detalle": "El interior del gabinete está cubierto de polvo y residuos de combustión, lo que puede provocar nuevos cortocircuitos.", "severidad": "media", "accion": "Realizar limpieza industrial del gabinete y verificar integridad de sellos y cubiertas antes de poner en servicio.", "caja": [0, 100, 1000, 1000]}], "no_se_puede_evaluar": "No se puede confirmar si el equipo está desenergizado, ni evaluar el estado de los cables de alimentación y protecciones upstream."}, "error": null}, {"img": "s/n2.jpg", "kind": "equipo", "credit": "Green is the colour of... · Jens Rost · CC BY-SA 2.0", "link": "https://www.flickr.com/photos/56380734@N05/6038268904", "ms": 5065, "result": {"resumen": "La imagen muestra una unión de tubería pintada de verde con una junta metálica muy oxidada y presencia de humedad, lo que indica posible fuga o corrosión avanzada en el acoplamiento.", "estado": "observaciones", "hallazgos": [{"titulo": "Junta metálica con corrosión severa", "detalle": "Se observa una junta o brida metálica entre tramos de tubería con una capa gruesa de óxido marrón y superficie húmeda, lo que sugiere pérdida de integridad del sellado y posible fuga de fluido.", "severidad": "alta", "accion": "Aislar la sección, inspeccionar espesor de la junta, reemplazar la junta y aplicar protección anticorrosiva; verificar si hay goteo activo.", "caja": [35, 250, 950, 680]}, {"titulo": "Pintura deteriorada y humedad en tubería", "detalle": "La pintura verde de la tubería presenta descascaramiento, manchas oscuras y zonas húmedas debajo de la junta, compatibles con filtración prolongada.", "severidad": "media", "accion": "Limpiar la zona, lijar óxido superficial, repintar con sistema anticorrosivo y monitorear reaparición de humedad.", "caja": [90, 600, 950, 1000]}, {"titulo": "Sello superior con residuos y posible filtración", "detalle": "En la parte superior de la unión hay acumulación de material oscuro y humedad en el borde de la pintura, lo que podría indicar filtración desde el tramo superior o sellado deficiente.", "severidad": "baja", "accion": "Revisar el sello superior, limpiar residuos y sellar si corresponde; incluir en programa de inspección visual periódica.", "caja": [140, 80, 880, 330]}], "no_se_puede_evaluar": "No se puede confirmar el tipo de fluido que transporta la tubería, la presión de operación, si la fuga es activa en el momento de la foto ni el espesor remanente del metal sin mediciones adicionales."}, "error": null}, {"img": "s/n3.jpg", "kind": "correa", "credit": "BeltCrack (Huang y otros, 2026) · CC BY-SA 4.0", "link": "https://doi.org/10.57760/sciencedb.31181", "ms": 4565, "result": {"resumen": "La imagen muestra una sección de correa transportadora con tambores y estructura metálica en interior industrial; se observan signos de desgaste y posible falta de protección en puntos de contacto, pero no hay evidencia de falla inminente.", "estado": "observaciones", "hallazgos": [{"titulo": "Desgaste en tambor de correa", "detalle": "El tambor central presenta superficie oxidada y desgastada, lo que puede reducir el agarre y generar deslizamiento de la correa.", "severidad": "media", "accion": "Inspeccionar espesor de revestimiento del tambor y programar recubrimiento o reemplazo según desgaste.", "caja": [560, 480, 770, 640]}, {"titulo": "Estructura de soporte con corrosión", "detalle": "Los soportes metálicos pintados de rojo muestran descascaramiento y posible corrosión superficial, lo que afecta la rigidez del bastidor a mediano plazo.", "severidad": "media", "accion": "Lijar, aplicar inhibidor de corrosión y repintar los soportes afectados.", "caja": [430, 500, 820, 720]}, {"titulo": "Cubierta de correa con posible daño superficial", "detalle": "La correa en la zona superior muestra marcas y desgaste irregular en la cubierta, aunque no se aprecia rotura ni deshilachado crítico.", "severidad": "baja", "accion": "Monitorear en rondas de inspección y registrar avance del desgaste.", "caja": [0, 0, 1000, 500]}, {"titulo": "Falta de protección en punto de contacto", "detalle": "No se observa protección física ni señalización en el punto de contacto entre correa y tambor, aumentando riesgo de atrapamiento.", "severidad": "alta", "accion": "Instalar protección física y señalización de peligro según normativa de seguridad.", "caja": [750, 250, 1000, 600]}], "no_se_puede_evaluar": "No se puede confirmar alineación precisa de la correa, tensión operativa, estado de rodamientos internos ni velocidad de operación, ya que requieren medición o funcionamiento del equipo."}, "error": null}, {"img": "s/n4.jpg", "kind": "tablero", "credit": "Electric panel · sparr0 · CC BY-SA 2.0", "link": "https://www.flickr.com/photos/22611472@N02/5999514090", "ms": 7451, "result": {"resumen": "Gabinete eléctrico industrial abierto con componentes visibles, cableado expuesto y señales de uso; presenta riesgos de contacto y falta de protección adecuada.", "estado": "observaciones", "hallazgos": [{"titulo": "Cableado expuesto y sin canalización", "detalle": "Se observan múltiples cables sueltos y conexiones abiertas al interior del gabinete, lo que aumenta el riesgo de contacto accidental, cortocircuitos y daños mecánicos.", "severidad": "alta", "accion": "Instalar canaletas, ductos o conductos y asegurar todos los conductores con abrazaderas; revisar y rehacer conexiones según esquema eléctrico.", "caja": [180, 220, 800, 880]}, {"titulo": "Gabinete sin puerta ni cubierta protectora", "detalle": "El frente del tablero está abierto, dejando expuestos componentes energizados a polvo, humedad y contacto directo de personas.", "severidad": "alta", "accion": "Reinstalar la puerta o cubierta del gabinete con cierre y señalización de peligro eléctrico antes de energizar.", "caja": [100, 90, 860, 990]}, {"titulo": "Componentes con posible sobrecalentamiento o corrosión", "detalle": "Se ven bornes y contactores con coloración oscura y posibles señales de calor o humedad; no se puede confirmar sin medición.", "severidad": "media", "accion": "Realizar inspección termográfica y medir aislamiento y continuidad; reemplazar componentes dañados.", "caja": [300, 510, 600, 820]}, {"titulo": "Falta de identificación y señalización", "detalle": "No se observan etiquetas claras de circuitos, voltajes ni advertencias de riesgo eléctrico en el interior del gabinete.", "severidad": "media", "accion": "Colocar etiquetas duraderas con identificación de circuitos y señalización de peligro eléctrico visible.", "caja": [200, 200, 750, 850]}, {"titulo": "Entorno con materiales combustibles y desorden", "detalle": "Existen plásticos negros y cartón cerca del gabinete, lo que representa riesgo de incendio en caso de chispa o falla eléctrica.", "severidad": "baja", "accion": "Retirar materiales combustibles del área y mantener un espacio libre alrededor del equipo eléctrico.", "caja": [0, 0, 450, 740]}], "no_se_puede_evaluar": "No se puede confirmar si el gabinete está desenergizado, si existe protección diferencial o térmica-magnética adecuada, ni el estado del aislamiento sin pruebas eléctricas y documentación del equipo."}}, {"img": "s/n5.jpg", "kind": "tablero", "credit": "Open room distribution board · seeweb · CC BY-SA 2.0", "link": "https://www.flickr.com/photos/65475777@N06/6934400882", "ms": 21262, "result": {"resumen": "Gabinete eléctrico industrial con barra de cobre y módulos de control; se observa cableado expuesto y falta de identificación clara en bornes, lo que requiere revisión de seguridad.", "estado": "observaciones", "hallazgos": [{"titulo": "Cableado expuesto sobre barra de cobre", "detalle": "Cables negros y azules conectados directamente a la barra de cobre sin protección visible ni canalización, con riesgo de contacto accidental o cortocircuito.", "severidad": "alta", "accion": "Instalar cubiertas o protectores sobre la barra y organizar el cableado con canaletas o bridas.", "caja": [630, 180, 930, 930]}, {"titulo": "Falta de identificación en bornes inferiores", "detalle": "Los bornes de los módulos inferiores no tienen etiquetas legibles, lo que dificulta la operación y el mantenimiento seguro.", "severidad": "media", "accion": "Etiquetar cada borne según el esquema eléctrico correspondiente.", "caja": [40, 560, 560, 990]}, {"titulo": "Módulos de control con cubiertas abiertas", "detalle": "Se observan módulos con componentes internos visibles y sin tapa protectora completa, exponiendo partes activas.", "severidad": "media", "accion": "Reinstalar las cubiertas protectoras de los módulos y verificar cierre hermético.", "caja": [160, 350, 550, 520]}, {"titulo": "Señales de advertencia visibles", "detalle": "Hay triángulos amarillos de advertencia en el interior del gabinete, indicando riesgo eléctrico, pero sin contexto adicional visible.", "severidad": "baja", "accion": "Mantener señalización visible y complementar con instrucciones de seguridad específicas del equipo.", "caja": [100, 380, 150, 500]}], "no_se_puede_evaluar": "No se puede confirmar si el gabinete está energizado, si existe puesta a tierra adecuada, ni si los equipos están en servicio o en prueba."}}];
+  const COL = {alta: '#ff4d3d', media: '#f5a524', baja: '#4fd3ef'};
+  const SEV = {alta: 'Alta', media: 'Media', baja: 'Baja'};
+  const EST = {bueno: 'BUENO', observaciones: 'CON OBSERVACIONES', critico: 'CRÍTICO'};
+  const cv = $('cv'), cx = cv.getContext('2d');
+  let kind = 'tablero', img = null, result = null, hl = -1, meta = null;
+
+  $('credits').innerHTML = SAMPLES.map((s) => `<a href="${s.link}">${s.credit}</a>`).join(' · ');
+  $('thumbs').innerHTML = SAMPLES.map((s, i) => `<button data-i="${i}" aria-label="Ejemplo ${i + 1}"><img src="${s.img}" alt="" loading="lazy"></button>`).join('');
+  $('kinds').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; kind = b.dataset.k; [...$('kinds').children].forEach((c) => { c.classList.toggle('on', c === b); c.setAttribute('aria-checked', c === b); }); });
+
+  // dibuja la foto con los hallazgos numerados
+  const draw = () => {
+    if (!img) return;
+    const s = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
+    cv.width = Math.round(img.naturalWidth * s); cv.height = Math.round(img.naturalHeight * s);
+    cx.drawImage(img, 0, 0, cv.width, cv.height);
+    if (!result) return;
+    const W = cv.width, H = cv.height, lw = Math.max(3, W / 300), fs = Math.max(18, W / 40);
+    (result.hallazgos || []).forEach((f, i) => {
+      if (!Array.isArray(f.caja) || f.caja.length !== 4) return;
+      let [x1, y1, x2, y2] = f.caja.map(Number); if ([x1, y1, x2, y2].some(isNaN)) return;
+      x1 = x1 / 1000 * W; x2 = x2 / 1000 * W; y1 = y1 / 1000 * H; y2 = y2 / 1000 * H;
+      const c = COL[f.severidad] || COL.baja, on = hl === i, dim = hl >= 0 && !on;
+      cx.globalAlpha = dim ? 0.25 : 1;
+      cx.fillStyle = c + (on ? '33' : '14'); cx.fillRect(x1, y1, x2 - x1, y2 - y1);
+      cx.lineWidth = on ? lw * 1.6 : lw; cx.strokeStyle = c; cx.setLineDash(on ? [] : [lw * 3, lw * 2]); cx.strokeRect(x1, y1, x2 - x1, y2 - y1); cx.setLineDash([]);
+      const r = fs * 0.8, px = Math.min(W - r - 4, Math.max(r + 4, x1 + r + 4)), py = Math.min(H - r - 4, Math.max(r + 4, y1 + r + 4));
+      cx.beginPath(); cx.arc(px, py, r, 0, 7); cx.fillStyle = c; cx.fill(); cx.lineWidth = 3; cx.strokeStyle = '#000'; cx.stroke();
+      cx.fillStyle = '#000'; cx.font = `700 ${Math.round(fs)}px IBM Plex Mono, monospace`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(i + 1, px, py + 1);
+      cx.globalAlpha = 1;
+    });
+  };
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+  const show = (r, m) => {
+    result = r; meta = m; hl = -1; draw();
+    const hs = r.hallazgos || [];
+    $('res').innerHTML = `<div class="head"><span class="estado ${esc(r.estado)}">${EST[r.estado] || esc(r.estado || '').toUpperCase()}</span><button class="btn" id="b-ot"${hs.length ? '' : ' disabled'}>Orden de trabajo</button></div>
+      <p class="resumen">${esc(r.resumen)}</p>
+      ${hs.map((f, i) => `<div class="f" data-i="${i}"><div class="num" style="background:${COL[f.severidad] || COL.baja}">${i + 1}</div><div><h3>${esc(f.titulo)} <span class="sev" style="background:${COL[f.severidad] || COL.baja};color:#000">${SEV[f.severidad] || esc(f.severidad)}</span></h3><p>${esc(f.detalle)}</p><p class="acc">${esc(f.accion)}</p></div></div>`).join('')}
+      ${r.no_se_puede_evaluar ? `<div class="nse"><b>La foto no permite confirmar:</b> ${esc(r.no_se_puede_evaluar)}</div>` : ''}
+      <div class="meta"><span>${esc(m.src)}</span><span>${m.ms ? (m.ms / 1000).toFixed(1).replace('.', ',') + ' s' : ''}</span></div>`;
+    $('res').querySelectorAll('.f').forEach((el) => {
+      el.addEventListener('mouseenter', () => { hl = +el.dataset.i; draw(); });
+      el.addEventListener('mouseleave', () => { hl = -1; draw(); });
+      el.addEventListener('click', () => { hl = hl === +el.dataset.i ? -1 : +el.dataset.i; draw(); });
+    });
+    const b = $('b-ot'); if (b) b.onclick = ot;
+  };
+  const busy = (on, msg) => { ['veil', 'scan', 'status'].forEach((id) => $(id).classList.toggle('on', on)); $('status').textContent = msg || ''; document.querySelectorAll('.btn,.chip,.thumbs button').forEach((b) => b.disabled = on); };
+  const load = (src) => new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = src; });
+
+  // ejemplos: resultado guardado de la misma IA, para no gastar consultas
+  $('thumbs').addEventListener('click', async (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    const s = SAMPLES[+b.dataset.i];
+    [...$('thumbs').children].forEach((t) => t.classList.toggle('on', t === b));
+    img = await load(s.img); $('drop').style.display = 'none'; result = null; draw();
+    $('res').innerHTML = '<div class="skel"></div><div class="skel s2"></div><div class="skel s3"></div>';
+    busy(true, 'Analizando…'); await new Promise((r) => setTimeout(r, 900)); busy(false);
+    show(s.result, {src: 'Resultado guardado de la IA para esta foto de ejemplo', ms: s.ms});
+  });
+
+  // foto propia: se reduce a 1280 px y se envía al servidor intermedio
+  const analyze = async (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    const url = URL.createObjectURL(file);
+    img = await load(url); $('drop').style.display = 'none'; result = null; draw();
+    [...$('thumbs').children].forEach((t) => t.classList.remove('on'));
+    const s = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    let q = 0.85, data = c.toDataURL('image/jpeg', q); while (data.length > 1_500_000 && q > 0.4) { q -= 0.1; data = c.toDataURL('image/jpeg', q); }
+    $('res').innerHTML = '<div class="skel"></div><div class="skel s2"></div><div class="skel s3"></div><div class="skel s3"></div>';
+    busy(true, 'Enviando a NVIDIA…'); const t0 = performance.now();
+    const tick = setInterval(() => { $('status').textContent = `Nemotron VL revisando la foto… ${((performance.now() - t0) / 1000).toFixed(0)} s`; }, 500);
+    try {
+      const r = await fetch(NV + '/inspect', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({image: data, kind})});
+      const d = await r.json();
+      if (!r.ok || !d.ok) throw new Error(d.error || 'sin respuesta');
+      show(d.result, {src: 'Análisis en vivo · ' + d.model.split('/').pop(), ms: d.ms});
+    } catch (err) {
+      $('res').innerHTML = `<p class="empty">No se pudo analizar la foto: ${esc(err.message)}. Prueba de nuevo en un minuto.</p>`;
+    } finally { clearInterval(tick); busy(false); }
+  };
+  $('file').addEventListener('change', (e) => analyze(e.target.files[0]));
+  $('cam').addEventListener('change', (e) => analyze(e.target.files[0]));
+  const st = $('stage');
+  ['dragenter', 'dragover'].forEach((ev) => st.addEventListener(ev, (e) => { e.preventDefault(); $('drop').classList.add('over'); $('drop').style.display = ''; }));
+  ['dragleave', 'drop'].forEach((ev) => st.addEventListener(ev, (e) => { e.preventDefault(); $('drop').classList.remove('over'); if (img) $('drop').style.display = 'none'; }));
+  st.addEventListener('drop', (e) => analyze(e.dataTransfer.files[0]));
+
+  // orden de trabajo imprimible
+  function ot() {
+    const hs = (result.hallazgos || []).slice().map((f, i) => ({...f, n: i + 1}));
+    const n = 'OT-' + new Date().toISOString().slice(2, 10).replace(/-/g, '') + '-' + String(Math.floor(Math.random() * 900) + 100);
+    const tipo = {tablero: 'Tablero eléctrico', correa: 'Correa transportadora', equipo: 'Equipo', general: 'Instalación'}[kind] || 'Instalación';
+    $('ot').innerHTML = `<h2>Orden de trabajo ${n}</h2><p style="margin:2px 0 0;color:#555;font-size:.9rem">${tipo} · ${new Date().toLocaleString('es-CL')} · generada por Inspector de terreno (IA), revisar en terreno</p>
+      <p><b>Estado:</b> ${EST[result.estado] || esc(result.estado)}. ${esc(result.resumen)}</p>
+      <table><thead><tr><th>#</th><th>Prioridad</th><th>Hallazgo</th><th>Acción</th></tr></thead><tbody>${hs.map((f) => `<tr><td>${f.n}</td><td>${SEV[f.severidad] || esc(f.severidad)}</td><td><b>${esc(f.titulo)}</b><br>${esc(f.detalle)}</td><td>${esc(f.accion)}</td></tr>`).join('')}</tbody></table>
+      ${hs.some((f) => f.severidad === 'alta') ? '<p><b>Hay hallazgos de prioridad alta: aplicar bloqueo y desenergización antes de intervenir.</b></p>' : ''}
+      <img src="${cv.toDataURL('image/jpeg', 0.8)}" alt="Foto con hallazgos marcados">
+      <p style="font-size:.8rem;color:#666">Responsable: __________________ &nbsp; Fecha de cierre: __________</p>
+      <div class="btns"><button onclick="document.getElementById('otd').close()">Cerrar</button><button onclick="window.print()">Imprimir</button></div>`;
+    $('otd').showModal();
+  }
+  addEventListener('resize', draw);
+})();
+</script>
+</body>
+</html>
