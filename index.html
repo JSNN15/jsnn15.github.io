@@ -170,6 +170,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
       <div class="bar"><i></i><i></i><i></i><span class="rec">EN VIVO</span></div>
       <div class="scr" id="scr">
         <a href="vigia/" class="on" data-t="Vigía EPP" data-s="Casco en tiempo real · seguridad"><img src="img/vigia.jpg" alt="Sala de control de Vigía EPP con cámaras de faena y detecciones de casco"></a>
+        <a href="centinela-correas/" data-t="Centinela de correas" data-s="Grietas en correas transportadoras · minería"><img src="img/correa.jpg" alt="Video de correa con grietas detectadas y mapa de daños" loading="lazy"></a>
         <a href="selector-fruta/" data-t="Selector IA" data-s="Calidad de fruta en línea · agro"><img src="img/fruta.jpg" alt="Línea de selección: la IA marca fruta buena y mala y el expulsor saca la mala" loading="lazy"></a>
         <a href="planta-virtual/" data-t="Planta virtual LX-SX-EW" data-s="Sala de control · minería"><img src="img/planta.jpg" alt="Sala de control de una planta de cobre con P&amp;ID y alarmas" loading="lazy"></a>
         <a href="https://github.com/JSNN15/prama-agent" data-t="prama-agent" data-s="Equipos de agentes de IA · trabajo"><img src="img/prama.jpg" alt="Menú de prama-agent con un equipo de agentes" loading="lazy"></a>
@@ -190,7 +191,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
 <section class="blk" id="maquinas"><div class="in">
   <div class="eyebrow">Máquinas</div>
   <h2>Pruébalas</h2>
-  <p class="lead">Cuatro herramientas, cada una para un problema concreto. Todas abren en el navegador.</p>
+  <p class="lead">Cinco herramientas, cada una para un problema concreto. Todas abren en el navegador.</p>
 
   <article class="mach">
     <a class="shot" href="vigia/"><img src="img/vigia.jpg" alt="Vigía EPP: sala de control con cuatro cámaras, cascos detectados y alertas" loading="lazy"><span class="live">PRUEBA CON TU CÁMARA</span></a>
@@ -203,6 +204,20 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
         <dt>Resultado</dt><dd class="res">En 100 fotos con infracción que no había visto detectó 93. En 100 fotos sin infracción dio 2 falsas alarmas; el mejor modelo de NVIDIA que probé dio 25.</dd>
       </dl>
       <a class="btn" href="vigia/">Probar Vigía</a>
+    </div>
+  </article>
+
+  <article class="mach">
+    <a class="shot" href="centinela-correas/"><img src="img/correa.jpg" alt="Centinela de correas: video de una correa con grietas marcadas y mapa de daños" loading="lazy"><span class="live">SALA DE CONTROL</span></a>
+    <div>
+      <div class="sector">Minería · mantenimiento</div>
+      <h3>Centinela de correas</h3>
+      <dl class="dl">
+        <dt>Problema</dt><dd>Una grieta en la correa puede terminar en un corte longitudinal. Hoy se busca con rondas a pie cada varias horas.</dd>
+        <dt>Qué hace</dt><dd>Una cámara bajo el retorno detecta grietas con la correa en marcha, las ubica en metros desde el empalme y genera la orden de trabajo.</dd>
+        <dt>Resultado</dt><dd class="res">En 9 videos de prueba dio aviso correcto en 6, y el 73 % de sus avisos fueron grietas reales. Todavía falla en correas con chevrón vistas de cerca.</dd>
+      </dl>
+      <a class="btn" href="centinela-correas/">Ver la sala de control</a>
     </div>
   </article>
 
@@ -259,42 +274,42 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
       <h3>Visión artificial en el borde</h3>
       <p>Detectores y clasificadores que corren en un computador junto a la cámara o la línea, sin mandar imágenes a internet.</p>
       <div class="chips"><span>YOLOv8</span><span>MobileNetV3</span><span>PyTorch</span><span>ONNX Runtime</span><span>WebGPU</span></div>
-      <div class="by">Lo demuestran: <a href="vigia/">Vigía EPP</a> · <a href="selector-fruta/">Selector IA</a></div>
+      <div class="by">Aplicado en: <a href="vigia/">Vigía EPP</a> · <a href="centinela-correas/">Centinela de correas</a> · <a href="selector-fruta/">Selector IA</a></div>
     </div>
     <div class="cap">
       <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
       <h3>Evaluación de modelos de IA</h3>
       <p>Medir un modelo con fotos reales antes de comprarlo o instalarlo: cuánto acierta, cuántas falsas alarmas da y cuánto demora.</p>
       <div class="chips"><span>NVIDIA NIM</span><span>Nemotron VL</span><span>Llama Vision</span><span>embeddings</span><span>auditoría de errores</span></div>
-      <div class="by">Lo demuestra: <a href="ia-epp/">Inspección de EPP con IA</a></div>
+      <div class="by">Aplicado en: <a href="ia-epp/">Inspección de EPP con IA</a></div>
     </div>
     <div class="cap">
       <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="1.5"/><path d="M8 21h8M12 17v4M6 13l3-3 3 2 5-5"/></svg></div>
       <h3>Automatización, SCADA y HMI</h3>
       <p>Pantallas de operación con alarmas priorizadas, lazos de control y estado de equipos, según ISA-101 e ISA-18.2.</p>
       <div class="chips"><span>P&amp;ID ISA-5.1</span><span>lazos PID</span><span>alarmas ISA-18.2</span><span>HMI ISA-101</span></div>
-      <div class="by">Lo demuestra: <a href="planta-virtual/">Planta virtual LX-SX-EW</a></div>
+      <div class="by">Aplicado en: <a href="planta-virtual/">Planta virtual LX-SX-EW</a></div>
     </div>
     <div class="cap">
       <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7 15h10"/></svg></div>
       <h3>Simulación de procesos</h3>
       <p>Modelos dinámicos de procesos del cobre para capacitar operadores, probar estrategias de control y estimar pérdidas.</p>
       <div class="chips"><span>balances de masa</span><span>ley de Faraday</span><span>LX-SX-EW</span><span>dinámica de estanques</span></div>
-      <div class="by">Lo demuestran: <a href="simulador-ew/">Simulador EW</a> · <a href="procesos/">Curso de procesos</a></div>
+      <div class="by">Aplicado en: <a href="simulador-ew/">Simulador EW</a> · <a href="procesos/">Curso de procesos</a></div>
     </div>
     <div class="cap">
       <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div>
       <h3>Datos y machine learning</h3>
       <p>Sensores virtuales que estiman una medición de laboratorio a partir de variables de proceso, evaluados con validación temporal.</p>
       <div class="chips"><span>Python</span><span>series de tiempo</span><span>validación temporal</span><span>sensores virtuales</span></div>
-      <div class="by">Lo demuestra: <a href="lab-virtual-flotacion/">Laboratorio virtual de flotación</a></div>
+      <div class="by">Aplicado en: <a href="lab-virtual-flotacion/">Laboratorio virtual de flotación</a></div>
     </div>
     <div class="cap">
       <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M12 7.5v4M12 11.5l-5.5 4.5M12 11.5l5.5 4.5"/></svg></div>
       <h3>Agentes de IA</h3>
       <p>Equipos de agentes que se reparten tareas de ingeniería y oficina y revisan el trabajo de los demás.</p>
       <div class="chips"><span>LLM</span><span>multiagente</span><span>verificación</span><span>servidor propio</span></div>
-      <div class="by">Lo demuestra: <a href="https://github.com/JSNN15/prama-agent">prama-agent</a></div>
+      <div class="by">Aplicado en: <a href="https://github.com/JSNN15/prama-agent">prama-agent</a></div>
     </div>
     <div class="cap base">
       <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
