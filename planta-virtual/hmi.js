@@ -31,7 +31,7 @@
   const bub = (x, y, tag, o = {}) => {
     if (o.loop) {
       const w = 108, h = 38, x0 = x - w / 2, y0 = y - h / 2;
-      return `<g class="cb" data-fp="${o.loop}" data-cb="${o.loop}" transform="translate(${x0},${y0})"><rect class="bx" width="${w}" height="${h}" rx="2"/>` +
+      return `<g class="cb" data-fp="${o.loop}" data-cb="${o.loop}" transform="translate(${x0},${y0})"><rect class="bx" width="${w}" height="${h}" rx="2"/><rect class="cbh" x="1" y="1" width="${w - 2}" height="16" rx="1"/>` +
         `<text x="6" y="12" class="dbt">${tag}</text><g class="md"><rect x="${w - 38}" y="3" width="34" height="12" rx="2"/><text x="${w - 21}" y="12.2" text-anchor="middle" data-cbm="${o.loop}">AUTO</text></g>` +
         `<text x="6" y="27" class="cbv"><tspan class="cbl">SP </tspan><tspan class="cbn" data-sp="${o.loop}">0</tspan></text><text x="${w - 6}" y="27" class="cbv" text-anchor="end"><tspan class="cbl">OP </tspan><tspan class="cbn" data-op="${o.loop}">0</tspan><tspan class="cbl"> %</tspan></text>` +
         `<rect class="dvb" x="6" y="${h - 6}" width="${w - 12}" height="2"/><rect class="dvc" x="${w / 2 - 0.5}" y="${h - 8}" width="1" height="6"/><rect class="dvp" data-dev="${o.loop}" x="${w / 2 - 1.5}" y="${h - 9}" width="3" height="8"/></g>`;
@@ -44,12 +44,23 @@
   const motor = (x, y, id) => `<g class="eq" data-eq="${id}" data-fp="${id}" transform="translate(${x},${y})"><circle r="13"/><text class="ic" y="4.5" text-anchor="middle" style="font-size:12px;font-weight:600">M</text></g>` + T_(x, y + 27, id, 'tagt', 'middle') + ALM(x + 14, y - 14, id + '.TRIP');
   const valve = (x, y, loop, vert = false) => `<g class="valve" data-valve="${loop}" data-fp="${loop}" transform="translate(${x},${y}) rotate(${vert ? 90 : 0})"><path d="M-10,-7 L10,7 L10,-7 L-10,7 Z"/><line x1="0" y1="0" x2="0" y2="-12" stroke="var(--eq)"/><rect x="-6" y="-18" width="12" height="6" fill="var(--panel2)" stroke="var(--eq)"/></g>` +
     `<text x="${x}" y="${y + (vert ? 4 : 22)}" dx="${vert ? 16 : 0}" class="unit" text-anchor="${vert ? 'start' : 'middle'}"><tspan>${VALVE[loop] || ''} </tspan><tspan data-op="${loop}">0</tspan>%</text>`;
-  const pipe = (d, flow, thr = 1, cls = '') => `<path class="pipe ${cls}" d="${d}" ${flow ? `data-flow="${flow}" data-thr="${thr}"` : ''}/>`;
-  const DEFS = '<defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="ahm"/></marker><marker id="ahon" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="ahm on"/></marker></defs>';
+  // Fluido de cada línea para el estilo clásico de faena (color por fluido, trazo de flujo animado). Se puede forzar con 'f-xxx' en cls.
+  const FLUID = {'WIT-101': 'ore', 'FIT-102': 'acid', 'LIT-103': 'acid', 'FIT-104': 'water', 'FIT-206': 'water', 'LIT-502': 'water', 'FIT-200': 'ref', 'FIT-211': 'ref', 'FIT-212': 'ref', 'FIT-213': 'ref', 'FIT-203': 'pls', 'FIT-205': 'pls', 'FIT-301': 'org', 'FIT-402': 'elr', 'KY-304': 'elr', 'TIT-403': 'hw', 'FIT-404': 'co', 'FIT-409': 'elp'};
+  const pipe = (d, flow, thr = 1, cls = '') => {
+    const fl = /\bf-/.test(cls) ? '' : (FLUID[flow] ? ' f-' + FLUID[flow] : ''), df = flow ? `data-flow="${flow}" data-thr="${thr}"` : '';
+    return `<path class="pipe ${cls}${fl}" d="${d}" ${df}/><path class="pipe-hl ${cls}${fl}" d="${d}" ${df}/>`;
+  };
+  const DEFS = '<defs><linearGradient id="gSteel" x1="0" x2="1"><stop offset="0" stop-color="#34485c"/><stop offset=".45" stop-color="#a8bccd"/><stop offset=".55" stop-color="#c6d4e0"/><stop offset="1" stop-color="#2f4256"/></linearGradient>' +
+    '<linearGradient id="gOre" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c0915a"/><stop offset="1" stop-color="#6a4522"/></linearGradient>' +
+    '<linearGradient id="gBand" x1="0" x2="1"><stop offset="0" stop-color="#1d4c82"/><stop offset=".7" stop-color="#133457"/><stop offset="1" stop-color="#0a1724" stop-opacity="0"/></linearGradient>' +
+    '<radialGradient id="gRun" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#8dffb0"/><stop offset=".55" stop-color="#22c55e"/><stop offset="1" stop-color="#0d6b2f"/></radialGradient>' +
+    '<radialGradient id="gStop" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#ff9a8f"/><stop offset=".55" stop-color="#c0392b"/><stop offset="1" stop-color="#6e140d"/></radialGradient>' +
+    '<radialGradient id="gTrip" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#fff59a"/><stop offset=".6" stop-color="#ffd400"/><stop offset="1" stop-color="#9a7a00"/></radialGradient>' +
+    '<marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="ahm"/></marker><marker id="ahon" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="ahm on"/></marker></defs>';
   const sig = (d) => `<path class="sig" d="${d}"/>`;
-  const tank = (x, y, w, h, tag, name) => `<rect class="vessel" x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/><rect class="fill" data-lvl="${tag}" data-y="${y}" data-h="${h}" x="${x + 2}" y="${y}" width="${w - 4}" height="0"/>` + (name ? T_(x + w / 2, y - 6, name, 'tagt', 'middle') : '');
+  const tank = (x, y, w, h, tag, name, fl = '') => `<rect class="vessel" x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/><rect class="fill${fl ? ' f-' + fl : ''}" data-lvl="${tag}" data-y="${y}" data-h="${h}" x="${x + 2}" y="${y}" width="${w - 4}" height="0"/>` + (name ? T_(x + w / 2, y - 6, name, 'tagt', 'middle') : '');
   let cpN = 0;
-  const pond = (x, y, w, h, tag, name) => { const id = 'cp' + (++cpN); const pts = `${x},${y} ${x + w},${y} ${x + w - 18},${y + h} ${x + 18},${y + h}`; return `<clipPath id="${id}"><polygon points="${pts}"/></clipPath><polygon class="vessel" points="${pts}"/><rect class="fill" clip-path="url(#${id})" data-lvl="${tag}" data-y="${y}" data-h="${h}" x="${x}" y="${y}" width="${w}" height="0"/>` + (name ? T_(x + w / 2, y - 6, name, 'tagt', 'middle') : ''); };
+  const pond = (x, y, w, h, tag, name, fl = '') => { const id = 'cp' + (++cpN); const pts = `${x},${y} ${x + w},${y} ${x + w - 18},${y + h} ${x + 18},${y + h}`; return `<clipPath id="${id}"><polygon points="${pts}"/></clipPath><polygon class="vessel pond" points="${pts}"/><rect class="fill${fl ? ' f-' + fl : ''}" clip-path="url(#${id})" data-lvl="${tag}" data-y="${y}" data-h="${h}" x="${x}" y="${y}" width="${w}" height="0"/>` + (name ? T_(x + w / 2, y - 6, name, 'tagt', 'middle') : ''); };
   const off = (x, y, text, go, dir = 1) => { const w = Math.max(70, text.length * 5.8 + 18); const d = dir > 0 ? `M0,-11 L${w - 10},-11 L${w},0 L${w - 10},11 L0,11 Z` : `M10,-11 L${w},-11 L${w},11 L10,11 L0,0 Z`; return `<g class="off" ${go ? `data-go="${go}"` : ''} transform="translate(${x},${y})"><path d="${d}"/><text x="${dir > 0 ? 6 : 14}" y="3.5">${text}</text></g>`; };
   const btn = (x, y, w, label, act) => `<g class="btn" data-act="${act}" transform="translate(${x},${y})"><rect width="${w}" height="24" rx="3"/><text x="${w / 2}" y="16" text-anchor="middle" style="font-size:11px" data-btxt="${act}">${label}</text></g>`;
   const ai = (x, y, w, tag, label) => `<g class="ai" data-ai="${tag}" data-w="${w}" transform="translate(${x},${y})">${T_(0, 0, label || P.T[tag].desc, 'lbl')}<text x="${w}" y="0" class="val" text-anchor="end"><tspan data-v="${tag}">0</tspan><tspan class="unit"> ${P.T[tag].unit}</tspan></text>` +
@@ -91,7 +102,7 @@
     <path d="M330,298 L322,312 L338,312 Z" fill="var(--eq)"/>
     ${bub(330, 230, 'WIT-101', {v: 'WIT-101', vx: 0, vy: -24, va: 'middle'})}
     ${bub(137, 380, 'WIC-101', {loop: 'WIC-101'})}${sig('M330,246 L330,380 L154,380')}${sig('M137,363 L137,325')}
-    ${tank(430, 50, 70, 100, 'LIT-103', '')}${T_(510, 82, 'TK-103', 'tagt')}${T_(510, 96, 'ácido diario', 'unit')}${V_(510, 116, 'LIT-103')}${ALM(510, 60, 'LIT-103')}
+    ${tank(430, 50, 70, 100, 'LIT-103', '', 'acid')}${T_(510, 82, 'TK-103', 'tagt')}${T_(510, 96, 'ácido diario', 'unit')}${V_(510, 116, 'LIT-103')}${ALM(510, 60, 'LIT-103')}
     ${off(310, 100, 'desde TK-501', 'a500', -1)}${pipe('M400,100 L430,100', 'LIT-103', -1)}
     ${pipe('M465,150 L465,176 L526,176', 'FIT-102', 0.5)}${pump(540, 176, 'P-102')}${pipe('M554,176 L610,176', 'FIT-102', 0.5)}
     ${valve(625, 176, 'FFIC-102')}${pipe('M635,176 L800,176 L800,214', 'FIT-102', 0.5)}
@@ -100,7 +111,7 @@
     ${off(1060, 130, 'agua TK-502', 'a500', -1)}${pipe('M1060,130 L1030,130', 'FIT-104', 1)}${pump(1016, 130, 'P-104', true, -1)}${pipe('M1002,130 L975,130', 'FIT-104', 1)}
     ${valve(960, 130, 'FFIC-104')}${pipe('M950,130 L920,130 L920,214', 'FIT-104', 1)}
     ${bub(880, 90, 'FIT-104', {v: 'FIT-104', vx: -22, vy: 4, va: 'end'})}${sig('M880,106 L880,130 L920,130')}
-    ${bub(960, 60, 'FFIC-104', {loop: 'FFIC-104'})}${sig('M960,76 L960,114')}${K_(1012, 64, 'ratio-104', 'lbl')}
+    ${bub(960, 60, 'FFIC-104', {loop: 'FFIC-104'})}${sig('M960,76 L960,114')}${K_(1020, 64, 'ratio-104', 'lbl')}
     <g class="eq drum" data-eq="M-103" data-fp="M-103"><rect x="770" y="214" width="210" height="80" rx="30"/><path class="st" d="M790,226 L960,226 M790,254 L960,254 M790,282 L960,282"/></g>
     ${T_(875, 312, 'AD-101 tambor aglomerador', 'tagt', 'middle')}
     ${motor(875, 350, 'M-103')}${ALM(892, 336, 'M-103.VIB')}
@@ -121,8 +132,8 @@
     // piscina de refino y reposición
     s += off(14, 62, 'agua TK-502', 'a500') + pipe('M98,62 L155,62', 'FIT-206', 1) + valve(170, 62, 'LIC-201') + pipe('M180,62 L255,62 L255,112', 'FIT-206', 1) + V_(262, 96, 'FIT-206');
     s += bub(340, 62, 'LIC-201', {loop: 'LIC-201'}) + sig('M324,62 L300,62 L300,38 L170,38 L170,44');
-    s += off(14, 150, 'refino de SX', 'a300') + pipe('M98,150 L128,150', 'FIT-205', 50);
-    s += pond(120, 112, 190, 90, 'LIT-201', '') + T_(215, 222, 'TK-201 piscina de refino', 'tagt', 'middle') + V_(215, 240, 'LIT-201', 'middle') + ALM(312, 226, 'LIT-201');
+    s += off(14, 150, 'refino de SX', 'a300') + pipe('M98,150 L128,150', 'FIT-205', 50, 'f-ref');
+    s += pond(120, 112, 190, 90, 'LIT-201', '', 'ref') + T_(215, 222, 'TK-201 piscina de refino', 'tagt', 'middle') + V_(215, 240, 'LIT-201', 'middle') + ALM(312, 226, 'LIT-201');
     // bombas de riego
     s += pipe('M294,190 L320,190', 'FIT-200', 50) + pipe('M320,160 L320,230', 'FIT-200', 50) + pipe('M320,160 L336,160', 'FIT-200', 50) + pipe('M320,230 L336,230', 'FIT-200', 50);
     s += pump(350, 160, 'P-201A', false) + T_(350, 143, 'P-201A', 'tagt', 'middle') + pump(350, 230, 'P-201B', false) + T_(350, 258, 'P-201B', 'tagt', 'middle');
@@ -132,7 +143,7 @@
       const lp = 'FIC-21' + (k + 1), ft2 = 'FIT-21' + (k + 1);
       s += pipe(`M420,${y} L485,${y}`, ft2, 20) + valve(500, y, lp) + pipe(`M510,${y} L620,${y} L620,${y - 40} L860,${y - 40}`, ft2, 20);
       s += bub(570, y - 38, ft2, {v: ft2, vx: 0, vy: -22, va: 'middle'}) + sig(`M570,${y - 22} L570,${y}`) + bub(500, y + 46, lp, {loop: lp}) + sig(`M500,${y + 29} L500,${y + 8}`) + sig(`M554,${y - 38} L516,${y + 40}`);
-      for (let d = 650; d <= 850; d += 25) s += `<path d="M${d},${y - 40} L${d},${y - 30}" stroke="var(--pipe)" stroke-width="1.5"/>`;
+      for (let d = 650; d <= 850; d += 25) s += `<path class="drip" d="M${d},${y - 40} L${d},${y - 30}"/>`;
       s += `<polygon class="heap" points="635,${y + 26} 670,${y - 26} 840,${y - 26} 875,${y + 26}"/>`;
       s += T_(755, y - 4, `Sector ${k + 1} · días ${k * 30} a ${k * 30 + 30}`, 'tagt', 'middle') + K_(755, y + 14, 'sec-' + k, 'val', 'middle');
       s += pipe(`M868,${y + 20} L910,${y + 20}`, 'FIT-203', 50, 'thin');
@@ -140,7 +151,7 @@
     s += pipe('M910,170 L910,430', 'FIT-203', 50) + pipe('M910,320 L965,320', 'FIT-203', 50);
     s += bub(950, 120, 'FIT-203', {v: 'FIT-203', vx: 22, vy: 4}) + sig('M934,128 L910,170');
     // piscina PLS
-    s += pond(950, 290, 180, 90, 'LIT-204', '') + T_(950, 398, 'TK-202 piscina PLS', 'tagt') + V_(950, 416, 'LIT-204') + K_(950, 434, 'lab-ph', 'lbl') + ALM(1132, 286, 'LIT-204');
+    s += pond(950, 290, 180, 90, 'LIT-204', '', 'pls') + T_(950, 398, 'TK-202 piscina PLS', 'tagt') + V_(950, 416, 'LIT-204') + K_(950, 434, 'lab-ph', 'lbl') + ALM(1132, 286, 'LIT-204');
     s += bub(990, 235, 'AIT-206', {v: 'AIT-206', vx: 0, vy: -22, va: 'middle'}) + sig('M990,251 L990,290') + bub(1080, 235, 'AIT-207', {v: 'AIT-207', vx: 0, vy: -22, va: 'middle'}) + sig('M1080,251 L1080,290');
     s += bub(1144, 436, 'LIC-204', {loop: 'LIC-204'}) + sig('M1144,417 L1144,345 L1124,345');
     // bombas a SX
@@ -154,30 +165,30 @@
   };
 
   SCREENS.a300 = () => {
-    const ms = (y, mot, name, id) => `<rect class="vessel" x="300" y="${y}" width="60" height="60"/><rect class="vessel" x="360" y="${y}" width="330" height="60"/><rect class="org" x="361" y="${y + 1}" width="328" height="22"/>` +
+    const ms = (y, mot, name, aq = 'pls') => `<rect class="vessel" x="300" y="${y}" width="60" height="60"/><rect class="vessel" x="360" y="${y}" width="330" height="60"/><rect class="org" x="361" y="${y + 1}" width="328" height="22"/><rect class="aq f-${aq}" x="361" y="${y + 24}" width="328" height="35"/>` +
       `<line x1="330" y1="${y - 18}" x2="330" y2="${y + 40}" stroke="var(--eq)" stroke-width="2"/><path d="M318,${y + 40} L342,${y + 40}" stroke="var(--eq)" stroke-width="4"/>` +
       motor(330, y - 30, mot) + T_(525, y + 50, name, 'tagt', 'middle') + T_(690 - 6, y + 16, 'orgánico', 'unit', 'end') + T_(690 - 6, y + 52, 'acuoso', 'unit', 'end');
     let s = `<svg viewBox="0 0 1200 560" role="img" aria-label="P&ID área 300">${T_(16, 24, '300 · Extracción por solventes: E1 y E2 en contracorriente, S1 reextracción', 'ttl')}`;
-    s += ms(90, 'M-301', 'E1 extracción') + ms(250, 'M-302', 'E2 extracción') + ms(430, 'M-303', 'S1 reextracción');
+    s += ms(90, 'M-301', 'E1 extracción') + ms(250, 'M-302', 'E2 extracción') + ms(430, 'M-303', 'S1 reextracción', 'elr');
     s += `<rect class="crud" data-crud="1" x="361" y="111" width="328" height="0"/>`;
     // acuoso
     s += off(14, 125, 'PLS de pilas', 'a200') + pipe('M98,125 L300,125', 'FIT-205', 50) + V_(110, 110, 'FIT-205');
     s += pipe('M690,140 L720,140 L720,190 L270,190 L270,290 L300,290', 'FIT-205', 50) + T_(500, 204, 'acuoso E1 → E2', 'unit', 'middle');
-    s += pipe('M690,300 L1080,300', 'FIT-205', 50) + off(1080, 300, 'refino a pilas', 'a200');
+    s += pipe('M690,300 L1080,300', 'FIT-205', 50, 'f-ref') + off(1080, 300, 'refino a pilas', 'a200');
     s += bub(900, 262, 'AIT-208', {v: 'AIT-208', vx: 22, vy: 4}) + sig('M900,278 L900,300');
     // orgánico E2 → E1
     s += pipe('M690,260 L745,260 L745,172 L250,172 L250,100 L300,100', 'FIT-301', 50, 'thin') + T_(500, 166, 'orgánico E2 → E1', 'unit', 'middle');
     // orgánico cargado a S1
-    s += pipe('M690,100 L820,100', 'FIT-301', 50, 'thin') + `<rect class="vessel" x="820" y="70" width="80" height="60" rx="3"/><rect class="fill" x="822" y="94" width="76" height="34"/>` + T_(860, 62, 'TK-306 orgánico cargado', 'tagt', 'middle');
+    s += pipe('M690,100 L820,100', 'FIT-301', 50, 'thin') + `<rect class="vessel" x="820" y="70" width="80" height="60" rx="3"/><rect class="fill f-org" x="822" y="94" width="76" height="34"/>` + T_(860, 62, 'TK-306 orgánico cargado', 'tagt', 'middle');
     s += bub(738, 62, 'AIT-302', {v: 'AIT-302'}) + sig('M738,77 L738,100');
     s += pipe('M900,115 L1160,115 L1160,368 L250,368 L250,450 L300,450', 'FIT-301', 50, 'thin');
     // orgánico descargado
-    s += pipe('M690,440 L1050,440', 'FIT-301', 50, 'thin') + `<rect class="vessel" x="1050" y="410" width="80" height="90" rx="3"/><rect class="fill" x="1052" y="440" width="76" height="58"/>` + T_(1090, 404, 'TK-305 orgánico descargado', 'tagt', 'middle');
+    s += pipe('M690,440 L1050,440', 'FIT-301', 50, 'thin') + `<rect class="vessel" x="1050" y="410" width="80" height="90" rx="3"/><rect class="fill f-org" x="1052" y="440" width="76" height="58"/>` + T_(1090, 404, 'TK-305 orgánico descargado', 'tagt', 'middle');
     s += pipe('M1050,485 L1022,485', 'FIT-301', 50, 'thin') + pump(1008, 485, 'P-305', false, -1) + T_(1008, 468, 'P-305', 'tagt', 'middle') + pipe('M994,485 L990,485 L990,345 L230,345 L230,272 L300,272', 'FIT-301', 50, 'thin');
     s += bub(950, 400, 'FIT-301', {v: 'FIT-301', vx: -22, vy: 4, va: 'end'}) + sig('M966,400 L990,400');
     s += bub(1060, 240, 'FFIC-301', {loop: 'FFIC-301'}) + sig('M1060,257 L1060,330 L1008,330 L1008,471') + sig('M966,394 L1044,246');
     // electrolito
-    s += off(14, 475, 'electrolito pobre de EW', 'a400') + pipe('M164,475 L300,475', 'FIT-402', 50);
+    s += off(14, 475, 'electrolito pobre de EW', 'a400') + pipe('M164,475 L300,475', 'FIT-402', 50, 'f-elp');
     s += pipe('M690,480 L720,480 L720,530 L1000,530', 'KY-304', 0.1) + off(1000, 530, 'electrolito rico a EW', 'a400');
     // interfase
     s += bub(560, 62, 'LIT-303', {v: 'LIT-303', vx: 22, vy: 4}) + sig('M560,78 L560,90');
@@ -199,8 +210,8 @@
     s += K_(232, 290 + 22, 'cells-sum', 'lbl');
     s += btn(860, 296, 300, 'Monitoreo continuo de celdas', 'monitor');
     // circuito de electrolito
-    s += tank(240, 380, 110, 120, 'LIT-401', '') + T_(240, 372, 'TK-401 electrolito', 'tagt') + off(14, 400, 'rico desde SX', 'a300') + pipe('M114,400 L240,400', 'KY-304', 0.1);
-    s += off(110, 520, 'pobre a SX', 'a300', -1) + pipe('M240,480 L190,480 L190,520 L180,520', 'FIT-402', 50);
+    s += tank(240, 380, 110, 120, 'LIT-401', '', 'elr') + T_(240, 372, 'TK-401 electrolito', 'tagt') + off(14, 400, 'rico desde SX', 'a300') + pipe('M114,400 L240,400', 'KY-304', 0.1);
+    s += off(110, 520, 'pobre a SX', 'a300', -1) + pipe('M240,480 L190,480 L190,520 L180,520', 'FIT-402', 50, 'f-elp');
     s += pipe('M350,470 L400,470 L400,440 L418,440', 'FIT-402', 50) + pipe('M400,470 L400,500 L418,500', 'FIT-402', 50);
     s += pump(432, 440, 'P-401A', false) + T_(432, 423, 'P-401A', 'tagt', 'middle') + pump(432, 500, 'P-401B', false) + T_(432, 528, 'P-401B', 'tagt', 'middle');
     s += pipe('M446,440 L480,440 L480,500 L446,500', 'FIT-402', 50) + pipe('M480,470 L560,470', 'FIT-402', 50);
@@ -209,7 +220,7 @@
     s += pipe('M560,410 L590,410 L590,444', 'TIT-403', 0) + valve(560, 410, 'TIC-403') + T_(540, 414, 'agua caliente', 'lbl', 'end');
     s += bub(560, 360, 'TIC-403', {loop: 'TIC-403'}) + sig('M560,376 L560,396') + sig('M576,360 L660,404');
     s += bub(740, 400, 'FIT-402', {v: 'FIT-402', vx: 0, vy: -22, va: 'middle'}) + sig('M724,400 L700,400');
-    s += pipe('M1170,330 L1170,540 L295,540 L295,500', 'FIT-402', 50, 'thin') + T_(1120, 534, 'retorno de celdas', 'unit', 'end');
+    s += pipe('M1170,330 L1170,540 L295,540 L295,500', 'FIT-402', 50, 'thin f-elp') + T_(1120, 534, 'retorno de celdas', 'unit', 'end');
     // dosificación y sangrado
     s += T_(372, 352, 'cobalto', 'unit', 'end') + pipe('M380,355 L380,365 L330,365 L330,380', 'FIT-404', 1, 'thin') + bub(414, 380, 'FIC-404', {loop: 'FIC-404'});
     s += bub(800, 478, 'FIC-409', {loop: 'FIC-409'}) + valve(880, 505, 'FIC-409') + pipe('M850,540 L850,505 L870,505', 'FIT-409', 0.5, 'thin') + pipe('M890,505 L960,505', 'FIT-409', 0.5, 'thin') + off(960, 505, 'sangrado a refino', 'a200') + sig('M848,478 L880,478 L880,487');
@@ -234,11 +245,11 @@
     s += `<rect x="860" y="236" width="320" height="100" rx="6" fill="var(--panel)" stroke="var(--line)"/>` + T_(872, 256, 'Medidor de la barra', 'ttl');
     s += V_(872, 280, 'JIT-500') + T_(980, 280, 'demanda', 'lbl') + V_(872, 302, 'KY-501') + T_(980, 302, 'factor de potencia', 'lbl') + ALM(1160, 296, 'KY-501') + V_(872, 324, 'KY-502') + T_(980, 324, 'THD de corriente', 'lbl');
     // ácido
-    s += tank(60, 400, 110, 120, 'LIT-501', 'TK-501 bodega de ácido') + V_(180, 430, 'LIT-501') + ALM(240, 424, 'LIT-501') + K_(180, 452, 'trucks', 'lbl');
+    s += tank(60, 400, 110, 120, 'LIT-501', 'TK-501 bodega de ácido', 'acid') + V_(180, 430, 'LIT-501') + ALM(240, 424, 'LIT-501') + K_(180, 452, 'trucks', 'lbl');
     s += btn(180, 470, 170, 'Recibir camión (30 t)', 'truck');
-    s += pipe('M170,505 L370,505', 'LIT-103', -1, 'thin') + pump(384, 505, 'P-501', false) + T_(384, 488, 'P-501', 'tagt', 'middle') + pipe('M398,505 L460,505', '', 0) + off(460, 505, 'a TK-103', 'a100');
+    s += pipe('M170,505 L370,505', 'LIT-103', -1, 'thin') + pump(384, 505, 'P-501', false) + T_(384, 488, 'P-501', 'tagt', 'middle') + pipe('M398,505 L460,505', 'LIT-103', -1, 'thin') + off(460, 505, 'a TK-103', 'a100');
     // agua
-    s += pond(620, 420, 160, 80, 'LIT-502', 'TK-502 agua de proceso') + V_(700, 520, 'LIT-502', 'middle') + pipe('M780,450 L880,450', 'FIT-206', 1) + off(880, 450, 'reposición y tambor', 'a200');
+    s += pond(620, 420, 160, 80, 'LIT-502', 'TK-502 agua de proceso', 'water') + V_(700, 520, 'LIT-502', 'middle') + pipe('M780,450 L880,450', 'FIT-206', 1) + off(880, 450, 'reposición y tambor', 'a200');
     s += T_(540, 438, 'aducción', 'lbl', 'end') + pipe('M545,440 L620,440', 'LIT-502', -1);
     s += '</svg>';
     return s;
@@ -268,12 +279,86 @@
     a400: () => [['Corriente', ft('IIT-401') + ' kA'], ['Densidad de corriente', ft('KY-401') + ' A/m²'], ['Producción', ft('KY-405') + ' t/h'], ['Eficiencia de corriente', ft('KY-406') + ' %'], ['Energía específica', ft('KY-407') + ' kWh/t'], ['Cortocircuitos conocidos', String(knownShorts())]],
     a500: () => [['Demanda total', ft('JIT-500') + ' MW'], ['Rectificador', f(P.RECT.P / 0.975, 1) + ' MW'], ['Motores', f(P.X.mccKW / 1000, 2) + ' MW'], ['Factor de potencia', ft('KY-501')], ['Energía en el turno', f(P.X.energyShift) + ' MWh']]
   };
+  const FL_NAME = {ore: 'Mineral', acid: 'Ácido sulfúrico', water: 'Agua', ref: 'Refino', pls: 'PLS', org: 'Orgánico', elr: 'Electrolito rico', elp: 'Electrolito pobre', co: 'Cobalto', hw: 'Agua caliente'};
+  const AREA_FL = {100: ['ore', 'acid', 'water'], 200: ['water', 'ref', 'pls'], 300: ['pls', 'ref', 'org', 'elr', 'elp'], 400: ['elr', 'elp', 'co', 'hw'], 500: ['acid', 'water']};
+
+  /* =================== asistente de turno =================== */
+  // Analítica en el navegador, sin nube: predicción de alarmas por tendencia (regresión lineal de 20 min),
+  // causa probable por agrupación de alarmas, anomalías por puntaje z sobre 2 h y reglas de operación.
+  const linfit = (d) => { const n = d.length; if (n < 8) return null; const t0 = d[n - 1][0]; let st = 0, sv = 0, stt = 0, stv = 0; for (const [t, v] of d) { const x = t - t0; st += x; sv += v; stt += x * x; stv += x * v; } const den = n * stt - st * st; if (!den) return null; const b = (n * stv - st * sv) / den; return {b, a: (sv - b * st) / n}; };
+  const CAUSE = {'MCC-100': [100], 'MCC-200': [200, 300], 'MCC-300': [300, 400], 'MCC-400': [400], '52-RT': [400], 'P-202A': [200, 300], 'P-202B': [200, 300], 'P-305': [300, 400], 'P-401A': [400], 'P-401B': [400], 'RT-401': [400]};
+  const ANOM = ['AIT-206', 'AIT-207', 'AIT-208', 'AIT-309', 'FIT-200', 'PIT-202', 'FIT-203', 'KY-406', 'KY-402', 'TIT-403', 'AIT-405', 'AIT-407', 'AIT-105', 'JIT-500'];
+  const insights = () => {
+    const out = [], X = P.X;
+    // 1) alarmas que vienen: la tendencia cruza el límite antes de 2 h
+    const seen = new Set();
+    P.AD.forEach((a) => {
+      // TK-103 se rellena solo con P-501 al bajar de 40 %: su tendencia lineal no anticipa ese relleno y daría avisos falsos
+      if (a.type === 'DISC' || a.tag === 'LIT-103' || a.st === 'U' || a.st === 'A' || a.supp || (a.shelved && P.S.t < a.shelved) || seen.has(a.tag)) return;
+      const r = linfit(P.histGet(a.tag, 1200)); if (!r) return;
+      const t = P.T[a.tag], hi = a.type[0] === 'H';
+      if (Math.abs(r.b) * 3600 < (t.hi - t.lo) * 0.01 || (hi ? r.b <= 0 : r.b >= 0)) return;
+      const eta = (a.lim - r.a) / r.b;
+      if (eta > 0 && eta < 7200) { seen.add(a.tag); out.push({k: 'pred', p: a.prio, area: a.area, t: `${a.tag}: alarma ${a.type} en unos ${f(eta / 60)} min`, d: `${a.desc}. Va ${r.b > 0 ? 'subiendo' : 'bajando'} ${f(Math.abs(r.b) * 3600, t.dec + 1)} ${t.unit}/h y el límite es ${f(a.lim, t.dec)} ${t.unit}.`, go: a.id}); }
+    });
+    // 2) causa probable: disparos e interruptores abiertos con las alarmas que aparecieron después en sus áreas
+    const act = P.AD.filter((a) => a.st === 'U' || a.st === 'A');
+    const roots = act.filter((a) => /\.(TRIP|OPEN|FAIL)$/.test(a.id)).sort((a, b) => (/\.OPEN$/.test(b.id) ? 1 : 0) - (/\.OPEN$/.test(a.id) ? 1 : 0) || a.since - b.since);
+    const used = new Set();
+    roots.forEach((r) => {
+      if (used.has(r)) return;
+      const areas = CAUSE[r.tag] || [r.area];
+      const kids = act.filter((a) => a !== r && !used.has(a) && areas.includes(a.area) && a.since >= r.since - 30);
+      kids.forEach((a) => used.add(a));
+      const tags = [...new Set(kids.map((a) => a.tag))], lst = tags.slice(0, 5).join(', ') + (tags.length > 5 ? ' y otras' : '');
+      out.push({k: 'causa', p: r.prio, area: r.area, t: kids.length ? `Causa probable: ${r.desc}` : r.desc, d: kids.length ? `${kids.length} alarma${kids.length > 1 ? 's aparecieron' : ' apareció'} después y probablemente ${kids.length > 1 ? 'son consecuencia' : 'es consecuencia'} (${lst}). Atiende primero la causa.` : 'Por ahora no hay alarmas derivadas. Revisa la causa antes de rearmar o reintentar.', go: r.id});
+    });
+    // 3) anomalías: cambio brusco frente a las últimas 2 h, aunque no haya alarma
+    ANOM.forEach((tag) => {
+      const d = P.histGet(tag, 7200); if (d.length < 90 || act.some((a) => a.tag === tag)) return;
+      const base = d.slice(0, -12).map((q) => q[1]), last = d.slice(-6).reduce((s, q) => s + q[1], 0) / 6, t = P.T[tag];
+      const m = base.reduce((s, v) => s + v, 0) / base.length, sd = Math.sqrt(base.reduce((s, v) => s + (v - m) ** 2, 0) / base.length), z = (last - m) / Math.max(sd, (t.hi - t.lo) * 0.004);
+      if (Math.abs(z) > 4) out.push({k: 'anom', p: 3, area: t.area, t: `Cambio anómalo en ${tag}`, d: `${t.desc}: ${f(last, t.dec)} ${t.unit} contra ${f(m, t.dec)} de promedio en 2 h (${z > 0 ? '+' : '−'}${f(Math.abs(z), 1)} desviaciones). Aún sin alarma.`, scr: 'a' + t.area, fp: loopOfPV(tag)});
+    });
+    if (Math.abs(tv('AIT-207') - X.labPH) > 0.1) out.push({k: 'anom', p: 3, area: 200, t: 'AIT-207 no coincide con el laboratorio', d: `Analizador ${ft('AIT-207')} y laboratorio ${f(X.labPH, 2)}: posible deriva del electrodo. Calíbralo antes de usarlo para controlar.`, scr: 'a200'});
+    // 4) recomendaciones de operación
+    if (!X.capBank) out.push({k: 'rec', p: 3, area: 500, t: 'Pon en servicio el filtro y los condensadores', d: `Factor de potencia ${ft('KY-501')} y distorsión ${ft('KY-502')} %. Con el filtro sube a 0,96 y la distorsión baja a 3 %.`, scr: 'a500'});
+    if (X.Ce > 48 && P.RECT.I < 30) out.push({k: 'rec', p: 2, area: 400, t: 'Cobre alto con corriente baja: reduce la transferencia de SX', d: `Electrolito en ${ft('AIT-405')} g/L con ${ft('IIT-401')} kA. Baja la razón O/A o el caudal de PLS, o vuelve a producción con la puesta en servicio.`, scr: 'a300'});
+    if (!X.delayComp) out.push({k: 'rec', p: 3, area: 100, t: 'Activa la compensación de retardo de la correa', d: 'Sin ella, el ácido llega 45 s antes que el mineral y la dosis varía más.', scr: 'a100'});
+    const ks = knownShorts(); let hid = 0; if (!X.monitor) for (let k = 0; k < P.NCELL; k++) if (X.shorts[k] > 0 && !X.seen[k]) hid++;
+    if (hid >= 3) out.push({k: 'rec', p: 3, area: 400, t: `${hid} cortocircuitos sin detectar en la nave`, d: 'La próxima ronda manual está lejos. Activa el monitoreo continuo de voltaje de celdas para verlos al aparecer.', scr: 'a400'});
+    if (ks >= 4) out.push({k: 'rec', p: 3, area: 400, t: `Corrige las ${ks} celdas con cortocircuito`, d: `Cada una resta corriente útil: pérdida del turno ${f(X.lostShorts, 2)} t de cobre (US$ ${f(X.lostShorts * P.CU_PRICE)}).`, scr: 'a400'});
+    if (X.tk501 < 600) out.push({k: 'rec', p: X.tk501 < 300 ? 2 : 3, area: 500, t: `Stock de ácido para unas ${f(X.tk501 / Math.max(1, X.acidQ * 1.84), 1)} h`, d: `Quedan ${f(X.tk501)} t y la aglomeración consume ${f(X.acidQ * 1.84)} t/h. Coordina camiones o baja la dosis.`, scr: 'a500'});
+    const ORD = {causa: 0, pred: 1, anom: 2, rec: 3};
+    return out.sort((a, b) => a.p - b.p || ORD[a.k] - ORD[b.k]);
+  };
+  const KIND = {pred: 'Alarma que viene', causa: 'Causa probable', anom: 'Anomalía', rec: 'Recomendación'};
+  const insItem = (it, i, compact) => `<div class="ins k-${it.k} p${it.p}" data-ins="${i}" title="Ir a la pantalla"><span class="ik">${KIND[it.k]}</span><b>${esc(it.t)}</b>${compact ? '' : `<span class="small">${esc(it.d)}</span>`}</div>`;
+  const assistBox = (ar) => {
+    const all = state.ins || [], list = all.map((it, i) => [it, i]).filter(([it]) => !ar || it.area === ar || it.k === 'causa');
+    let h = `<div class="ai-box"><div class="ai-h"><span class="spark">✦</span> Asistente de turno<button data-tab="assist" class="ai-all">${all.length ? all.length + ' avisos' : 'ver'} ▸</button></div>`;
+    const alm = P.AD.some((a) => (a.st === 'U' || a.st === 'A') && (!ar || a.area === ar));
+    h += list.length ? list.slice(0, 3).map(([it, i]) => insItem(it, i, true)).join('') : `<p class="small muted" style="margin:0">${alm ? 'Sin avisos nuevos. Atiende las alarmas activas de abajo.' : 'Todo en orden en esta área. El asistente vigila tendencias, anomalías y alarmas.'}</p>`;
+    return h + '</div>';
+  };
+  const pageAssist = () => {
+    const all = state.ins || [];
+    let h = `<div class="page"><div class="row"><h2 style="margin:0;font-size:1.05rem;flex:1"><span class="spark">✦</span> Asistente de turno</h2></div>`;
+    h += `<p class="small muted" style="margin:0;max-width:80ch">Mira la planta completa cada segundo y avisa antes de que suene la alarma. Haz clic en un aviso para ir a la pantalla y al equipo.</p>`;
+    [['causa', 'Causa probable de las alarmas activas'], ['pred', 'Alarmas que vienen (próximas 2 h)'], ['anom', 'Anomalías sin alarma'], ['rec', 'Recomendaciones de operación']].forEach(([k, ttl]) => {
+      const it = all.map((x, i) => [x, i]).filter(([x]) => x.k === k);
+      h += `<h3 class="sec">${ttl}</h3>` + (it.length ? `<div class="insl">${it.map(([x, i]) => insItem(x, i, false)).join('')}</div>` : '<p class="small muted" style="margin:0">Nada por ahora.</p>');
+    });
+    h += `<div class="notice"><b>Cómo funciona</b><span class="small">Todo se calcula en el navegador, sin enviar datos a ninguna nube. <b>Alarmas que vienen:</b> regresión lineal de los últimos 20 min de cada variable con alarma, y tiempo estimado hasta su límite. <b>Causa probable:</b> agrupa las alarmas que aparecieron después de un disparo o de un interruptor abierto en las áreas que ese equipo alimenta. <b>Anomalías:</b> puntaje z del último minuto contra las últimas 2 h, para ver cambios bruscos antes de que lleguen al límite. <b>Recomendaciones:</b> reglas de operación de la planta. No usa un modelo de lenguaje y no reemplaza el criterio del operador.</span></div>`;
+    return h + '</div>';
+  };
   const knownShorts = () => { let n = 0; for (let k = 0; k < P.NCELL; k++) if (P.X.shorts[k] > 0 && (P.X.monitor || P.X.seen[k])) n++; return n; };
   const areaOf = (scr) => ({a100: 100, a200: 200, a300: 300, a400: 400, a500: 500}[scr] || null);
   const sideDefault = () => {
     const ar = areaOf(state.screen);
     const kpi = (areaKPI[state.screen] || areaKPI.gen)();
-    let h = `<h2>${ar ? ar + ' · ' + AREAS[ar] : 'Planta completa'}</h2><div class="box"><div class="kv">${kpi.map(([k, v]) => `<span>${k}</span><b>${v}</b>`).join('')}</div></div>`;
+    let h = assistBox(ar) + `<h2>${ar ? ar + ' · ' + AREAS[ar] : 'Planta completa'}</h2><div class="box"><div class="kv">${kpi.map(([k, v]) => `<span>${k}</span><b>${v}</b>`).join('')}</div></div>`;
+    if (ar) h += `<div class="fl">${(AREA_FL[ar] || []).map((k) => `<span><i style="background:var(--f-${k})"></i>${FL_NAME[k]}</span>`).join('')}<span><i class="st run"></i>Marcha</span><span><i class="st stop"></i>Detenido</span><span><i class="st trip"></i>Falla</span></div>`;
     h += `<h3>Alarmas activas</h3>${areaAlarmList(ar)}`;
     if (ar) h += `<h3>Equipos</h3>${equipList(ar)}`;
     else h += `<p class="small muted" style="margin:0">Haz clic en un equipo, una válvula o un controlador (círculo dentro de un cuadrado) para abrir su panel de control.</p>`;
@@ -625,7 +710,7 @@
   /* normativa: qué normas rigen este tipo de solución y cómo se aplican aquí */
   const NORMS = [
     ['Operación y pantallas', [
-      ['ANSI/ISA-101.01', 'Interfaces humano-máquina (HMI) para automatización de procesos', 'ok', 'Fondo neutro, color solo para lo anormal, jerarquía general → área → equipo, bloques de datos con modo y desvío PV-SP, cañerías sin animación.'],
+      ['ANSI/ISA-101.01', 'Interfaces humano-máquina (HMI) para automatización de procesos', 'part', 'Disponible como estilo alternativo: gris neutro, color solo para lo anormal y cañerías sin animación. El estilo por defecto es el clásico de faena, con color por fluido. En ambos: jerarquía general → área → equipo y bloques de datos con modo y desvío PV-SP.'],
       ['ANSI/ISA-18.2 · IEC 62682', 'Gestión de alarmas en industrias de proceso', 'ok', 'Prioridades, estados, reconocimiento, inhibición temporal, supresión por estado de equipo y tasa de alarmas por hora.'],
       ['EEMUA 191', 'Guía de diseño y gestión de sistemas de alarma', 'part', 'Métricas de desempeño: tasa por operador y alarmas más frecuentes como candidatas a racionalización.'],
       ['ANSI/ISA-5.1 · ISO 10628-2', 'Identificación de instrumentos y símbolos de P&ID', 'part', 'Tags según ISA-5.1 (FIC, LIT, AIT…); símbolos gráficos simplificados.'],
@@ -743,9 +828,9 @@
   };
 
   /* =================== navegación =================== */
-  const TABS = [['gen', 'General'], ['a100', '100 Aglomeración'], ['a200', '200 Pilas'], ['a300', '300 SX'], ['a400', '400 EW'], ['a500', '500 Servicios'], ['alarms', 'Alarmas'], ['trends', 'Tendencias'], ['events', 'Eventos'], ['model', 'Modelo']];
+  const TABS = [['gen', 'General'], ['a100', '100 Aglomeración'], ['a200', '200 Pilas'], ['a300', '300 SX'], ['a400', '400 EW'], ['a500', '500 Servicios'], ['alarms', 'Alarmas'], ['trends', 'Tendencias'], ['events', 'Eventos'], ['assist', '✦ Asistente'], ['model', 'Modelo']];
   const KEYTAB = {gen: '0', a100: '1', a200: '2', a300: '3', a400: '4', a500: '5', alarms: 'A'};
-  const PAGES = {alarms: () => pageAlarms(), trends: () => pageTrends(), events: () => pageEvents(), model: () => pageModel()};
+  const PAGES = {alarms: () => pageAlarms(), trends: () => pageTrends(), events: () => pageEvents(), assist: () => pageAssist(), model: () => pageModel()};
   const ROLES = [['op', 'Operación'], ['mt', 'Mantenimiento'], ['mg', 'Gerencia']];
   const SPEEDS = [[0, 'Pausa'], [1, '×1'], [10, '×10'], [60, '×60'], [300, '×300']];
   let speed = 60;
@@ -772,7 +857,7 @@
       return;
     }
     full(false);
-    scr.innerHTML = SCREENS[state.screen]().replace(/(<svg[^>]*>)/, '$1' + DEFS);
+    scr.innerHTML = SCREENS[state.screen]().replace(/(<svg[^>]*>)/, '$1' + DEFS + (state.screen === 'gen' ? '' : '<rect class="dband" x="0" y="0" width="1200" height="36"/>'));
     renderSide(); refresh(true);
   };
   const drawSpk = () => {
@@ -817,7 +902,7 @@
     root.querySelectorAll('[data-k]').forEach((e) => { const fn = KEYS[e.dataset.k]; if (!fn) return; const r = fn(); if (r && typeof r === 'object') { e.textContent = r.t; e.setAttribute('class', r.c); } else e.textContent = r; });
     root.querySelectorAll('[data-cb]').forEach((e) => {
       const id = e.dataset.cb, c = P.L[id], t = P.T[LOOP_PV[id]], sp = c.sp_(), dev = (t.v - sp) / (t.hi - t.lo);
-      e.querySelector('[data-cbm]').textContent = c.mode; e.querySelector('[data-sp]').textContent = f(sp, t.dec);
+      e.querySelector('[data-cbm]').textContent = c.mode; e.querySelector('[data-sp]').textContent = f(sp, t.dec); e.dataset.mode = c.mode;
       e.classList.toggle('abn', c.mode !== c.norm); e.classList.toggle('dev', c.mode !== 'MAN' && Math.abs(dev) > 0.05);
       const pnt = e.querySelector('[data-dev]'), w = +e.querySelector('.bx').getAttribute('width'); pnt.setAttribute('x', w / 2 - 1.5 + clamp(dev / 0.1, -1, 1) * (w / 2 - 8));
     });
@@ -847,6 +932,7 @@
     const un = P.AD.filter((a) => a.st === 'U').sort((a, b) => a.prio - b.prio || b.since - a.since)[0];
     $('alast').innerHTML = un ? `<span class="pr p${un.prio} blink">${un.prio}</span> ${P.hm(un.since)} · ${esc(un.desc)}` : '<span class="muted">Sin alarmas nuevas por reconocer</span>';
     if (un) { $('alast').dataset.galm = un.id; $('alast').title = 'Ir al equipo en alarma'; } else { delete $('alast').dataset.galm; $('alast').title = ''; }
+    $('alast').className = 'last' + (un ? ' p' + un.prio : '');
     $('clock').textContent = `${P.hhmm()} · Turno ${P.shiftOf()}`;
     $('simst').className = 'simst' + (speed ? '' : ' paused'); $('simst').lastChild.textContent = speed ? ` SIM ×${speed}` : ' SIM EN PAUSA';
     if (state.confirm && performance.now() - state.confirm.t > 10000) { state.confirm = null; renderFp(); }
@@ -855,10 +941,12 @@
     if (force || nowR - lastSide > 1000) {
       lastSide = nowR;
       const ae = document.activeElement, selFoc = ae && ae.tagName === 'SELECT';
+      state.ins = insights();
+      const at = document.querySelector('[data-tab="assist"] i'); if (at) at.innerHTML = state.ins.length ? `<span class="aicnt">${state.ins.length}</span>` : '';
       if (state.sel && !(ae && ae.closest && ae.closest('#fpw input'))) renderFp();
       if (state.role === 'op' && !PAGES[state.screen]) { renderSide(); drawSpk(); }
       else if (state.screen === 'trends' && state.role === 'op') { drawTrends(); document.querySelectorAll('[data-pv]').forEach((e) => { const p = state.trend.pens[+e.dataset.pv]; e.textContent = ft(p) + ' ' + P.T[p].unit; }); }
-      else if (state.role === 'op' && (state.screen === 'alarms' || state.screen === 'events' || state.screen === 'model')) { if (!selFoc) $('screen').innerHTML = PAGES[state.screen](); }
+      else if (state.role === 'op' && (state.screen === 'alarms' || state.screen === 'events' || state.screen === 'model' || state.screen === 'assist')) { if (!selFoc) $('screen').innerHTML = PAGES[state.screen](); }
       else if (state.role === 'mt') { $('screen').innerHTML = pageMaint(); drawMaint(); }
       else if (state.role === 'mg') { $('screen').innerHTML = pageMgmt(); drawMgmt(); }
     }
@@ -866,7 +954,7 @@
 
   /* =================== eventos =================== */
   document.addEventListener('click', (ev) => {
-    const t = ev.target.closest('[data-speed],[data-role],[data-tab],[data-go],[data-fp],[data-fp2],[data-close-fp],[data-mode],[data-set],[data-cmd],[data-ask],[data-ok],[data-cancel],[data-nudge],[data-totrend],[data-csv],[data-act],[data-fixcell],[data-cell],[data-galm],[data-ack],[data-shelve],[data-ackall],[data-win],[data-mact],[data-msel],[data-scn],[data-close]');
+    const t = ev.target.closest('[data-speed],[data-role],[data-tab],[data-go],[data-fp],[data-fp2],[data-close-fp],[data-mode],[data-set],[data-cmd],[data-ask],[data-ok],[data-cancel],[data-nudge],[data-totrend],[data-csv],[data-act],[data-fixcell],[data-cell],[data-galm],[data-ins],[data-ack],[data-shelve],[data-ackall],[data-win],[data-mact],[data-msel],[data-scn],[data-close]');
     if (!t) return;
     const d = t.dataset;
     if (d.speed != null) { speed = +d.speed; buildBars(); return; }
@@ -874,6 +962,7 @@
     if (d.tab) { state.screen = d.tab; state.sel = null; show(); return; }
     if (d.go) { state.role = 'op'; state.screen = d.go; state.sel = null; show(); return; }
     if (d.galm) { tipEl = null; tip.hidden = true; goAlarm(d.galm); return; }
+    if (d.ins != null) { const it = (state.ins || [])[+d.ins]; if (!it) return; if (it.go) { goAlarm(it.go); return; } state.role = 'op'; state.screen = it.scr || 'gen'; state.sel = null; show(); if (it.fp) openFp(it.fp); return; }
     if (d.cell != null) { tipEl = null; tip.hidden = true; openFp('CELL:' + d.cell, ev); refresh(); return; }
     if (d.fp2) { openFp(d.fp2); return; }
     if (d.fp) { tipEl = null; tip.hidden = true; openFp(d.fp, ev); refresh(); return; }
@@ -938,9 +1027,16 @@
       if (scr) { state.role = 'op'; state.screen = scr; state.sel = null; show(); return; }
     }
     if (e.key === 'Escape') { if (state.confirm) { state.confirm = null; renderFp(); } else if (state.sel) closeFp(); document.querySelectorAll('.modal.show').forEach((m) => m.classList.remove('show')); } });
-  const setTheme = (th) => { document.documentElement.dataset.theme = th; try { localStorage.setItem('pv-theme', th); } catch (e) { /* sin almacenamiento */ } $('btn-theme').title = th === 'dark' ? 'Pasar a tema claro' : 'Pasar a tema oscuro'; };
-  setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
-  $('btn-theme').onclick = () => { setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); show(); };
+  const LOOKS = [['classic', 'Clásico de faena'], ['hp-dark', 'Alto desempeño ISA-101, oscuro'], ['hp-light', 'Alto desempeño ISA-101, claro']];
+  const setLook = (lk, say) => {
+    const r = document.documentElement; r.dataset.style = lk === 'classic' ? 'classic' : 'hp'; r.dataset.theme = lk === 'hp-light' ? 'light' : 'dark'; r.dataset.look = lk;
+    try { localStorage.setItem('pv-look', lk); } catch (e) { /* sin almacenamiento */ }
+    const i = LOOKS.findIndex((x) => x[0] === lk), nx = LOOKS[(i + 1) % LOOKS.length];
+    $('btn-theme').title = `Estilo: ${LOOKS[i][1]}. Clic para pasar a ${nx[1].toLowerCase()}`;
+    if (say) toast('Estilo de pantallas: ' + LOOKS[i][1]);
+  };
+  setLook(document.documentElement.dataset.look || 'classic');
+  $('btn-theme').onclick = () => { const i = LOOKS.findIndex((x) => x[0] === document.documentElement.dataset.look); setLook(LOOKS[(i + 1) % LOOKS.length][0], true); show(); };
   if (document.documentElement.requestFullscreen) $('btn-fs').onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); };
   else $('btn-fs').hidden = true;
 

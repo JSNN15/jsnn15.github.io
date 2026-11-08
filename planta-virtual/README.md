@@ -4,12 +4,18 @@ Simulador de entrenamiento de operadores (OTS, *Operator Training Simulator*) de
 
 ## Qué tiene
 
-- **Diagramas de proceso en vivo** de las cinco áreas, con criterios de HMI de alto desempeño (ISA-101):
-  - equipos en grises y color solo para lo anormal;
-  - bloques de datos en vez de burbujas de plano: cada instrumento muestra tag y valor, y cada controlador modo, consigna, salida y una barra de desvío PV-SP;
-  - cañerías sólidas con flecha de sentido de flujo, sin animación.
+- **Diagramas de proceso en vivo** de las cinco áreas, en dos familias de estilo que se cambian con un botón:
+  - **Clásico de faena** (por defecto): el SCADA de sala de control minera de siempre. Cañerías de color por fluido con flujo animado, verde en marcha, rojo detenido y amarillo intermitente en falla, estanques metálicos con su líquido, lecturas digitales verdes sobre negro y leyenda de fluidos.
+  - **Alto desempeño (ISA-101)**, oscuro o claro: gris neutro, color solo para lo anormal y cañerías sin animación.
 
-  Tiene tema oscuro de sala de control, tema claro y modo de pantalla completa.
+  En ambos estilos, cada instrumento es un bloque de datos con tag y valor, y cada controlador muestra modo, consigna, salida y una barra de desvío PV-SP. Hay modo de pantalla completa.
+- **Asistente de turno**: mira la planta cada segundo y avisa:
+  - alarmas que vienen (regresión lineal de 20 min y tiempo hasta el límite);
+  - causa probable de una avalancha de alarmas (agrupa las que siguieron a un disparo o a un interruptor abierto);
+  - anomalías sin alarma (puntaje z contra las últimas 2 h);
+  - recomendaciones de operación.
+
+  Corre en el navegador, sin nube ni modelo de lenguaje.
 - **Ventanas de equipo (faceplates)** flotantes y arrastrables. Las órdenes se dan en dos pasos (seleccionar y confirmar), con cuenta regresiva, y cada orden muestra un aviso: aceptada, o rechazada con su causa. Los lazos PID se operan en manual, automático o cascada, con ajustes rápidos de consigna, límites de alarma y tendencia de 30 min.
 - **Interacción de consola**: información al pasar el puntero sobre cada equipo, resalte del equipo abierto, navegación desde una alarma hasta su pantalla y su equipo, y atajos de teclado (0 a 5 para las áreas, A para alarmas, Esc para cerrar).
 - **Secuencias automáticas** (ISA-106 simplificado), con condición de avance, tiempo máximo y causa de falla en cada paso:
@@ -38,7 +44,7 @@ Los parámetros vienen de literatura (ENAMI, encuesta de Sole y otros a plantas 
 
 | Norma | Ámbito | En este simulador |
 |---|---|---|
-| ANSI/ISA-101.01 | HMI para automatización de procesos | Aplicada: fondo neutro, color solo para lo anormal, jerarquía de pantallas, modos visibles |
+| ANSI/ISA-101.01 | HMI para automatización de procesos | Parcial: estilo alternativo de alto desempeño (gris, color solo para lo anormal); el estilo por defecto es el clásico de faena |
 | ANSI/ISA-18.2 · IEC 62682 | Gestión de alarmas | Aplicada: prioridades, estados, inhibición, supresión por estado, tasa por hora |
 | EEMUA 191 | Guía de sistemas de alarma | Parcial: tasa por operador y alarmas más frecuentes |
 | ANSI/ISA-5.1 · ISO 10628-2 | Identificación de instrumentos y símbolos de P&ID | Parcial: tags según ISA-5.1, símbolos simplificados |
