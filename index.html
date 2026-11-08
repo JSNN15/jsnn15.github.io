@@ -6,7 +6,7 @@
 <title>Julián Neira Nova</title>
 <meta name="description" content="Ingeniero eléctrico con 10 años en faena. Máquinas de IA y automatización para minería, industria y agro: inspección por foto, lectura de instrumentos, normativa con citas y salas de control que se prueban en el navegador.">
 <meta property="og:title" content="Julián Neira Nova · Máquinas que resuelven dolores de operación">
-<meta property="og:description" content="Inspector de terreno, Lector de instrumentos, Consulta RIC, Vigía EPP, Centinela de correas y una planta de cobre virtual. Todas se prueban en el navegador.">
+<meta property="og:description" content="Inspector de terreno, Lector de instrumentos, Consulta RIC, Vigía EPP, Monitor de correas y una planta de cobre virtual. Todas se prueban en el navegador.">
 <meta property="og:image" content="https://jsnn15.github.io/img/vigia.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -109,6 +109,7 @@ details.tech summary::before{content:"+";display:inline-grid;place-items:center;
 details.tech[open] summary::before{content:"−"}
 details.tech div{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:6px}
 details.tech b{color:var(--fg);font-weight:600}
+details.tech a{color:var(--copper-ink)}
 .mini{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none}
 .mini:hover{border-color:var(--copper)}
 .mini img{width:120px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;display:block}
@@ -175,7 +176,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
         <a href="inspector/" class="on" data-t="Inspector de terreno" data-s="Foto → hallazgos → orden de trabajo"><video muted playsinline preload="auto" poster="img/v/inspector.jpg" src="img/v/inspector.mp4"></video></a>
         <a href="vigia/" data-t="Vigía EPP" data-s="Casco en tiempo real, sin nube"><video muted playsinline preload="none" poster="img/v/vigia.jpg" src="img/v/vigia.mp4"></video></a>
         <a href="normativa/" data-t="Consulta RIC" data-s="La norma eléctrica, con la cita"><video muted playsinline preload="none" poster="img/v/ric.jpg" src="img/v/ric.mp4"></video></a>
-        <a href="centinela-correas/" data-t="Centinela de correas" data-s="Grietas detectadas en marcha"><video muted playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video></a>
+        <a href="monitor-correas/" data-t="Monitor de correas" data-s="Grietas detectadas en marcha"><video muted playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video></a>
         <a href="lector/" data-t="Lector de instrumentos" data-s="Del dial al dato"><video muted playsinline preload="none" poster="img/v/lector.jpg" src="img/v/lector.mp4"></video></a>
         <a href="planta-virtual/" data-t="Planta virtual LX-SX-EW" data-s="Pregúntale a la planta qué pasa"><video muted playsinline preload="none" poster="img/v/planta.jpg" src="img/v/planta.mp4"></video></a>
         <a href="selector-fruta/" data-t="Selector IA" data-s="Cada fruta mala, fuera de la línea"><video muted playsinline preload="none" poster="img/v/fruta.jpg" src="img/v/fruta.mp4"></video></a>
@@ -200,7 +201,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
         <h4>Inspector de terreno</h4>
         <p>Foto de un tablero, una correa o un equipo. La IA marca lo que ve mal, dice qué hacer y arma la orden de trabajo.</p>
         <div class="row"><a class="go" href="inspector/">Probar con una foto</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> Nemotron VL (visión y lenguaje) por la API de NVIDIA.</span><span><b>Cómo:</b> la IA devuelve cada hallazgo con severidad, acción y su caja en la foto; la página dibuja las marcas y la orden imprimible.</span><span><b>Seguridad:</b> la clave vive en un servidor intermedio que solo acepta este sitio y limita las consultas.</span></div></details></div>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> Nemotron VL (visión y lenguaje) por la API de NVIDIA.</span><span><b>Cómo:</b> la IA devuelve cada hallazgo con severidad, acción y su caja en la foto; la página dibuja las marcas y la orden imprimible.</span><span><b>Seguridad:</b> la clave vive en un servidor intermedio que solo acepta este sitio y limita las consultas.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/inspector">github.com/JSNN15/inspector</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
       </div>
     </article>
     <article class="tile">
@@ -210,7 +211,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
         <h4>Lector de instrumentos</h4>
         <p>Foto de un manómetro o termómetro de aguja y sale el número, con alarma y registro.</p>
         <div class="row"><a class="go" href="lector/">Leer un instrumento</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>IA + geometría:</b> la IA ubica los números de la escala; un ajuste robusto arma el dial y la relación ángulo-valor.</span><span><b>Visión clásica:</b> un barrido radial encuentra la aguja. Con cámara fija, la IA calibra una vez y el seguimiento corre en el navegador.</span><span><b>Control:</b> la lectura se compara con una estimación independiente de la IA y avisa si no calzan.</span></div></details></div>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>IA + geometría:</b> la IA ubica los números de la escala; un ajuste robusto arma el dial y la relación ángulo-valor.</span><span><b>Visión clásica:</b> un barrido radial encuentra la aguja. Con cámara fija, la IA calibra una vez y el seguimiento corre en el navegador.</span><span><b>Control:</b> la lectura se compara con una estimación independiente de la IA y avisa si no calzan.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/lector">github.com/JSNN15/lector</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
       </div>
     </article>
     <article class="tile">
@@ -220,7 +221,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
         <h4>Consulta RIC</h4>
         <p>Preguntas por la normativa eléctrica chilena y la respuesta trae la cita exacta: pliego, sección y página del PDF oficial.</p>
         <div class="row"><a class="go" href="normativa/">Hacer una pregunta</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Corpus:</b> los 19 pliegos técnicos RIC de la SEC, cortados por sección con su página.</span><span><b>Búsqueda:</b> vectores de Nemotron Embed más palabras clave, en el navegador. El mapa muestra dónde está la respuesta.</span><span><b>Respuesta:</b> Nemotron redacta solo con los fragmentos encontrados y cita cada afirmación.</span></div></details></div>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Corpus:</b> los 19 pliegos técnicos RIC de la SEC, cortados por sección con su página.</span><span><b>Búsqueda:</b> vectores de Nemotron Embed más palabras clave, en el navegador. El mapa muestra dónde está la respuesta.</span><span><b>Respuesta:</b> Nemotron redacta solo con los fragmentos encontrados y cita cada afirmación.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/normativa">github.com/JSNN15/normativa</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
       </div>
     </article>
     <article class="tile">
@@ -230,7 +231,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
         <h4>Planta virtual LX-SX-EW</h4>
         <p>Sala de control de una planta de cobre. Provocas una falla y le preguntas a la planta qué está pasando.</p>
         <div class="row"><a class="go" href="planta-virtual/">Entrar a la sala</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Simulación:</b> P&amp;ID en vivo, lazos PID, alarmas ISA-18.2, vibraciones ISO 10816-3 y KPI de turno.</span><span><b>IA:</b> el chat envía una foto del estado de la planta y Nemotron responde citando los tags; al tocarlos se abre su placa.</span><span><b>Roles:</b> pantallas distintas para operación, mantenimiento y gerencia.</span></div></details></div>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Simulación:</b> P&amp;ID en vivo, lazos PID, alarmas ISA-18.2, vibraciones ISO 10816-3 y KPI de turno.</span><span><b>IA:</b> el chat envía una foto del estado de la planta y Nemotron responde citando los tags; al tocarlos se abre su placa.</span><span><b>Roles:</b> pantallas distintas para operación, mantenimiento y gerencia.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/planta-virtual">github.com/JSNN15/planta-virtual</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
       </div>
     </article>
   </div>
@@ -244,17 +245,17 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
         <h4>Vigía EPP</h4>
         <p>Mira las cámaras, detecta a quien trabaja sin casco y avisa al supervisor con la foto.</p>
         <div class="row"><a class="go" href="vigia/">Probar Vigía</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> detector YOLOv8 propio, corriendo en el equipo local.</span><span><b>Prueba:</b> en 100 fotos con infracción que no había visto detectó 93; en 100 sin infracción dio 2 falsas alarmas (el mejor modelo de NVIDIA probado dio 25).</span></div></details></div>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> detector YOLOv8 propio, corriendo en el equipo local.</span><span><b>Prueba:</b> en 100 fotos con infracción que no había visto detectó 93; en 100 sin infracción dio 2 falsas alarmas (el mejor modelo de NVIDIA probado dio 25).</span><span><b>Código:</b> <a href="https://github.com/JSNN15/vigia">github.com/JSNN15/vigia</a></span></div></details></div>
       </div>
     </article>
     <article class="tile">
-      <a class="vw" href="centinela-correas/" aria-label="Abrir Centinela de correas"><video muted loop playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video><span class="tag"><i></i>SALA DE CONTROL</span></a>
+      <a class="vw" href="monitor-correas/" aria-label="Abrir Monitor de correas"><video muted loop playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video><span class="tag"><i></i>SALA DE CONTROL</span></a>
       <div class="b">
         <div class="sector">Minería · correas</div>
-        <h4>Centinela de correas</h4>
+        <h4>Monitor de correas</h4>
         <p>Detecta grietas con la correa en marcha y las ubica en metros desde el empalme.</p>
-        <div class="row"><a class="go" href="centinela-correas/">Ver la sala</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> YOLOv8 entrenado con videos públicos de correas; una grieta se confirma si aparece en 3 de 5 cuadros.</span><span><b>Prueba:</b> aviso correcto en 6 de 9 videos; el 73 % de los avisos fueron grietas reales. Falla aún en correas con chevrón vistas de cerca.</span></div></details></div>
+        <div class="row"><a class="go" href="monitor-correas/">Ver la sala</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> YOLOv8 entrenado con videos públicos de correas; una grieta se confirma si aparece en 3 de 5 cuadros.</span><span><b>Prueba:</b> aviso correcto en 6 de 9 videos; el 73 % de los avisos fueron grietas reales. Falla aún en correas con chevrón vistas de cerca.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/monitor-correas">github.com/JSNN15/monitor-correas</a></span></div></details></div>
       </div>
     </article>
     <article class="tile">
@@ -264,7 +265,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
         <h4>Selector IA de fruta</h4>
         <p>La IA decide si cada fruta va o sale y comanda el expulsor, con registro por lote.</p>
         <div class="row"><a class="go" href="selector-fruta/">Ver la línea</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> clasificador MobileNetV3 en el navegador, unos 3 ms por fruta.</span><span><b>Prueba:</b> 98,8 % de acierto en 480 fotos nuevas, sin descartar fruta buena.</span></div></details></div>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> clasificador MobileNetV3 en el navegador, unos 3 ms por fruta.</span><span><b>Prueba:</b> 98,8 % de acierto en 480 fotos nuevas, sin descartar fruta buena.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/selector-fruta">github.com/JSNN15/selector-fruta</a></span></div></details></div>
       </div>
     </article>
   </div>
