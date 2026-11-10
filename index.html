@@ -6,8 +6,8 @@
 <title>Julián Neira Nova</title>
 <meta name="description" content="Ingeniero eléctrico con 10 años en faena. Máquinas de IA y automatización para minería, industria y agro: inspección por foto, lectura de instrumentos, normativa con citas y salas de control que se prueban en el navegador.">
 <meta property="og:title" content="Julián Neira Nova · Máquinas que resuelven dolores de operación">
-<meta property="og:description" content="Inspector de terreno, Lector de instrumentos, Consulta RIC, Vigía EPP, Monitor de correas y una planta de cobre virtual. Todas se prueban en el navegador.">
-<meta property="og:image" content="https://jsnn15.github.io/img/vigia.jpg">
+<meta property="og:description" content="Supervisor normativo, Planta virtual, Vigía EPP, Lector de instrumentos, Monitor de correas, Consulta eléctrica y Prama Agent. Todas se prueban en el navegador, con resultados medidos.">
+<meta property="og:image" content="https://jsnn15.github.io/img/supervisor.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -152,12 +152,38 @@ details.tech a{color:var(--copper-ink)}
 .cta p{color:var(--on-ink-muted);margin:8px 0 0;max-width:50ch}
 footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
 @media (prefers-reduced-motion:reduce){.proj,.tile,.mon .scr a{transition:none}.hero canvas#sig{display:none}.mon .bar .rec::before,.tile .tag i{animation:none}}
+
+/* cinta de resultados medidos, como la línea de tags de una sala de control */
+.ticker{background:#070a0e;color:var(--on-ink);border-top:1px solid #1d252e;border-bottom:1px solid #1d252e;position:relative}
+.ticker .in{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;z-index:1}
+.ticker .tl{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;background:var(--copper);color:#1a0f07;padding:3px 8px;border-radius:3px;box-shadow:0 0 0 10px #070a0e}
+.trk{overflow:hidden;mask-image:linear-gradient(90deg,transparent 0,#000 220px,#000 calc(100% - 60px),transparent)}
+.mv{display:flex;width:max-content;animation:cinta 60s linear infinite;padding:12px 0}
+.ticker:hover .mv{animation-play-state:paused}
+.mv span{font-family:var(--mono);font-size:.8rem;color:var(--on-ink-muted);white-space:nowrap;padding:0 26px;border-left:1px solid #1d252e}
+.mv b{color:var(--copper);font-weight:500;margin-right:8px}
+@keyframes cinta{to{transform:translateX(-50%)}}
+@media (max-width:640px){.ticker .in{display:none}.trk{mask-image:none}}
+/* máquina insignia: etapas que se encienden en orden */
+.tile.flag{border-color:var(--copper)}
+.pipe{list-style:none;margin:6px 0 2px;padding:0;display:flex;flex-wrap:wrap;gap:6px;counter-reset:e}
+.pipe li{counter-increment:e;font-family:var(--mono);font-size:.72rem;padding:4px 9px;border:1px solid var(--line);border-radius:999px;color:var(--muted);animation:etapa 7.5s infinite}
+.pipe li::before{content:counter(e) " · ";color:var(--copper-ink)}
+.pipe li:nth-child(2){animation-delay:1.5s}.pipe li:nth-child(3){animation-delay:3s}.pipe li:nth-child(4){animation-delay:4.5s}.pipe li:nth-child(5){animation-delay:6s}
+@keyframes etapa{0%,20%{border-color:var(--copper);color:var(--fg);background:var(--tint)}25%,100%{border-color:var(--line);color:var(--muted);background:transparent}}
+.kpi{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.84rem;color:var(--muted)}
+.kpi b{font-family:var(--display);font-size:1.5rem;color:var(--fg);margin-right:4px;line-height:1}
+.hist.two{grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),24rem))}
+.hist .proj img{filter:grayscale(.65)}
+.hist .proj:hover img{filter:none}
+.hoy{margin-top:auto;font-weight:600;font-size:.86rem;color:var(--copper-ink)}
+@media (prefers-reduced-motion:reduce){.mv{animation:none;flex-wrap:wrap;width:auto}.pipe li{animation:none}}
 </style>
 </head>
 <body>
 <nav class="top"><div class="in">
   <a class="me" href="#">Julián Neira <span>Nova</span></a>
-  <ul><li><a href="#maquinas">Máquinas</a></li><li class="opt"><a href="#pruebas">Estudios</a></li><li class="opt"><a href="#capacidades">Capacidades</a></li><li><a href="#contacto">Contacto</a></li></ul>
+  <ul><li><a href="#maquinas">Máquinas</a></li><li class="opt"><a href="#historico">Histórico</a></li><li class="opt"><a href="#pruebas">Estudios</a></li><li><a href="#contacto">Contacto</a></li></ul>
 </div></nav>
 
 <header class="hero">
@@ -177,64 +203,36 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
     <div class="mon" aria-label="Las máquinas funcionando">
       <div class="bar"><i></i><i></i><i></i><span class="rec">EN VIVO</span></div>
       <div class="scr" id="scr">
-        <a href="inspector/" class="on" data-t="Inspector de terreno" data-s="Foto → hallazgos → orden de trabajo"><video muted playsinline preload="auto" poster="img/v/inspector.jpg" src="img/v/inspector.mp4"></video></a>
-        <a href="vigia/" data-t="Vigía EPP" data-s="El EPP de cada persona, con reporte"><video muted playsinline preload="none" poster="img/v/epp.jpg" src="img/v/epp.mp4"></video></a>
-        <a href="normativa/" data-t="Consulta RIC" data-s="La norma eléctrica, con la cita"><video muted playsinline preload="none" poster="img/v/ric.jpg" src="img/v/ric.mp4"></video></a>
-        <a href="supervisor/" data-t="Supervisor normativo" data-s="Cada hallazgo, con su artículo"><video muted playsinline preload="none" poster="img/v/supervisor.jpg" src="img/v/supervisor.mp4"></video></a>
-        <a href="monitor-correas/" data-t="Monitor de correas" data-s="Grietas detectadas en marcha"><video muted playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video></a>
-        <a href="lector/" data-t="Lector de instrumentos" data-s="Del dial al dato"><video muted playsinline preload="none" poster="img/v/lector.jpg" src="img/v/lector.mp4"></video></a>
+        <a href="supervisor/" class="on" data-t="Supervisor normativo" data-s="Cada hallazgo, con su artículo"><video muted playsinline preload="auto" poster="img/v/supervisor.jpg" src="img/v/supervisor.mp4"></video></a>
         <a href="planta-virtual/" data-t="Planta virtual LX-SX-EW" data-s="Pregúntale a la planta qué pasa"><video muted playsinline preload="none" poster="img/v/planta.jpg" src="img/v/planta.mp4"></video></a>
+        <a href="vigia/" data-t="Vigía EPP" data-s="El EPP de cada persona, con reporte"><video muted playsinline preload="none" poster="img/v/epp.jpg" src="img/v/epp.mp4"></video></a>
+        <a href="lector/" data-t="Lector de instrumentos" data-s="Del dial al dato"><video muted playsinline preload="none" poster="img/v/lector.jpg" src="img/v/lector.mp4"></video></a>
+        <a href="monitor-correas/" data-t="Monitor de correas" data-s="Grietas detectadas en marcha"><video muted playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video></a>
+        <a href="consulta-electrica/" data-t="Consulta eléctrica" data-s="Chat con la norma, con la frase exacta"><video muted playsinline preload="none" poster="img/v/consulta.jpg" src="img/v/consulta.mp4"></video></a>
         <a href="selector-fruta/" data-t="Selector IA" data-s="Cada fruta mala, fuera de la línea"><video muted playsinline preload="none" poster="img/v/fruta.jpg" src="img/v/fruta.mp4"></video></a>
+        <a href="https://github.com/JSNN15/prama-agent" data-t="Prama Agent" data-s="No le creas a tus agentes: compruébalo"><video muted playsinline preload="none" poster="img/v/prama.jpg" src="img/v/prama.mp4"></video></a>
       </div>
-      <div class="mcap"><div><b id="cap-t">Inspector de terreno</b><br><span id="cap-s">Foto → hallazgos → orden de trabajo</span></div><div class="dots" id="dots"></div></div>
+      <div class="mcap"><div><b id="cap-t">Supervisor normativo</b><br><span id="cap-s">Cada hallazgo, con su artículo</span></div><div class="dots" id="dots"></div></div>
     </div>
   </div>
 </header>
 
+<div class="ticker" aria-label="Resultados medidos de las máquinas"><div class="in"><span class="tl">Medido, no prometido</span></div><div class="trk"><div class="mv"><span><b>SUP-01</b>11/13 equipos bien identificados a la primera</span><span><b>SUP-01</b>105 puntos revisados contra RIC, DS 594, DS 132 y DS 43</span><span><b>CON-06</b>25 de 29 citas con la frase exacta del pliego</span><span><b>NORMA</b>2.237 fragmentos de norma indexados</span><span><b>VIG-03</b>93 de 100 infracciones de casco detectadas</span><span><b>VIG-03</b>2 falsas alarmas en 100 fotos limpias</span><span><b>LEC-04</b>6 de 8 manómetros: geometría e IA coinciden</span><span><b>MON-05</b>6 de 9 videos con aviso correcto</span><span><b>SEL-08</b>98,8 % de acierto en 480 frutas nuevas</span><span><b>PLT-02</b>13 pruebas del simulador LX-SX-EW</span><span><b>SUP-01</b>11/13 equipos bien identificados a la primera</span><span><b>SUP-01</b>105 puntos revisados contra RIC, DS 594, DS 132 y DS 43</span><span><b>CON-06</b>25 de 29 citas con la frase exacta del pliego</span><span><b>NORMA</b>2.237 fragmentos de norma indexados</span><span><b>VIG-03</b>93 de 100 infracciones de casco detectadas</span><span><b>VIG-03</b>2 falsas alarmas en 100 fotos limpias</span><span><b>LEC-04</b>6 de 8 manómetros: geometría e IA coinciden</span><span><b>MON-05</b>6 de 9 videos con aviso correcto</span><span><b>SEL-08</b>98,8 % de acierto en 480 frutas nuevas</span><span><b>PLT-02</b>13 pruebas del simulador LX-SX-EW</span></div></div></div>
+
 <main>
 <section class="blk" id="maquinas"><div class="in">
-  <div class="eyebrow">Máquinas</div>
+  <div class="eyebrow">01 · Máquinas activas</div>
   <h2>Pruébalas</h2>
-  <p class="lead">Cada una resuelve un problema concreto de operación. Abre cualquiera y úsala.</p>
-
-  <div class="grp"><h3>Con IA de NVIDIA, en vivo</h3><span class="pill nv">Nemotron · API de NVIDIA</span><span>tú subes la foto o haces la pregunta</span></div>
+  <p class="lead">De la más completa a la más simple. Todas se abren y se usan aquí mismo; las que dicen NVIDIA EN VIVO llaman a un modelo de NVIDIA, las que dicen EN EL BORDE corren en tu equipo.</p>
   <div class="gal">
-    <article class="tile">
-      <a class="vw" href="inspector/" aria-label="Abrir Inspector de terreno"><video muted loop playsinline preload="none" poster="img/v/inspector.jpg" src="img/v/inspector.mp4"></video><span class="tag nv"><i></i>SACA UNA FOTO</span></a>
+    <article class="tile wide flag">
+      <a class="vw" href="supervisor/" aria-label="Abrir Supervisor normativo"><video muted loop playsinline preload="none" poster="img/v/supervisor.jpg" src="img/v/supervisor.mp4"></video><span class="tag nv"><i></i>NVIDIA EN VIVO · INSIGNIA</span></a>
       <div class="b">
-        <div class="sector">Mantenimiento · inspección</div>
-        <h4>Inspector de terreno</h4>
-        <p>Foto de un tablero, una correa o un equipo. La IA marca lo que ve mal, dice qué hacer y arma la orden de trabajo.</p>
-        <div class="row"><a class="go" href="inspector/">Probar con una foto</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> Nemotron VL (visión y lenguaje) por la API de NVIDIA.</span><span><b>Cómo:</b> la IA devuelve cada hallazgo con severidad, acción y su caja en la foto; la página dibuja las marcas y la orden imprimible.</span><span><b>Seguridad:</b> la clave vive en un servidor intermedio que solo acepta este sitio y limita las consultas.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/inspector">github.com/JSNN15/inspector</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
-      </div>
-    </article>
-    <article class="tile">
-      <a class="vw" href="lector/" aria-label="Abrir Lector de instrumentos"><video muted loop playsinline preload="none" poster="img/v/lector.jpg" src="img/v/lector.mp4"></video><span class="tag nv"><i></i>DEL DIAL AL DATO</span></a>
-      <div class="b">
-        <div class="sector">Instrumentación · terreno</div>
-        <h4>Lector de instrumentos</h4>
-        <p>Foto de un manómetro o termómetro de aguja y sale el número, con alarma y registro.</p>
-        <div class="row"><a class="go" href="lector/">Leer un instrumento</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>IA + geometría:</b> la IA ubica los números de la escala; un ajuste robusto arma el dial y la relación ángulo-valor.</span><span><b>Visión clásica:</b> un barrido radial encuentra la aguja. Con cámara fija, la IA calibra una vez y el seguimiento corre en el navegador.</span><span><b>Control:</b> la lectura se compara con una estimación independiente de la IA y avisa si no calzan.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/lector">github.com/JSNN15/lector</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
-      </div>
-    </article>
-    <article class="tile">
-      <a class="vw" href="normativa/" aria-label="Abrir Consulta RIC"><video muted loop playsinline preload="none" poster="img/v/ric.jpg" src="img/v/ric.mp4"></video><span class="tag nv"><i></i>PREGUNTA A LA NORMA</span></a>
-      <div class="b">
-        <div class="sector">Normativa eléctrica · SEC</div>
-        <h4>Consulta RIC</h4>
-        <p>Preguntas por la normativa eléctrica chilena y la respuesta trae la cita exacta: pliego, sección y página del PDF oficial.</p>
-        <div class="row"><a class="go" href="normativa/">Hacer una pregunta</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Corpus:</b> los 19 pliegos técnicos RIC de la SEC, cortados por sección con su página.</span><span><b>Búsqueda:</b> vectores de Nemotron Embed más palabras clave, en el navegador. El mapa muestra dónde está la respuesta.</span><span><b>Respuesta:</b> Nemotron redacta solo con los fragmentos encontrados y cita cada afirmación.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/normativa">github.com/JSNN15/normativa</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
-      </div>
-    </article>
-    <article class="tile">
-      <a class="vw" href="supervisor/" aria-label="Abrir Supervisor normativo"><video muted loop playsinline preload="none" poster="img/v/supervisor.jpg" src="img/v/supervisor.mp4"></video><span class="tag nv"><i></i>NUEVO · CON SU ARTÍCULO</span></a>
-      <div class="b">
-        <div class="sector">Seguridad y salud · DS 594 · DS 132 · DS 43 · RIC</div>
+        <div class="sector">Seguridad y salud · RIC · DS 594 · DS 132 · DS 43</div>
         <h4>Supervisor normativo</h4>
-        <p>Foto de un medidor, tablero, bodega o correa. Identifica el equipo, lo confirma de cerca y lo revisa contra su lista de puntos con el artículo ya asignado. Una persona firma.</p>
+        <p>Foto de un medidor, tablero, bodega o correa. Identifica el equipo, lo confirma de cerca y lo revisa punto por punto contra su lista, con el artículo ya asignado. Lo que la foto no muestra, lo dice.</p>
+        <ol class="pipe" aria-label="Etapas"><li>Identifica</li><li>Confirma de cerca</li><li>Revisa la lista</li><li>Verifica a ciegas</li><li>Firma una persona</li></ol>
+        <div class="kpi"><span><b>11/13</b> equipos bien identificados a la primera</span><span><b>0</b> errores que pasaron sin preguntar</span><span><b>105</b> puntos revisados contra norma</span></div>
         <div class="row"><a class="go" href="supervisor/">Inspeccionar con una foto</a>
           <details class="tech"><summary>Detalle técnico</summary><div><span><b>Etapas:</b> identificar, confirmar con un acercamiento, revisar la lista del equipo y verificar a ciegas cada incumplimiento. Si no se confirma, pregunta.</span><span><b>Normas:</b> listas por equipo sobre el RIC N°1 y N°2, DS 43, DS 594 y DS 132, con el texto oficial; lo demás pasa por un buscador de 2.211 fragmentos y una revisión crítica de la cita.</span><span><b>Control:</b> lo que la foto no permite ver se dice; revisión humana obligatoria y evaluación publicada.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/supervisor">github.com/JSNN15/supervisor</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
       </div>
@@ -244,28 +242,53 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
       <div class="b">
         <div class="sector">Minería · sala de control</div>
         <h4>Planta virtual LX-SX-EW</h4>
-        <p>Sala de control de una planta de cobre. Provocas una falla y le preguntas a la planta qué está pasando.</p>
+        <p>Sala de control de una planta de cobre. Provocas una falla y le preguntas a la planta qué está pasando; responde citando los tags.</p>
         <div class="row"><a class="go" href="planta-virtual/">Entrar a la sala</a>
           <details class="tech"><summary>Detalle técnico</summary><div><span><b>Simulación:</b> P&amp;ID en vivo, lazos PID, alarmas ISA-18.2, vibraciones ISO 10816-3 y KPI de turno.</span><span><b>IA:</b> el chat envía una foto del estado de la planta y Nemotron responde citando los tags; al tocarlos se abre su placa.</span><span><b>Roles:</b> pantallas distintas para operación, mantenimiento y gerencia.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/planta-virtual">github.com/JSNN15/planta-virtual</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
       </div>
     </article>
-    <article class="tile wide">
+    <article class="tile">
       <a class="vw" href="vigia/" aria-label="Abrir Vigía EPP"><video muted loop playsinline preload="none" poster="img/v/epp.jpg" src="img/v/epp.mp4"></video><span class="tag nv"><i></i>FOTO, CÁMARA O VIDEO</span></a>
       <div class="b">
         <div class="sector">Seguridad · prevención de riesgos</div>
         <h4>Vigía EPP</h4>
-        <p>Eliges el sector (construcción, minería, eléctrico, soldadura, alimentos, agrícola o industrial) y la IA revisa a cada persona: casco, guantes, lentes, chaleco, calzado, arnés y ropa adecuada para la tarea. Sale la matriz de cumplimiento y el reporte con riesgo y acción por persona.</p>
-        <p>Funciona con una foto, la cámara del celular o PC, o compartiendo una pestaña con un video de una obra.</p>
+        <p>Eliges el sector y la IA revisa a cada persona: casco, guantes, lentes, chaleco, calzado y arnés. Sale la matriz de cumplimiento y el reporte por persona.</p>
         <div class="row"><a class="go" href="vigia/">Revisar EPP</a>
           <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> Nemotron VL por la API de NVIDIA, con la lista de EPP de cada sector fija en el servidor.</span><span><b>Cómo:</b> cada EPP vuelve como en uso, falta, mal usado, no se ve o no aplica; "no se ve" evita que la IA adivine y el porcentaje cuenta solo lo verificable.</span><span><b>Video:</b> en escritorio revisa la pestaña compartida a pedido o cada 10 s.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/vigia">github.com/JSNN15/vigia</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
       </div>
     </article>
-  </div>
-
-  <div class="grp"><h3>Visión en el borde</h3><span class="pill">sin nube</span><span>la IA corre junto a la cámara; las imágenes no salen de la faena</span></div>
-  <div class="gal three">
     <article class="tile">
-      <a class="vw" href="vigia/app.html#sala" aria-label="Abrir la sala de control EPP"><video muted loop playsinline preload="none" poster="img/v/vigia.jpg" src="img/v/vigia.mp4"></video><span class="tag"><i></i>4 CÁMARAS EN VIVO</span></a>
+      <a class="vw" href="lector/" aria-label="Abrir Lector de instrumentos"><video muted loop playsinline preload="none" poster="img/v/lector.jpg" src="img/v/lector.mp4"></video><span class="tag nv"><i></i>DEL DIAL AL DATO</span></a>
+      <div class="b">
+        <div class="sector">Instrumentación · terreno</div>
+        <h4>Lector de instrumentos</h4>
+        <p>Foto de un manómetro o termómetro de aguja y sale el número, con alarma y registro. La forma barata de digitalizar lo que hoy se anota a mano.</p>
+        <div class="row"><a class="go" href="lector/">Leer un instrumento</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>IA + geometría:</b> la IA ubica los números de la escala; un ajuste robusto arma el dial y la relación ángulo-valor.</span><span><b>Visión clásica:</b> un barrido radial encuentra la aguja. Con cámara fija, la IA calibra una vez y el seguimiento corre en el navegador.</span><span><b>Control:</b> la lectura se compara con una estimación independiente de la IA y avisa si no calzan.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/lector">github.com/JSNN15/lector</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
+      </div>
+    </article>
+    <article class="tile">
+      <a class="vw" href="monitor-correas/" aria-label="Abrir Monitor de correas"><video muted loop playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video><span class="tag"><i></i>EN EL BORDE · SIN NUBE</span></a>
+      <div class="b">
+        <div class="sector">Minería · correas</div>
+        <h4>Monitor de correas</h4>
+        <p>Detecta grietas con la correa en marcha y las ubica en metros desde el empalme, para que mantenimiento vaya directo.</p>
+        <div class="row"><a class="go" href="monitor-correas/">Ver la sala</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> YOLOv8 entrenado con videos públicos de correas; una grieta se confirma si aparece en 3 de 5 cuadros.</span><span><b>Prueba:</b> aviso correcto en 6 de 9 videos; el 73 % de los avisos fueron grietas reales. Falla aún en correas con chevrón vistas de cerca.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/monitor-correas">github.com/JSNN15/monitor-correas</a></span></div></details></div>
+      </div>
+    </article>
+    <article class="tile">
+      <a class="vw" href="consulta-electrica/" aria-label="Abrir Consulta eléctrica"><video muted loop playsinline preload="none" poster="img/v/consulta.jpg" src="img/v/consulta.mp4"></video><span class="tag nv"><i></i>NUEVO · CHAT CON LA NORMA</span></a>
+      <div class="b">
+        <div class="sector">Normativa eléctrica · SEC</div>
+        <h4>Consulta eléctrica</h4>
+        <p>Preguntas como en terreno y sigues la conversación. Cada respuesta trae el pliego RIC o el artículo del DS 8 con la frase exacta, verificada contra el texto oficial.</p>
+        <div class="row"><a class="go" href="consulta-electrica/">Hacer una pregunta</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Conversación:</b> cada pregunta se reformula con las anteriores, así "¿y si es de alumbrado?" se entiende.</span><span><b>Norma:</b> pliegos RIC 1 a 19 y DS 8/2019, 1.121 fragmentos buscados en el navegador.</span><span><b>Citas:</b> cada punto trae una frase textual que se compara letra por letra con el texto oficial; en la prueba, 25 de 29 exactas.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/consulta-electrica">github.com/JSNN15/consulta-electrica</a> · intermediario <a href="https://github.com/JSNN15/nv-gateway">nv-gateway</a></span></div></details></div>
+      </div>
+    </article>
+    <article class="tile">
+      <a class="vw" href="vigia/app.html#sala" aria-label="Abrir la sala de control EPP"><video muted loop playsinline preload="none" poster="img/v/vigia.jpg" src="img/v/vigia.mp4"></video><span class="tag"><i></i>EN EL BORDE · 4 CÁMARAS</span></a>
       <div class="b">
         <div class="sector">Seguridad · faena</div>
         <h4>Sala de control EPP</h4>
@@ -275,17 +298,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
       </div>
     </article>
     <article class="tile">
-      <a class="vw" href="monitor-correas/" aria-label="Abrir Monitor de correas"><video muted loop playsinline preload="none" poster="img/v/centinela.jpg" src="img/v/centinela.mp4"></video><span class="tag"><i></i>SALA DE CONTROL</span></a>
-      <div class="b">
-        <div class="sector">Minería · correas</div>
-        <h4>Monitor de correas</h4>
-        <p>Detecta grietas con la correa en marcha y las ubica en metros desde el empalme.</p>
-        <div class="row"><a class="go" href="monitor-correas/">Ver la sala</a>
-          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> YOLOv8 entrenado con videos públicos de correas; una grieta se confirma si aparece en 3 de 5 cuadros.</span><span><b>Prueba:</b> aviso correcto en 6 de 9 videos; el 73 % de los avisos fueron grietas reales. Falla aún en correas con chevrón vistas de cerca.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/monitor-correas">github.com/JSNN15/monitor-correas</a></span></div></details></div>
-      </div>
-    </article>
-    <article class="tile">
-      <a class="vw" href="selector-fruta/" aria-label="Abrir Selector IA"><video muted loop playsinline preload="none" poster="img/v/fruta.jpg" src="img/v/fruta.mp4"></video><span class="tag"><i></i>LÍNEA EN VIVO</span></a>
+      <a class="vw" href="selector-fruta/" aria-label="Abrir Selector IA"><video muted loop playsinline preload="none" poster="img/v/fruta.jpg" src="img/v/fruta.mp4"></video><span class="tag"><i></i>EN EL BORDE · LÍNEA EN VIVO</span></a>
       <div class="b">
         <div class="sector">Agro · calidad</div>
         <h4>Selector IA de fruta</h4>
@@ -294,13 +307,31 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
           <details class="tech"><summary>Detalle técnico</summary><div><span><b>Modelo:</b> clasificador MobileNetV3 en el navegador, unos 3 ms por fruta.</span><span><b>Prueba:</b> 98,8 % de acierto en 480 fotos nuevas, sin descartar fruta buena.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/selector-fruta">github.com/JSNN15/selector-fruta</a></span></div></details></div>
       </div>
     </article>
+    <article class="tile wide">
+      <a class="vw" href="https://github.com/JSNN15/prama-agent" aria-label="Abrir Prama Agent"><video muted loop playsinline preload="none" poster="img/v/prama.jpg" src="img/v/prama.mp4"></video><span class="tag"><i></i>AGENTES DE IA · CÓDIGO ABIERTO</span></a>
+      <div class="b">
+        <div class="sector">Desarrollo con agentes de IA</div>
+        <h4>Prama Agent</h4>
+        <p><b>No le creas a tus agentes: compruébalo.</b> Equipos de agentes de programación en tu propio servidor, con un coordinador que planifica. Cada tarea que dicen terminada corre su prueba; a la rama principal solo entra lo que pasa.</p>
+        <div class="row"><a class="go" href="https://github.com/JSNN15/prama-agent">Ver en GitHub</a>
+          <details class="tech"><summary>Detalle técnico</summary><div><span><b>Qué es:</b> bash sobre tmux, en tu propio servidor; equipos de Claude Code y Google Antigravity con un coordinador.</span><span><b>Qué verifica:</b> cada tarea "lista" corre su prueba en la rama del agente; a <code>main</code> solo llega lo que pasa las pruebas; agentes bloqueados o callados se avisan al teléfono.</span><span><b>Código:</b> <a href="https://github.com/JSNN15/prama-agent">github.com/JSNN15/prama-agent</a> · Apache-2.0</span></div></details></div>
+      </div>
+    </article>
   </div>
+</div></section>
 
-  <a class="mini" href="https://github.com/JSNN15/prama-agent"><img src="img/prama.jpg" alt="" loading="lazy"><div><b>prama-agent</b><span>Equipos de agentes de IA que se reparten tareas; un coordinador revisa cada entrega antes de integrarla. Código abierto.</span></div><em>Ver en GitHub →</em></a>
+<section class="blk" id="historico"><div class="in">
+  <div class="eyebrow">02 · Histórico</div>
+  <h2>Primeras versiones</h2>
+  <p class="lead">Así empezaron las máquinas de arriba. Siguen publicadas porque muestran qué se aprendió en cada cambio.</p>
+  <div class="projects hist two">
+    <a class="proj" href="inspector/"><img src="img/inspector.jpg" alt="Tablero con hallazgos marcados por la IA" loading="lazy"><div class="b"><h3>Inspector de terreno</h3><p>La IA miraba la foto y opinaba, sin lista ni norma: hallazgos correctos pero genéricos.</p><span class="hoy">Hoy: Supervisor normativo →</span></div></a>
+    <a class="proj" href="normativa/"><img src="img/normativa.jpg" alt="Mapa de los 19 pliegos RIC con la respuesta" loading="lazy"><div class="b"><h3>Consulta RIC</h3><p>Una pregunta, una respuesta con cita. Buen buscador, pero sin conversación ni verificación de la frase.</p><span class="hoy">Hoy: Consulta eléctrica →</span></div></a>
+  </div>
 </div></section>
 
 <section class="blk" id="pruebas"><div class="in">
-  <div class="eyebrow">Estudios y cursos</div>
+  <div class="eyebrow">03 · Estudios y cursos</div>
   <h2>Simuladores y pruebas</h2>
   <p class="lead">Pruebas con datos públicos de planta, simuladores y un curso abierto sobre procesos del cobre.</p>
   <div class="projects">
@@ -312,7 +343,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
 </div></section>
 
 <section class="blk" id="capacidades"><div class="in">
-  <div class="eyebrow">Capacidades</div>
+  <div class="eyebrow">04 · Capacidades</div>
   <h2>Con qué trabajo</h2>
   <div class="caps">
     <div class="cap"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div><h3>Visión artificial en el borde</h3><div class="chips"><span>YOLOv8</span><span>MobileNetV3</span><span>PyTorch</span><span>ONNX</span><span>WebGPU</span></div></div>
@@ -325,7 +356,7 @@ footer .in{padding-block:22px 44px;color:var(--muted);font-size:.85rem}
 </div></section>
 
 <section class="blk" id="servicios"><div class="in">
-  <div class="eyebrow">Servicios</div>
+  <div class="eyebrow">05 · Servicios</div>
   <h2>Cómo trabajo</h2>
   <p class="lead">A través de Servicio y Soluciones Tecnológicas DelaCruz SpA, en proyectos cortos y con datos del cliente.</p>
   <div class="steps">
