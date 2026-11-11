@@ -1,29 +1,37 @@
 # jsnn15.github.io
 
-Portafolio de **Julián Neira Nova**, ingeniero eléctrico con 10 años en faena: máquinas de IA y automatización para minería, industria y agro que se prueban en el navegador.
+Portafolio de Julián Neira Nova, ingeniero eléctrico: máquinas de IA para minería, industria y agro que se prueban en el navegador. Se abre en [jsnn15.github.io](https://jsnn15.github.io/).
 
-**Portafolio:** https://jsnn15.github.io/
+## Qué hay aquí
 
-## Máquinas (cada una en su repositorio)
+- `index.html`: la portada. Ordena las máquinas activas, las primeras versiones y los estudios.
+- `img/`: videos e imágenes de la portada.
+- `ia-epp/`, `procesos/`, `simulador-ew/`: estudios y cursos que viven en este repositorio.
+- `tools/`: scripts con que se arman y revisan las páginas (ver abajo).
 
-| Máquina | Qué hace | Código |
-|---|---|---|
-| [Inspector de terreno](https://jsnn15.github.io/inspector/) | Foto de un tablero, correa o equipo → hallazgos y orden de trabajo (NVIDIA Nemotron VL) | [inspector](https://github.com/JSNN15/inspector) |
-| [Lector de instrumentos](https://jsnn15.github.io/lector/) | Foto de un manómetro de aguja → lectura, alarma y registro | [lector](https://github.com/JSNN15/lector) |
-| [Consulta RIC](https://jsnn15.github.io/normativa/) | Normativa eléctrica SEC con cita exacta al pliego y la página | [normativa](https://github.com/JSNN15/normativa) |
-| [Planta virtual LX-SX-EW](https://jsnn15.github.io/planta-virtual/) | Sala de control de una planta de cobre con asistente de IA | [planta-virtual](https://github.com/JSNN15/planta-virtual) |
-| [Vigía EPP](https://jsnn15.github.io/vigia/) | Detección de casco en tiempo real, sin nube | [vigia](https://github.com/JSNN15/vigia) |
-| [Monitor de correas](https://jsnn15.github.io/monitor-correas/) | Grietas en correas transportadoras, ubicadas en metros | [monitor-correas](https://github.com/JSNN15/monitor-correas) |
-| [Selector IA de fruta](https://jsnn15.github.io/selector-fruta/) | Clasificación de fruta en línea con expulsor | [selector-fruta](https://github.com/JSNN15/selector-fruta) |
-| — | Intermediario seguro entre las páginas y la API de NVIDIA | [nv-gateway](https://github.com/JSNN15/nv-gateway) |
+Cada máquina tiene su propio repositorio y se publica bajo este mismo dominio:
 
-## En este repositorio
+| Página | Repositorio |
+|---|---|
+| `/supervisor/` | [supervisor](https://github.com/JSNN15/supervisor) |
+| `/consulta-electrica/` | [consulta-electrica](https://github.com/JSNN15/consulta-electrica) |
+| `/planta-virtual/` | [planta-virtual](https://github.com/JSNN15/planta-virtual) |
+| `/vigia/` | [vigia](https://github.com/JSNN15/vigia) |
+| `/lector/` | [lector](https://github.com/JSNN15/lector) |
+| `/monitor-correas/` | [monitor-correas](https://github.com/JSNN15/monitor-correas) |
+| `/selector-fruta/` | [selector-fruta](https://github.com/JSNN15/selector-fruta) |
+| `/inspector/` (versión anterior) | [inspector](https://github.com/JSNN15/inspector) |
+| `/normativa/` (versión anterior) | [normativa](https://github.com/JSNN15/normativa) |
+| `/lab-virtual-flotacion/` | [lab-virtual-flotacion](https://github.com/JSNN15/lab-virtual-flotacion) |
 
-- `index.html`, `img/`: la portada del portafolio con los videos de cada máquina.
-- `procesos/`: curso abierto de procesos del cobre para ingenieros eléctricos.
-- `simulador-ew/`: simulador de una nave de electroobtención.
-- `ia-epp/`: prueba de modelos de visión de NVIDIA para detectar EPP.
-- Laboratorio virtual de flotación: repositorio [lab-virtual-flotacion](https://github.com/JSNN15/lab-virtual-flotacion).
-- [prama-agent](https://github.com/JSNN15/prama-agent): equipos de agentes de IA en un servidor propio.
+Las máquinas que usan IA de NVIDIA llaman a [nv-gateway](https://github.com/JSNN15/nv-gateway).
 
-Proyectos personales; nada proviene de clientes ni de empleadores.
+## tools/
+
+| Script | Para qué |
+|---|---|
+| `revisar_paginas.js` | Abre cada página publicada con Playwright y lista errores de carga o de JavaScript. `node tools/revisar_paginas.js` |
+| `buildpage.py` | Arma una página que usa el intermediario: pone su dirección y escribe `samples.js` desde `samples.json`. |
+| `jnbar.py` | Inserta la barra común (volver al portafolio, código en GitHub, LinkedIn). |
+
+Proyectos personales: nada de lo publicado proviene de clientes ni de empleadores.
