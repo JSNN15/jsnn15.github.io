@@ -30,6 +30,12 @@ Datos públicos de una planta de flotación de hierro («Quality Prediction in a
 
 El resultado del ejemplo es incómodo y real: con estos datos, el modelo evita mejor los errores grandes que usar el último laboratorio (RMSE 0,853 contra 0,935), pero en lo habitual se equivoca un 8 % más (error medio 0,627 contra 0,581). El cuaderno lo dice así y no lo presenta como una mejora.
 
+## El asistente (opcional)
+
+Se le puede pedir con palabras propias: «promedia cada hora y deja el pH entre 0 y 14». El asistente recibe los nombres de las columnas y sus estadísticas, nunca las filas, y propone pasos del mismo catálogo de la receta. La página valida cada paso contra las columnas reales, descarta lo que no se puede aplicar y no agrega nada hasta que la persona lo acepta.
+
+`test/asistente.mjs` lo prueba con 12 pedidos sobre el ejemplo: **12 de 12 con el paso esperado y ninguna columna inventada**, con una mediana de 2,7 s. A veces propone pasos de más (fijar la fecha, ordenar); por eso se muestran antes de aplicarlos. Usa una API gratuita compartida con cupo diario.
+
 ## Cómo se comprobó
 
 `test/referencia.py` repite los mismos pasos con pandas y scikit-learn, y `test/nucleo.test.mjs` compara el resultado número a número: lectura, perfil de una columna, promedio por hora, correlaciones, coeficientes del modelo y métricas de los tres estimadores, más tres formatos de archivo y la ida y vuelta de exportar y volver a leer. **95 de 95 comprobaciones coinciden.** La salida completa está en `test/resultado.txt`.
@@ -46,7 +52,7 @@ node test/nucleo.test.mjs
 - El modelo es lineal. Sirve para saber rápido si hay señal; no reemplaza un estudio.
 - Todo corre en la memoria del navegador. Probado con 20.000 filas y 24 columnas; archivos de cientos de miles de filas pueden tardar o no caber.
 - Lee la primera hoja de un Excel y espera el encabezado en la primera fila.
-- No tiene asistente de IA: los avisos y veredictos los calcula el código.
+- Los avisos, los cálculos y los veredictos los hace el código. El asistente solo propone pasos de limpieza.
 
 ## Archivos
 
@@ -54,7 +60,7 @@ node test/nucleo.test.mjs
 |---|---|
 | `src/nucleo.js` | Todo el cálculo, sin pantalla. Corre igual en el navegador y en Node. |
 | `src/App.jsx`, `src/Grafico.jsx` | La página. |
-| `test/` | Referencia en pandas y scikit-learn, comparación y resultado. |
+| `test/` | Referencia en pandas y scikit-learn, comparación y resultado; prueba del asistente. |
 | `public/flotacion.csv`, `public/flotacion_nuevo.csv` | Los datos del ejemplo. |
 
 ---
