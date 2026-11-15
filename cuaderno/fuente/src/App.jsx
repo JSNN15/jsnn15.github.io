@@ -5,6 +5,8 @@ import logoOscuro from './logo-oscuro.png';
 import logoClaro from './logo-claro.png';
 
 const {num, pct, fecha, duracion} = N;
+// El asistente es opcional y pasa por el intermediario del portafolio (nv.js agrega la sesión).
+const NV = ['localhost', '127.0.0.1'].includes(location.hostname) ? 'http://localhost:8787' : 'https://nv-portafolio.jneiranova.workers.dev';
 const temaActual = () => document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
 const bajar = (nombre, texto, tipo = 'text/plain') => {
   const a = document.createElement('a');
@@ -60,6 +62,9 @@ export default function App() {
   const [errModelo, setErrModelo] = useState('');
   const [vig, setVig] = useState(null);
   const [sobre, setSobre] = useState(false);
+  const [pedido, setPedido] = useState('');
+  const [prop, setProp] = useState(null);
+  const [pensando, setPensando] = useState(false);
   const pideArchivo = useRef(null);
   const pideNuevo = useRef(null);
   const pideReceta = useRef(null);
@@ -185,6 +190,67 @@ export default function App() {
     setOcupado('');
   };
 
+  // Lo que propone el asistente se valida contra las columnas reales: un paso con una columna que no existe o con
+  // un parámetro sin sentido se descarta y se dice. Nada se aplica sin que la persona lo acepte.
+  const validar = (r) => {
+    const hay = (n) => limpia.cols.find((c) => c.nombre === n);
+    const numsDe = (xs) => (xs || []).filter((n) => hay(n) && hay(n).tipo === 'num');
+    const pasos = [],
+      malos = [];
+    for (const x of Array.isArray(r.pasos) ? r.pasos : []) {
+      const todas = (x.cols || []).includes('todas');
+      const numero = (t) => (t === '' || t == null ? undefined : Number(String(t).replace(',', '.')));
+      let p = null,
+        por = '';
+      if (x.op === 'tiempo') hay(x.col) && hay(x.col).tipo === 'tiempo' ? (p = {op: 'tiempo', col: x.col, ...((x.cols || []).includes('repartir') ? {repetidas: 'repartir'} : {})}) : (por = `«${x.col}» no es una columna de fecha`);
+      else if (x.op === 'ordenar') p = {op: 'ordenar'};
+      else if (x.op === 'quitar_columnas') (x.cols || []).filter(hay).length ? (p = {op: 'quitar_columnas', cols: x.cols.filter(hay)}) : (por = 'no nombró columnas que existan');
+      else if (x.op === 'quitar_filas') hay(x.col) ? (p = {op: 'quitar_filas', sin: x.col}) : (por = `no existe «${x.col}»`);
+      else if (x.op === 'rango') {
+        const min = numero(x.min),
+          max = numero(x.max);
+        hay(x.col) && hay(x.col).tipo === 'num' && [min, max].some((v) => v !== undefined) && ![min, max].some((v) => v !== undefined && isNaN(v))
+          ? (p = {op: 'rango', col: x.col, ...(min !== undefined ? {min} : {}), ...(max !== undefined ? {max} : {})})
+          : (por = 'el rango no tiene columna o límites válidos');
+      } else if (x.op === 'atipicos') todas || numsDe(x.cols).length ? (p = {op: 'atipicos', cols: todas ? 'todas' : numsDe(x.cols), k: 6}) : (por = 'no nombró columnas que existan');
+      else if (x.op === 'pegados') numsDe(x.cols).length ? (p = {op: 'pegados', cols: numsDe(x.cols), filas: Math.max(5, Math.round(x.filas) || 30)}) : (por = 'hay que nombrar las columnas: no se aplica a todas porque borraría los datos de laboratorio');
+      else if (x.op === 'remuestrear') N.aDuracion(x.cada) > 0 ? (p = {op: 'remuestrear', cada: x.cada.trim()}) : (por = `no entiendo el paso «${x.cada}»`);
+      else if (x.op === 'rellenar') todas || numsDe(x.cols).length ? (p = {op: 'rellenar', cols: todas ? 'todas' : numsDe(x.cols), max: Math.min(50, Math.max(1, Math.round(x.filas) || 3))}) : (por = 'no nombró columnas que existan');
+      else por = `no conozco el paso «${x.op}»`;
+      if (p && yaEsta(p)) por = 'ya está en la receta';
+      if (p && !por) pasos.push(p);
+      else malos.push(por);
+    }
+    const objetivoNuevo = hay(r.objetivo) && hay(r.objetivo).tipo === 'num' && r.objetivo !== objetivo ? r.objetivo : '';
+    return {pasos, malos, explica: String(r.explica || ''), noPuedo: String(r.no_puedo || ''), objetivo: objetivoNuevo, retraso: Number.isInteger(r.retraso) && r.retraso >= 0 && r.retraso <= 500 ? r.retraso : -1};
+  };
+  const pedir = async () => {
+    if (pedido.trim().length < 3 || pensando) return;
+    setPensando(true);
+    setProp(null);
+    try {
+      const r = await fetch(NV + '/cuaderno', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        signal: AbortSignal.timeout(30000),
+        body: JSON.stringify({
+          pedido,
+          filas: num(limpia.n),
+          tiempo: PL.tiempo ? `columna «${PL.colTiempo}», una marca cada ${duracion(PL.tiempo.paso)}${PL.tiempo.porMarca > 1 ? `, cada marca repetida en ${PL.tiempo.porMarca} filas` : ''}` : '',
+          columnas: PL.cols.map((c) => ({nombre: c.nombre, tipo: c.tipo, faltan: c.tipo === 'num' ? pct(c.faltan / PL.n) : '', min: num(c.min), max: num(c.max), habitual: `${num(c.p01)} a ${num(c.p99)}`, cambia: String(c.racha || 1)})),
+          avisos: N.hallazgos(PL).map((h) => h.texto),
+          receta: hecho.bitacora.map((b) => (N.NOMBRE_OP[b.paso.op] || (() => b.paso.op))(b.paso)),
+        }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.ok) throw new Error(d.error || 'el asistente no respondió');
+      setProp(validar(d.result));
+    } catch (e) {
+      setProp({error: e.name === 'TimeoutError' ? 'El asistente tardó demasiado. Es una demo con una API gratuita compartida: intenta de nuevo.' : /Failed to fetch|NetworkError/.test(e.message) ? 'No pude conectar con el asistente.' : e.message});
+    }
+    setPensando(false);
+  };
+
   const M = ajuste && ajuste.modelo;
   const veredicto = (() => {
     if (!M) return null;
@@ -236,7 +302,7 @@ export default function App() {
       <main>
         <section className="portada">
           <div className="ancho">
-            <p className="eyebrow">Datos de proceso · sin licencias · sin subir nada</p>
+            <p className="eyebrow">Datos de proceso · sin licencias · el archivo no sale de tu equipo</p>
             <h1>De la planilla al modelo</h1>
             <p className="bajada">
               Abre el archivo que exporta la planta y este cuaderno revisa la calidad de los datos, los limpia con una receta que se puede repetir y prueba si un modelo
@@ -385,6 +451,70 @@ export default function App() {
                   ))}
                 </ol>
               )}
+              <div className="asistente">
+                <label htmlFor="pedido">O pídelo con tus palabras</label>
+                <div className="fila">
+                  <input id="pedido" type="text" maxLength={400} value={pedido} onChange={(e) => setPedido(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && pedir()} placeholder="Ej.: promedia cada hora y borra los sensores pegados" />
+                  <button type="button" className="sec chica" disabled={pensando || pedido.trim().length < 3} onClick={pedir}>
+                    {pensando ? 'Pensando' : 'Proponer pasos'}
+                  </button>
+                </div>
+                <p className="nota" style={{marginTop: 6}}>
+                  Opcional. El asistente envía a un modelo de NVIDIA los nombres de las columnas y sus estadísticas, nunca las filas. Propone pasos; tú decides si se aplican. Es una demo con cupo
+                  diario.
+                </p>
+                {prop && prop.error && (
+                  <p className="nota" role="alert" style={{color: 'var(--acc)'}}>
+                    {prop.error}
+                  </p>
+                )}
+                {prop && !prop.error && (
+                  <div className="propuesta">
+                    {prop.explica && <p>{prop.explica}</p>}
+                    {prop.pasos.length > 0 && (
+                      <>
+                        <ol className="pasos">
+                          {prop.pasos.map((x, i) => (
+                            <li key={i}>
+                              <span>{(N.NOMBRE_OP[x.op] || (() => x.op))(x)}</span>
+                              <span />
+                            </li>
+                          ))}
+                        </ol>
+                        <div className="fila">
+                          <button type="button" className="cta chica" onClick={() => (setReceta((r) => [...r, ...prop.pasos]), setAjuste(null), setVig(null), setProp({...prop, pasos: [], explica: 'Pasos agregados a la receta.'}))}>
+                            Agregar {prop.pasos.length === 1 ? 'este paso' : 'estos pasos'} a la receta
+                          </button>
+                        </div>
+                      </>
+                    )}
+                    {(prop.objetivo || prop.retraso >= 0) && (
+                      <div className="fila">
+                        <span className="nota" style={{margin: 0}}>
+                          Para el modelo: {prop.objetivo ? `estimar «${prop.objetivo}»` : ''}
+                          {prop.objetivo && prop.retraso >= 0 ? ', ' : ''}
+                          {prop.retraso >= 0 ? `laboratorio con ${prop.retraso} ${prop.retraso === 1 ? 'fila' : 'filas'} de retraso` : ''}.
+                        </span>
+                        <button
+                          type="button"
+                          className="sec chica"
+                          onClick={() => {
+                            if (prop.objetivo) (setObjetivo(prop.objetivo), setFuera(new Set(N.delMismoAnalisis(crudo, prop.objetivo))));
+                            if (prop.retraso >= 0) setRetraso(prop.retraso);
+                            setAjuste(null);
+                            setVig(null);
+                            setProp({...prop, objetivo: '', retraso: -1});
+                          }}
+                        >
+                          Usar en el modelo
+                        </button>
+                      </div>
+                    )}
+                    {prop.noPuedo && <p className="nota">{prop.noPuedo}</p>}
+                    {prop.malos.length > 0 && <p className="nota">Dejé fuera {prop.malos.length === 1 ? 'un paso' : `${prop.malos.length} pasos`} que no se podía aplicar: {prop.malos.join('; ')}.</p>}
+                  </div>
+                )}
+              </div>
               <div className="fila">
                 <label htmlFor="cada">Promediar cada</label>
                 <select id="cada" value={cada} onChange={(e) => setCada(e.target.value)}>
@@ -666,7 +796,7 @@ export default function App() {
       <footer className="legal">
         <div className="ancho">
           Cuaderno de planta · Servicio y Soluciones Tecnológicas DelaCruz SpA · Julián Neira Nova. Los archivos se leen y se procesan en tu navegador; esta página no los envía ni los
-          guarda. Datos del ejemplo: «Quality Prediction in a Mining Process» (Kaggle, publicado como dominio público CC0), una fila de cada treinta. Cada cálculo se comprueba contra pandas y
+          guarda. Si usas el asistente, solo viajan los nombres de las columnas y sus estadísticas. Datos del ejemplo: «Quality Prediction in a Mining Process» (Kaggle, publicado como dominio público CC0), una fila de cada treinta. Cada cálculo se comprueba contra pandas y
           scikit-learn; el detalle está en el repositorio. Es una ayuda de análisis: las decisiones de operación las toma quien conoce la planta.
         </div>
       </footer>
