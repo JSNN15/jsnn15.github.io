@@ -75,11 +75,19 @@
   window.fetch = async (u, o = {}) => {
     const b = baseDe(u);
     if (!b) return nativo(u, o);
+    // ninguna consulta queda esperando para siempre: a los 75 s se corta y la página muestra el error
+    const corte = AbortSignal.timeout(75000);
+    const signal = o.signal && AbortSignal.any ? AbortSignal.any([o.signal, corte]) : o.signal || corte;
     const ir = async () => {
       await sesion(b);
       const headers = new Headers(o.headers || {});
       headers.set('X-NV-Sesion', ses);
-      return nativo(u, {...o, headers});
+      try {
+        return await nativo(u, {...o, headers, signal});
+      } catch (e) {
+        if (corte.aborted) throw new Error('La IA tardó demasiado en responder. Intenta de nuevo.');
+        throw e;
+      }
     };
     let r = await ir();
     if (r.status === 401) {
