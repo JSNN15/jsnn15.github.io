@@ -1,0 +1,334 @@
+{
+ "fecha": "2026-11-15",
+ "resumen": {
+  "casos": 12,
+  "aciertos": 12,
+  "columnas_inventadas": 0,
+  "mediana_s": 2.7
+ },
+ "casos": [
+  {
+   "pedido": "Promedia todo cada hora",
+   "pasa": true,
+   "pasos": [
+    {
+     "op": "tiempo",
+     "col": "date",
+     "cols": [
+      "repartir"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    },
+    {
+     "op": "remuestrear",
+     "col": "",
+     "cols": [],
+     "cada": "1 h",
+     "min": "",
+     "max": "",
+     "filas": 0
+    },
+    {
+     "op": "ordenar",
+     "col": "",
+     "cols": [],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    }
+   ],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "Fijo la columna de fecha y reparto las marcas repetidas, luego promedio todo cada hora y ordeno por fecha para que quede la serie limpia.",
+   "no_puedo": "",
+   "inventadas": []
+  },
+  {
+   "pedido": "Arregla las fechas, que vienen repetidas",
+   "pasa": true,
+   "pasos": [
+    {
+     "op": "tiempo",
+     "col": "date",
+     "cols": [
+      "repartir"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    }
+   ],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "Propongo fijar la columna «date» como tiempo y repartir las marcas repetidas entre las 6 filas que comparten cada una, para que quede una marca por fila. La receta no tiene fecha fijada aún y el pedido pide arreglar las fechas repetidas.",
+   "no_puedo": "",
+   "inventadas": []
+  },
+  {
+   "pedido": "Borra los tramos donde los sensores se quedaron pegados",
+   "pasa": true,
+   "pasos": [
+    {
+     "op": "tiempo",
+     "col": "date",
+     "cols": [
+      "repartir"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    },
+    {
+     "op": "pegados",
+     "col": "",
+     "cols": [
+      "Ore Pulp pH",
+      "Flotation Column 01 Air Flow",
+      "Flotation Column 02 Air Flow",
+      "Flotation Column 03 Air Flow",
+      "Flotation Column 04 Air Flow",
+      "Flotation Column 05 Air Flow",
+      "Flotation Column 06 Air Flow",
+      "Flotation Column 07 Air Flow"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 30
+    },
+    {
+     "op": "ordenar",
+     "col": "date",
+     "cols": [],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    }
+   ],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "Propongo fijar la fecha y repartir las marcas repetidas, borrar los tramos pegados de los sensores con avisos de congelamiento (mínimo 30 filas) y ordenar por fecha. Así queda la tabla limpia para lo que necesites después.",
+   "no_puedo": "",
+   "inventadas": []
+  },
+  {
+   "pedido": "El pH no puede ser menor que 0 ni mayor que 14",
+   "pasa": true,
+   "pasos": [
+    {
+     "op": "tiempo",
+     "col": "date",
+     "cols": [
+      "repartir"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    },
+    {
+     "op": "ordenar",
+     "col": "",
+     "cols": [],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    },
+    {
+     "op": "rango",
+     "col": "Ore Pulp pH",
+     "cols": [],
+     "cada": "",
+     "min": "0",
+     "max": "14",
+     "filas": 0
+    }
+   ],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "Fijo la columna de fecha y la ordeno porque cada marca se repite en 6 filas, luego aplico el rango físico al pH (0–14) como pediste.",
+   "no_puedo": "",
+   "inventadas": []
+  },
+  {
+   "pedido": "Quita las columnas de nivel de las columnas de flotación",
+   "pasa": true,
+   "pasos": [
+    {
+     "op": "quitar_columnas",
+     "col": "",
+     "cols": [
+      "Flotation Column 01 Level",
+      "Flotation Column 02 Level",
+      "Flotation Column 03 Level",
+      "Flotation Column 04 Level",
+      "Flotation Column 05 Level",
+      "Flotation Column 06 Level",
+      "Flotation Column 07 Level"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    },
+    {
+     "op": "tiempo",
+     "col": "date",
+     "cols": [
+      "repartir"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    }
+   ],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "Propongo quitar las siete columnas de nivel de flotación que pediste. Como la fecha se repite en varias filas, también propongo fijar la columna de fecha para que quede bien estructurada la tabla.",
+   "no_puedo": "",
+   "inventadas": []
+  },
+  {
+   "pedido": "Quiero estimar la sílice del concentrado. El laboratorio llega con dos horas de retraso.",
+   "pasa": true,
+   "pasos": [
+    {
+     "op": "tiempo",
+     "col": "date",
+     "cols": [],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    },
+    {
+     "op": "remuestrear",
+     "col": "",
+     "cols": [],
+     "cada": "1 h",
+     "min": "",
+     "max": "",
+     "filas": 0
+    },
+    {
+     "op": "quitar_filas",
+     "col": "% Silica Concentrate",
+     "cols": [],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    },
+    {
+     "op": "rellenar",
+     "col": "",
+     "cols": [
+      "todas"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 3
+    }
+   ],
+   "objetivo": "% Silica Concentrate",
+   "retraso": 2,
+   "explica": "Propongo fijar la fecha como tiempo, promediar cada hora, quitar las filas sin sílice del concentrado y rellenar huecos cortos de hasta 3 filas en todas las columnas. Así queda la base limpia para estimar la sílice con el retraso de dos horas del laboratorio.",
+   "no_puedo": "",
+   "inventadas": []
+  },
+  {
+   "pedido": "Rellena los huecos cortos",
+   "pasa": true,
+   "pasos": [
+    {
+     "op": "rellenar",
+     "col": "",
+     "cols": [
+      "todas"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 3
+    }
+   ],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "Propongo rellenar los huecos cortos de hasta 3 filas en todas las columnas, para recuperar los datos que faltan sin inventar tramos largos.",
+   "no_puedo": "",
+   "inventadas": []
+  },
+  {
+   "pedido": "Borra los valores atípicos del flujo de amina",
+   "pasa": true,
+   "pasos": [
+    {
+     "op": "atipicos",
+     "col": "",
+     "cols": [
+      "Amina Flow"
+     ],
+     "cada": "",
+     "min": "",
+     "max": "",
+     "filas": 0
+    }
+   ],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "Propongo borrar los valores atípicos de la columna «Amina Flow» para eliminar lecturas anómalas que puedan distorsionar el análisis. Este paso usa un criterio estadístico (rango intercuartílico) para detectar y quitar outliers automáticamente.",
+   "no_puedo": "",
+   "inventadas": []
+  },
+  {
+   "pedido": "Une este archivo con la planilla de turnos",
+   "pasa": true,
+   "pasos": [],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "No puedo unir este archivo con la planilla de turnos; esos pasos no están disponibles en este asistente.",
+   "no_puedo": "No puedo unir archivos; solo propongo pasos de limpieza de esta tabla.",
+   "inventadas": []
+  },
+  {
+   "pedido": "Hazme un pronóstico de la ley de sílice para mañana",
+   "pasa": true,
+   "pasos": [],
+   "objetivo": "% Silica Concentrate",
+   "retraso": -1,
+   "explica": "No puedo hacer pronósticos con los pasos de limpieza que tengo disponibles. La tabla ya tiene la fecha fijada y promediada cada 1 h, y la columna para estimar sería «% Silica Concentrate».",
+   "no_puedo": "No puedo hacer pronósticos de la ley de sílice para mañana; esos pasos solo sirven para limpiar la tabla.",
+   "inventadas": []
+  },
+  {
+   "pedido": "¿Qué columnas son datos de laboratorio?",
+   "pasa": true,
+   "pasos": [],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "Son de laboratorio: % Iron Feed, % Silica Feed, % Iron Concentrate y % Silica Concentrate, porque cambian cada 9 h o cada 1 h, no cada fila como los sensores en línea.",
+   "no_puedo": "",
+   "inventadas": []
+  },
+  {
+   "pedido": "Promedia cada hora",
+   "pasa": true,
+   "pasos": [],
+   "objetivo": "",
+   "retraso": -1,
+   "explica": "La receta ya tiene el paso de remuestrear a 1 h, así que no hay nada que agregar.",
+   "no_puedo": "",
+   "inventadas": []
+  }
+ ]
+}
