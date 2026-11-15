@@ -1,0 +1,100 @@
+lectura: 20118 filas × 24 columnas en 220 ms; separador «,», coma decimal: true
+✓ filas leídas: 20118 = 20118
+✓ perfil Amina Flow · media: 489.29250671188936 = 489.2925067118886
+✓ perfil Amina Flow · desv: 90.26646938175199 = 90.26646938175173
+✓ perfil Amina Flow · mediana: 506.45050000000003 = 506.45050000000003
+✓ perfil Amina Flow · mad: 55.128499999999974 = 55.128499999999974
+✓ perfil Amina Flow · p01: 247.237661427412 = 247.237661427412
+✓ perfil Amina Flow · p99: 657.7643899999998 = 657.7643899999998
+✓ perfil Amina Flow · min: 241.7008947368 = 241.7008947368
+✓ perfil Amina Flow · max: 739.04934375 = 739.04934375
+✓ perfil Amina Flow · atípicos: 0 = 0
+✓ filas por marca de tiempo: 6 = 6
+hallazgos: 14 · Cada marca de tiempo se repite en 6 filas: la fecha viene con menos de | Faltan datos entre 16-03-2017 05:00 y 29-03-2017 12:00 (13,3 d). No se | «% Iron Feed» cambia cada 54 filas (cada 9 h): parece un dato de labor | «% Silica Feed» cambia cada 54 filas (cada 9 h): parece un dato de lab
+receta: 16.765 filas con hora repartida · 20.118 filas → 3.671 filas de 1 h
+✓ filas por hora: 3671 = 3671
+✓ horas sin dato (Amina Flow): 318 = 318
+✓ media horaria Amina Flow: 489.29250671188817 = 489.2925067118886
+✓ suma horaria sílice: 7798.597171977207 = 7798.597171977233
+✓ correlación con sílice · % Iron Concentrate: -0.8030454579871505 = -0.8030454579886436
+✓ correlación con sílice · Amina Flow: 0.12498360312878533 = 0.12498360312874908
+✓ correlación con sílice · Ore Pulp pH: -0.13342281786014876 = -0.13342281786046598
+✓ correlación con sílice · Flotation Column 01 Air Flow: -0.2473694847554666 = -0.24736948475558765
+✓ mismo análisis que el objetivo: % Iron Concentrate
+✓ solo_proceso · filas de entrenamiento: 2347 = 2347
+✓ solo_proceso · filas de prueba: 1006 = 1006
+✓ solo_proceso · lambda elegido: 2347 = 2347
+✓ solo_proceso · intercepto: 2.4139984814245796 = 2.413998481424587
+✓ solo_proceso · coeficiente 1: -0.03593958045279148 = -0.035939580452790734
+✓ solo_proceso · coeficiente 2: 0.024459883606583705 = 0.024459883606584642
+✓ solo_proceso · coeficiente 3: -0.02231616249397533 = -0.022316162493975215
+✓ solo_proceso · coeficiente 4: 0.07187770081705731 = 0.07187770081705751
+✓ solo_proceso · coeficiente 5: 0.0067434061622721085 = 0.006743406162272054
+✓ solo_proceso · coeficiente 6: -0.025502708436171043 = -0.025502708436171195
+✓ solo_proceso · coeficiente 7: 0.010414567006286153 = 0.010414567006286036
+✓ solo_proceso · coeficiente 8: -0.08996067912076867 = -0.08996067912076779
+✓ solo_proceso · coeficiente 9: -0.056956569853658816 = -0.05695656985365901
+✓ solo_proceso · coeficiente 10: -0.09117892090661056 = -0.09117892090661142
+✓ solo_proceso · coeficiente 11: 0.08677446986889241 = 0.08677446986889292
+✓ solo_proceso · coeficiente 12: -0.014640808487169685 = -0.014640808487169817
+✓ solo_proceso · coeficiente 13: -0.03286195741313088 = -0.032861957413130784
+✓ solo_proceso · coeficiente 14: -0.034070514145888575 = -0.034070514145889116
+✓ solo_proceso · coeficiente 15: -0.007996948525239255 = -0.007996948525239349
+✓ solo_proceso · coeficiente 16: -0.027891267454989092 = -0.02789126745498895
+✓ solo_proceso · coeficiente 17: 0.0029911190479047747 = 0.0029911190479046156
+✓ solo_proceso · coeficiente 18: -0.019419939267411028 = -0.019419939267411066
+✓ solo_proceso · coeficiente 19: -0.06485221193602728 = -0.06485221193602654
+✓ solo_proceso · coeficiente 20: -0.004548601415996684 = -0.004548601415996969
+✓ solo_proceso · coeficiente 21: -0.05144464123653155 = -0.05144464123653179
+✓ solo_proceso · modelo mae: 0.84159492011978 = 0.8415949201197823
+✓ solo_proceso · promedio mae: 0.9110200940805683 = 0.9110200940805644
+✓ solo_proceso · último laboratorio mae: 0.5802687270853208 = 0.5802687270853214
+✓ solo_proceso · modelo rmse: 1.0443884280575835 = 1.044388428057585
+✓ solo_proceso · promedio rmse: 1.0866065231014388 = 1.0866065231014388
+✓ solo_proceso · último laboratorio rmse: 0.9348258689432034 = 0.9348258689432034
+✓ solo_proceso · modelo r2: 0.003345713601777711 = 0.0033457136017757128
+✓ solo_proceso · promedio r2: -0.07885990289384681 = -0.07885990289384592
+✓ solo_proceso · último laboratorio r2: 0.2014872032920515 = 0.20148720329205216
+✓ con_ultimo · filas de entrenamiento: 2344 = 2344
+✓ con_ultimo · filas de prueba: 1005 = 1005
+✓ con_ultimo · lambda elegido: 234.4 = 234.4
+✓ con_ultimo · intercepto: 2.415710083576573 = 2.4157100835765886
+✓ con_ultimo · coeficiente 1: -0.021325448668126325 = -0.02132544866812799
+✓ con_ultimo · coeficiente 2: 0.002666618758033156 = 0.002666618758030967
+✓ con_ultimo · coeficiente 3: -0.0016513654562009836 = -0.0016513654562011826
+✓ con_ultimo · coeficiente 4: 0.008468960057737326 = 0.00846896005773786
+✓ con_ultimo · coeficiente 5: -0.0024814107909559985 = -0.0024814107909563515
+✓ con_ultimo · coeficiente 6: -0.008442263659113464 = -0.00844226365911342
+✓ con_ultimo · coeficiente 7: 0.034419884661611354 = 0.034419884661611395
+✓ con_ultimo · coeficiente 8: -0.08167277941074837 = -0.08167277941075618
+✓ con_ultimo · coeficiente 9: -0.009378874015961824 = -0.009378874015960229
+✓ con_ultimo · coeficiente 10: -0.09031607097985016 = -0.09031607097984487
+✓ con_ultimo · coeficiente 11: 0.11974314618534429 = 0.11974314618534472
+✓ con_ultimo · coeficiente 12: 0.0032909616821279585 = 0.0032909616821277785
+✓ con_ultimo · coeficiente 13: -0.015275440376533774 = -0.01527544037653056
+✓ con_ultimo · coeficiente 14: -0.024016632329436623 = -0.024016632329438882
+✓ con_ultimo · coeficiente 15: -0.005557391137402099 = -0.005557391137402586
+✓ con_ultimo · coeficiente 16: -0.04659434214117172 = -0.046594342141170884
+✓ con_ultimo · coeficiente 17: 0.020101743905323627 = 0.02010174390532355
+✓ con_ultimo · coeficiente 18: 0.008781959806472919 = 0.008781959806472988
+✓ con_ultimo · coeficiente 19: -0.06121689716325726 = -0.06121689716325764
+✓ con_ultimo · coeficiente 20: 0.04571111313105544 = 0.045711113131055955
+✓ con_ultimo · coeficiente 21: -0.025501155514142462 = -0.025501155514142327
+✓ con_ultimo · coeficiente 22: 0.6289155855060721 = 0.6289155855060717
+✓ con_ultimo · modelo mae: 0.6274414067089449 = 0.6274414067089514
+✓ con_ultimo · promedio mae: 0.9123752382847843 = 0.9123752382847801
+✓ con_ultimo · último laboratorio mae: 0.5807963576595351 = 0.5807963576595356
+✓ con_ultimo · modelo rmse: 0.8529752592473232 = 0.8529752592473246
+✓ con_ultimo · promedio rmse: 1.0875243762316182 = 1.0875243762316178
+✓ con_ultimo · último laboratorio rmse: 0.9352895109698582 = 0.9352895109698582
+✓ con_ultimo · modelo r2: 0.33584545274884525 = 0.3358454527488435
+✓ con_ultimo · promedio r2: -0.07962835397787749 = -0.07962835397787571
+✓ con_ultimo · último laboratorio r2: 0.20147519916028012 = 0.20147519916028067
+vigilancia: 744 horas nuevas, 742 estimadas; MAE modelo 0.633 · último laboratorio 0.579; entradas con deriva: Ore Pulp Flow, Flotation Column 06 Air Flow, Flotation Column 07 Air Flow
+✓ exportar y volver a leer · filas: 3671 = 3671
+✓ exportar y volver a leer · media: 489.29250671188817 = 489.29250671188817
+✓ formato: punto y coma, coma decimal, fecha día-mes-año
+✓ formato: coma, punto decimal, fecha ISO
+✓ formato: tabulador, celdas vacías y texto de error
+
+95 de 95 comprobaciones coinciden con la referencia.
