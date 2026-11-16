@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Red de sensores de terreno · diseño</title>
+<meta name="description" content="Cinco problemas industriales conocidos resueltos con nodos inalámbricos de bajo costo: correas, pilas de lixiviación, planta, cultivos y retransmisión con dron. Diseño, todavía no construido." />
+<meta property="og:title" content="Red de sensores de terreno · Julián Neira Nova" />
+<meta property="og:description" content="Diseño de una red de nodos inalámbricos para correas, pilas de lixiviación, planta y cultivos, conectada a las herramientas del portafolio." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" />
+<script>try{var t=localStorage.getItem('tema');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+:root{color-scheme:dark;--bg:#071019;--hoja:#0e1924;--line:#1f3142;--line2:#2b4257;--fg:#eaf1f6;--fg2:#c5d2dc;--mut:#9db0bf;--acc:#ff8e3c;--acc-ink:#1c0c02;--frio:#8fd0ea;
+--t1:#16283a;--t2:#0f1e2c;--t3:#0b1722;--s1:#2f5068;--s2:#223d52;--s3:#1a3044;--n1:#ff8e3c;--n2:#d96f22;--n3:#b65a17;--v1:#8fd0ea;--v2:#5fa9c7;--v3:#3f86a3;--enl:#8fd0ea;
+--sans:'Geist','Inter',system-ui,-apple-system,'Segoe UI',sans-serif;--mono:'Geist Mono',ui-monospace,Menlo,Consolas,monospace;--gl:max(16px,env(safe-area-inset-left,0px));--gr:max(16px,env(safe-area-inset-right,0px))}
+@media (prefers-color-scheme:light){:root:not([data-theme='dark']){color-scheme:light;--bg:#eef0ec;--hoja:#fcfcfb;--line:#dcdfd8;--line2:#c3c8c2;--fg:#0c141a;--fg2:#26323b;--mut:#55626d;--acc:#b8430f;--acc-ink:#fff;--frio:#1f6f8c;
+--t1:#e6eae3;--t2:#d5dbd2;--t3:#c5ccc2;--s1:#b9c7cf;--s2:#9db0bb;--s3:#8499a6;--n1:#d9601f;--n2:#b8430f;--n3:#96350b;--v1:#4d9bb8;--v2:#2f7f9d;--v3:#1f6f8c;--enl:#1f6f8c}}
+:root[data-theme='light']{color-scheme:light;--bg:#eef0ec;--hoja:#fcfcfb;--line:#dcdfd8;--line2:#c3c8c2;--fg:#0c141a;--fg2:#26323b;--mut:#55626d;--acc:#b8430f;--acc-ink:#fff;--frio:#1f6f8c;
+--t1:#e6eae3;--t2:#d5dbd2;--t3:#c5ccc2;--s1:#b9c7cf;--s2:#9db0bb;--s3:#8499a6;--n1:#d9601f;--n2:#b8430f;--n3:#96350b;--v1:#4d9bb8;--v2:#2f7f9d;--v3:#1f6f8c;--enl:#1f6f8c}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-underline-offset:3px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+.top{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 20px;min-height:60px;padding:6px var(--gr) 6px var(--gl);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.marca{display:inline-flex;flex-direction:column;justify-content:center;min-height:44px;text-decoration:none;font-weight:600;line-height:1.2}
+.marca small{font:400 13px var(--mono);color:var(--mut)}
+.top nav{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap;font-size:14.5px}
+.top nav a{min-height:40px;display:inline-flex;align-items:center;color:var(--fg2)}
+.tema{min-height:40px;padding:0 14px;border:1px solid var(--line2);border-radius:6px;background:transparent;font-size:14px;font-weight:500}
+main{max-width:1180px;margin:0 auto;padding:36px var(--gr) 64px var(--gl)}
+.estado{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border:1px solid var(--acc);border-radius:999px;font:500 13px var(--mono);letter-spacing:.03em;color:var(--acc)}
+.estado::before{content:'';width:8px;height:8px;border-radius:50%;border:2px solid var(--acc)}
+h1{margin:16px 0 12px;font-size:clamp(32px,5vw,52px);line-height:1.05;letter-spacing:-.025em;text-wrap:balance}
+.bajada{max-width:62ch;font-size:19px;line-height:1.5;color:var(--fg2)}
+.hay{max-width:70ch;margin-top:14px;color:var(--mut);font-size:15.5px}
+section{margin-top:64px}
+h2{font-size:26px;letter-spacing:-.015em;line-height:1.2;margin-bottom:6px}
+.sub{max-width:68ch;color:var(--fg2);margin-bottom:22px}
+.rot{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+
+/* --- sistema --- */
+.sistema{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;align-items:start}
+.lamina{background:var(--hoja);border:1px solid var(--line);border-radius:12px;padding:8px}
+.lamina svg{display:block;width:100%;height:auto}
+.casos{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.casos button{display:grid;grid-template-columns:30px 1fr;gap:2px 10px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:transparent;text-align:left;line-height:1.3}
+.casos button b{font-weight:600}
+.casos button i{grid-row:span 2;align-self:start;font:500 13px var(--mono);font-style:normal;color:var(--mut);padding-top:2px}
+.casos button small{font-size:13.5px;color:var(--mut)}
+.casos button:hover{border-color:var(--line2)}
+.casos button[aria-pressed='true']{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 9%,transparent)}
+.casos button[aria-pressed='true'] i{color:var(--acc)}
+.zona .suelo{transition:fill .2s}
+.zona.on .suelo-top{fill:color-mix(in srgb,var(--acc) 22%,var(--t1))}
+.enlace{fill:none;stroke:var(--enl);stroke-width:1.6;stroke-dasharray:5 6;opacity:.45;animation:corre 1.6s linear infinite}
+.enlace.on{opacity:1;stroke-width:2.2}
+.enlace.dron{stroke:var(--acc)}
+@keyframes corre{to{stroke-dashoffset:-22}}
+.et{font:500 13px var(--sans);fill:var(--fg);paint-order:stroke;stroke:var(--hoja);stroke-width:5px;stroke-linejoin:round}
+.et.m{font:500 12px var(--mono);fill:var(--mut);letter-spacing:.06em}
+.ficha{margin-top:26px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:12px;background:var(--hoja);overflow:hidden}
+.ficha>div{padding:18px 20px}
+.ficha>div+div{border-left:1px solid var(--line)}
+.ficha h3{margin-bottom:6px;font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.ficha p{color:var(--fg2);font-size:15.5px}
+.ficha .tit{grid-column:1/-1;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.ficha .tit h3{margin:0;font:600 20px var(--sans);letter-spacing:-.01em;text-transform:none;color:var(--fg)}
+.ficha .tit span{font-size:14.5px;color:var(--mut)}
+.ficha .pie{grid-column:1/-1;border-top:1px solid var(--line);border-left:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px}
+.ficha .pie p{font-size:15px}
+.ficha a{color:var(--fg)}
+
+/* --- nodo --- */
+.nodo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:start}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tabs button{min-height:40px;padding:0 14px;border:1px solid var(--line2);border-radius:999px;background:transparent;font-size:14.5px;font-weight:500}
+.tabs button[aria-selected='true']{border-color:var(--acc);background:var(--acc);color:var(--acc-ink)}
+.capas{margin:0;padding:0;list-style:none;border:1px solid var(--line);border-radius:12px;background:var(--hoja)}
+.capas li{display:grid;grid-template-columns:118px 1fr;gap:4px 16px;padding:12px 16px}
+.capas li+li{border-top:1px solid var(--line)}
+.capas b{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding-top:3px}
+.capas span{color:var(--fg2);font-size:15.5px}
+.capas li.cab b{color:var(--acc)}
+.guia{stroke:var(--line2);stroke-width:1}
+
+/* --- tablas --- */
+.tabla{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--hoja)}
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th,td{padding:11px 16px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+td:first-child{font-weight:600;white-space:nowrap}
+td{color:var(--fg2)}
+.falta{margin-top:14px;max-width:76ch;color:var(--fg2)}
+.hitos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0;padding:0;list-style:none;counter-reset:h}
+.hitos li{counter-increment:h;padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--hoja)}
+.hitos li::before{content:'Hito ' counter(h);display:block;margin-bottom:6px;font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.hitos b{display:block;margin-bottom:4px;font-size:17px}
+.hitos p{color:var(--fg2);font-size:15.5px}
+.hitos p+p{margin-top:8px;color:var(--mut);font-size:14.5px}
+.pie-pag{max-width:1180px;margin:0 auto;padding:0 var(--gr) 40px var(--gl);font-size:14px;color:var(--mut)}
+.pie-pag p+p{margin-top:6px}
+@media (max-width:900px){.sistema,.nodo{grid-template-columns:minmax(0,1fr)}.ficha{grid-template-columns:minmax(0,1fr)}.ficha>div+div{border-left:0;border-top:1px solid var(--line)}.ficha .pie{grid-template-columns:minmax(0,1fr)}.hitos{grid-template-columns:minmax(0,1fr)}.capas li{grid-template-columns:minmax(0,1fr)}td:first-child{white-space:normal}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="marca" href="../">Julián Neira Nova<small>Red de sensores de terreno</small></a>
+  <nav aria-label="Principal">
+    <a href="../">Portafolio</a>
+    <a href="https://github.com/JSNN15/vibration-analyzer">Antecedente</a>
+    <button type="button" class="tema" id="tema">Tema</button>
+  </nav>
+</header>
+
+<main>
+  <span class="estado">Diseño · no construido</span>
+  <h1>Red de sensores de terreno</h1>
+  <p class="bajada">Cinco problemas industriales conocidos y una misma respuesta: nodos inalámbricos de bajo costo que miden donde hoy nadie mide y llevan el dato a un servidor central.</p>
+  <p class="hay">Lo que existe hoy: las placas, el software que recibe el dato (las herramientas del <a href="../">portafolio</a>) y un <a href="https://github.com/JSNN15/vibration-analyzer">analizador de vibraciones con Raspberry Pi</a> de 2022. Lo que falta es armar los nodos y medirlos. Esta página dice qué se va a construir y con qué criterio se va a evaluar.</p>
+
+  <section aria-labelledby="h-sis">
+    <h2 id="h-sis">Del terreno al servidor</h2>
+    <p class="sub">Cada zona tiene sus nodos. Los nodos forman una malla de radio hasta una puerta de enlace, y esta entrega el dato al servidor de borde. Donde no hay cobertura, un dron pasa a buscarlo.</p>
+    <div class="sistema">
+      <div class="lamina"><svg id="escena" viewBox="-30 0 840 560" role="img" aria-label="Vista isométrica: cuatro zonas con nodos sensores (correa, pila de lixiviación, planta y cultivo) enlazadas por radio a una puerta de enlace y a un servidor de borde; un dron recoge datos de la zona sin cobertura."></svg></div>
+      <ol class="casos" id="casos"></ol>
+    </div>
+    <div class="ficha" id="ficha" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="h-nodo">
+    <h2 id="h-nodo">Un nodo, varios cabezales</h2>
+    <p class="sub">El cuerpo es siempre el mismo: caja, energía, radio y procesador. Cambia el cabezal. Así un solo diseño cubre los cinco casos y un repuesto sirve en cualquier zona.</p>
+    <div class="nodo">
+      <div class="lamina"><svg id="anatomia" viewBox="0 0 480 500" role="img" aria-label="Vista en despiece de un nodo: tapa, radio, procesador, batería y cabezal sensor intercambiable."></svg></div>
+      <div>
+        <div class="tabs" role="tablist" aria-label="Cabezal" id="tabs"></div>
+        <ul class="capas" id="capas"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-inv">
+    <h2 id="h-inv">Con qué se arma</h2>
+    <p class="sub">El diseño parte de placas que ya están en el taller. Cada una tiene un papel.</p>
+    <div class="tabla" tabindex="0">
+      <table>
+        <thead><tr><th>Placa</th><th>Papel en la red</th><th>Por qué esa</th></tr></thead>
+        <tbody>
+          <tr><td>Raspberry Pi 5</td><td>Servidor de borde</td><td>Recibe la malla, guarda los datos y corre en local los modelos de visión, sin depender de internet.</td></tr>
+          <tr><td>XBee 3 y XBee S2C</td><td>Malla de radio</td><td>Radios de 2,4 GHz que se retransmiten entre sí. El fabricante declara hasta 60 m en interior y 1.200 m con línea de vista para el XBee 3 estándar.</td></tr>
+          <tr><td>STM32</td><td>Nodo de vibración</td><td>Tiene capacidad para muestrear rápido y calcular el espectro en el propio nodo.</td></tr>
+          <tr><td>Raspberry Pi Pico 2 W</td><td>Nodo de bajo consumo</td><td>Para medidas lentas: humedad, temperatura, presión, nivel.</td></tr>
+          <tr><td>ESP32-CAM</td><td>Nodo de cámara</td><td>Fotografía un instrumento sin transmisor y envía la imagen para leerla.</td></tr>
+          <tr><td>ESP32</td><td>Nodo de planta</td><td>Donde hay Wi-Fi industrial, evita la malla.</td></tr>
+          <tr><td>Raspberry Pi Zero 2 W</td><td>Cámara con proceso local, o puerta de enlace secundaria</td><td>Corre Linux: puede filtrar imágenes antes de enviarlas.</td></tr>
+          <tr><td>Arduino Mega</td><td>Banco de pruebas</td><td>Genera señales conocidas para probar los nodos y mueve actuadores, como el expulsor del selector de fruta.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="falta"><b>Falta comprar:</b> acelerómetros, sondas de humedad de suelo, transductores de presión, cajas estancas, paneles y baterías. Si una pila exige más alcance que el de la malla de 2,4 GHz, también radios de largo alcance.</p>
+  </section>
+
+  <section aria-labelledby="h-plan">
+    <h2 id="h-plan">Qué se construye primero</h2>
+    <p class="sub">Tres hitos. Cada uno termina con una medición publicada, salga bien o mal.</p>
+    <ol class="hitos">
+      <li><b>Nodo de vibración</b><p>Un nodo sobre un motor de banco, enviando a la Raspberry Pi 5 y de ahí al cuaderno de análisis.</p><p>Se mide: el valor del nodo contra un instrumento de referencia y la autonomía con batería.</p></li>
+      <li><b>Cámara frente a un manómetro</b><p>Una ESP32-CAM fija, una foto cada pocos minutos y la lectura hecha por la herramienta que ya existe.</p><p>Se mide: el error contra la lectura manual y cuántas fotos se rechazan por luz o reflejo.</p></li>
+      <li><b>Malla de tres nodos</b><p>Tres nodos y una puerta de enlace en terreno abierto, con un nodo fuera de alcance directo.</p><p>Se mide: el alcance real por salto y los mensajes perdidos.</p></li>
+    </ol>
+  </section>
+</main>
+
+<footer class="pie-pag">
+  <p>Proyecto personal de <b>Julián Neira Nova</b>, ingeniero eléctrico · Servicio y Soluciones Tecnológicas DelaCruz SpA. Es un diseño: ninguna cifra de desempeño de esta página proviene de un equipo armado.</p>
+  <p><a href="../">Portafolio</a> · <a href="https://www.linkedin.com/in/julian-neira-nova/">LinkedIn</a> · <a href="https://github.com/JSNN15">GitHub</a></p>
+</footer>
+
+<script>
+// ---------- tema ----------
+const raiz = document.documentElement;
+const temaActual = () => raiz.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+const bt = document.getElementById('tema');
+const pintaTema = () => { bt.textContent = temaActual() === 'dark' ? 'Claro' : 'Oscuro'; bt.setAttribute('aria-label', temaActual() === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'); };
+bt.onclick = () => { const s = temaActual() === 'dark' ? 'light' : 'dark'; raiz.dataset.theme = s; try { localStorage.setItem('tema', s); } catch (e) {} pintaTema(); };
+pintaTema();
+
+// ---------- dibujo isométrico ----------
+const NS = 'http://www.w3.org/2000/svg';
+const el = (n, a = {}, padre) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); padre && padre.appendChild(e); return e; };
+const lienzo = (ox, oy, s) => {
+  const p = (x, y, z = 0) => [ox + (x - y) * 0.866 * s, oy + (x + y) * 0.5 * s - z * s];
+  const pts = (a) => a.map((q) => p(...q).map((v) => v.toFixed(1)).join(',')).join(' ');
+  // caja con sus tres caras visibles; c = [arriba, izquierda, derecha]
+  const caja = (g, x, y, z, w, d, h, c, cls = '') => {
+    el('polygon', {points: pts([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]]), fill: `var(--${c[1]})`, class: cls}, g);
+    el('polygon', {points: pts([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]]), fill: `var(--${c[2]})`, class: cls}, g);
+    el('polygon', {points: pts([[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]]), fill: `var(--${c[0]})`, class: cls + (cls ? '-top' : '')}, g);
+  };
+  return {p, pts, caja};
+};
+const SUELO = ['t1', 't2', 't3'], EQUIPO = ['s1', 's2', 's3'], NODO = ['n1', 'n2', 'n3'], SERVIDOR = ['v1', 'v2', 'v3'];
+
+// ---------- casos ----------
+const CASOS = [
+  {id: 'correa', n: '01', t: 'Correas transportadoras', corto: 'Vibración y temperatura en polines y poleas',
+    problema: 'Un polín trabado o un rodamiento de polea dañado se detecta tarde: la ronda con colector portátil pasa cada varias semanas y la correa tiene kilómetros.',
+    propuesta: 'Nodos de vibración y temperatura en las estaciones críticas. Cada nodo calcula el valor global y los picos del espectro, y transmite solo esos números por la malla.',
+    dato: 'Vibración global, picos y temperatura, cada pocos minutos, por estación.',
+    conecta: 'El <a href="../cuaderno/">cuaderno de análisis</a> ya tiene el método: con datos simulados, la tendencia avisó 4,3 h antes de un disparo. Las grietas de la banda las ve el <a href="../conveyor_crack_detection_2026/">detector por cámara</a>.',
+    medir: 'Valor del nodo contra un colector de referencia; pico de giro contra las RPM conocidas; meses de batería.'},
+  {id: 'pila', n: '02', t: 'Pilas de lixiviación', corto: 'Humedad, temperatura y riego dentro de la pila',
+    problema: 'El riego disparejo y las líneas tapadas o rotas dejan zonas secas o saturadas. Se instrumentan los cabezales y las piscinas, pero casi nada dentro de la pila, y la inspección se hace a pie.',
+    propuesta: 'Estacas con humedad y temperatura del lecho e inclinación, más presión en los ramales de riego. Energía solar y retransmisión entre estacas hasta el borde de la pila.',
+    dato: 'Humedad y temperatura por sector, presión por ramal e inclinación de la estaca.',
+    conecta: 'El <a href="../copper_plant_simulator_2026/">simulador de planta</a> ya modela el riego por módulo en el área de pilas; hoy ese dato es simulado. Ya existen sistemas comerciales y universitarios de este tipo: aquí el aporte buscado es el costo por punto y la integración.',
+    medir: 'Humedad del sensor contra muestra pesada y secada; alcance por salto en la pila; duración con panel en invierno.'},
+  {id: 'planta', n: '03', t: 'Planta de procesos', corto: 'Instrumentos sin transmisor y motores sin monitoreo',
+    problema: 'Muchos manómetros y niveles solo se leen cuando alguien pasa. Los motores chicos no justifican un sistema de monitoreo cableado.',
+    propuesta: 'Una cámara fija frente al instrumento, que envía la foto para leerla. Nodos de vibración y temperatura con imán en los motores. Todo llega a un servidor de borde en la sala eléctrica, sin nube.',
+    dato: 'El valor del instrumento con su foto de respaldo, y la condición de cada motor.',
+    conecta: 'La foto la lee el <a href="../gauge_reader_computer_vision_2026/">lector de instrumentos</a>, que ya existe. El servidor de borde puede correr también la <a href="../ppe_detection_computer_vision_2026/">detección de EPP</a>.',
+    medir: 'Error contra la lectura manual; fotos rechazadas por luz o reflejo; tiempo entre la foto y el dato.'},
+  {id: 'cultivo', n: '04', t: 'Zonas de cultivo', corto: 'Suelo y microclima por cuartel',
+    problema: 'Se riega por calendario y la helada se detecta cuando ya llegó. En muchos cuarteles no hay señal de celular.',
+    propuesta: 'Nodos con humedad de suelo a dos profundidades y temperatura y humedad del aire, con panel solar. La alerta de helada se decide en el nodo, sin esperar al servidor.',
+    dato: 'Humedad de suelo, temperatura y humedad del aire por cuartel, y una alerta local.',
+    conecta: 'Es la misma línea del <a href="../fruit_sorting_computer_vision_2026/">selector de fruta</a>: el dato del cuartel y el de la línea de selección quedan en el mismo servidor.',
+    medir: 'Humedad contra muestra de suelo; minutos de anticipación de la alerta de helada; nodos que sobreviven una temporada.'},
+  {id: 'dron', n: '05', t: 'Retransmisión con dron', corto: 'Recoger datos donde no llega la radio',
+    problema: 'En quebradas, pilas lejanas o cuarteles apartados no hay cobertura ni línea de vista. El dato se queda en el nodo.',
+    propuesta: 'El nodo guarda sus mediciones. Un dron, o el vehículo de la ronda, pasa cerca, lo despierta por radio, descarga y sigue. El mismo vuelo toma imágenes para inspección.',
+    dato: 'Lotes de mediciones con su hora, más imágenes del recorrido.',
+    conecta: 'Las imágenes del vuelo sirven a las herramientas de visión del portafolio. La operación de drones queda sujeta a la normativa aeronáutica vigente.',
+    medir: 'Segundos de descarga por nodo; altura y velocidad de paso que la radio tolera; mediciones perdidas por vuelo.'},
+];
+
+// ---------- escena del sistema ----------
+(function () {
+  const svg = document.getElementById('escena');
+  const L = lienzo(392, 92, 20);
+  const zonas = {};
+  const Z = {correa: [0, 0], pila: [11, 0], planta: [0, 11], cultivo: [11, 11]};
+  const TOP = (x, y, z) => L.p(x, y, z);
+  const nodos = {correa: [], pila: [], planta: [], cultivo: []};
+  for (const [id, [zx, zy]] of Object.entries(Z)) {
+    const g = (zonas[id] = el('g', {class: 'zona', 'data-z': id}, svg));
+    L.caja(g, zx, zy, 0, 9, 9, 0.5, SUELO, 'suelo');
+    // todo en coordenadas de la zona (0 a 9), de atrás hacia adelante para que lo cercano tape a lo lejano
+    const B = (x, y, z, w, d, h, c = EQUIPO) => L.caja(g, zx + x, zy + y, 0.5 + z, w, d, h, c);
+    const N = (x, y, z = 0) => { B(x, y, z, 0.45, 0.45, 1.3, NODO); nodos[id].push([zx + x + 0.22, zy + y + 0.22, 0.5 + z + 1.3]); };
+    if (id === 'correa') {
+      B(7.2, 3.2, 0, 1.3, 2.6, 1.7);
+      for (let i = 0; i < 4; i++) B(0.9 + i * 1.7, 3.8, 0, 0.35, 1.4, 0.9);
+      B(0.5, 4, 0.9, 7.2, 1, 0.3);
+      N(1.4, 6.2); N(4.6, 6.2); N(7.6, 6.6);
+    }
+    if (id === 'pila') {
+      B(1, 1, 0, 7, 7, 0.9); B(2, 2, 0.9, 5, 5, 0.9); B(3, 3, 1.8, 3, 3, 0.9);
+      N(5.6, 1.4, 0.9); N(4.2, 4.2, 2.7); N(1.6, 6.6, 0.9);
+    }
+    if (id === 'planta') {
+      B(1, 1, 0, 2.2, 2.2, 2.6); B(4.4, 1, 0, 2.2, 2.2, 1.8);
+      N(7.4, 2);
+      B(1, 5, 0, 5.4, 2.4, 1.4);
+      N(3.3, 3.7); N(7.2, 6.4);
+    }
+    if (id === 'cultivo') {
+      for (let i = 0; i < 5; i++) { B(1, 0.9 + i * 1.6, 0, 7, 0.6, 0.45); if (i === 0) N(2.4, 1.6); if (i === 2) N(6.2, 4.8); if (i === 4) N(3.4, 8); }
+    }
+  }
+  // puerta de enlace y servidor, al centro
+  const centro = el('g', {}, svg);
+  L.caja(centro, 9.35, 9.35, 0, 1.3, 1.3, 0.5, SUELO);
+  L.caja(centro, 9.8, 9.8, 0.5, 0.4, 0.4, 4.2, EQUIPO);
+  L.caja(centro, 9.55, 9.55, 4.7, 0.9, 0.9, 0.35, NODO);
+  const GW = [10, 10, 5.05];
+  const srv = el('g', {}, svg);
+  for (let i = 0; i < 3; i++) L.caja(srv, 22.2, 8.9, 0.2 + i * 0.75, 2.4, 2.2, 0.55, SERVIDOR);
+  const SRV = [23.4, 10, 2.45];
+  // dron sobre el cultivo
+  const dron = el('g', {}, svg);
+  L.caja(dron, 20.4, 15.3, 5.4, 1.9, 0.32, 0.14, EQUIPO); L.caja(dron, 21.2, 14.5, 5.4, 0.32, 1.9, 0.14, EQUIPO); L.caja(dron, 21.02, 15.12, 5.12, 0.68, 0.68, 0.38, NODO);
+  const DR = [21.36, 15.46, 5.12];
+  // enlaces
+  const enl = el('g', {}, svg);
+  const linea = (a, b, cls, z) => el('polyline', {points: L.pts([a, b]), class: 'enlace ' + cls, 'data-z': z}, enl);
+  for (const id of ['correa', 'pila', 'planta']) { const n = nodos[id]; for (let i = 0; i < n.length - 1; i++) linea(n[i], n[i + 1], '', id); linea(n[n.length - 1], GW, '', id); }
+  for (let i = 0; i < 2; i++) linea(nodos.cultivo[i], nodos.cultivo[i + 1], '', 'cultivo');
+  linea(nodos.cultivo[0], GW, '', 'cultivo');
+  linea(nodos.cultivo[2], DR, 'dron', 'dron'); linea(DR, GW, 'dron', 'dron');
+  linea(GW, SRV, '', 'todos');
+  // etiquetas
+  const texto = (q, t, cls = 'et', anc = 'middle', dy = 0) => { const [x, y] = L.p(...q); const e = el('text', {x: x.toFixed(1), y: (y + dy).toFixed(1), class: cls, 'text-anchor': anc}, svg); e.textContent = t; };
+  texto([0, 0, 0.5], 'CORREA', 'et m', 'middle', -12); texto([20, 0, 0], 'PILA', 'et m', 'start', 4); texto([0, 20, 0], 'PLANTA', 'et m', 'end', 4); texto([20, 20, 0], 'CULTIVO', 'et m', 'middle', 22);
+  texto(GW, 'Puerta de enlace', 'et', 'middle', -12); texto([23.4, 10, 2.45], 'Servidor de borde', 'et', 'middle', -10); texto(DR, 'Dron', 'et', 'start', -14);
+
+  // lista y ficha
+  const lista = document.getElementById('casos'), ficha = document.getElementById('ficha');
+  const zonaDe = (id) => (id === 'dron' ? 'cultivo' : id);
+  const elegir = (id) => {
+    const c = CASOS.find((x) => x.id === id);
+    lista.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
+    Object.entries(zonas).forEach(([z, g]) => g.classList.toggle('on', z === zonaDe(id)));
+    enl.querySelectorAll('.enlace').forEach((l) => l.classList.toggle('on', l.dataset.z === id || l.dataset.z === 'todos' || (id === 'cultivo' && l.dataset.z === 'cultivo')));
+    ficha.innerHTML = `<div class="tit"><h3>${c.t}</h3><span>${c.corto}</span></div>
+      <div><h3>El problema</h3><p>${c.problema}</p></div>
+      <div><h3>La propuesta</h3><p>${c.propuesta}</p></div>
+      <div><h3>El dato que entrega</h3><p>${c.dato}</p></div>
+      <div class="pie"><div><h3>Dónde se conecta</h3><p>${c.conecta}</p></div><div><h3>Qué se medirá al armarlo</h3><p>${c.medir}</p></div></div>`;
+  };
+  lista.innerHTML = CASOS.map((c) => `<li><button type="button" data-id="${c.id}" aria-pressed="false"><i>${c.n}</i><b>${c.t}</b><small>${c.corto}</small></button></li>`).join('');
+  lista.addEventListener('click', (e) => { const b = e.target.closest('button'); b && elegir(b.dataset.id); });
+  Object.entries(zonas).forEach(([z, g]) => { g.style.cursor = 'pointer'; g.addEventListener('click', () => elegir(z)); });
+  elegir('correa');
+})();
+
+// ---------- anatomía del nodo ----------
+const CABEZALES = [
+  {id: 'vib', t: 'Vibración', cabezal: 'Acelerómetro de tres ejes y sonda de temperatura, fijados con imán o perno.', proceso: 'STM32. Muestrea en ráfagas, calcula el valor global y los picos del espectro.', envia: 'Unos pocos números por medición. El espectro completo solo se envía a pedido.', energia: 'Duerme entre mediciones; batería de larga duración.'},
+  {id: 'cam', t: 'Cámara', cabezal: 'Cámara fija frente a un manómetro o un nivel visual, con iluminación propia.', proceso: 'ESP32-CAM o Raspberry Pi Zero 2 W. Descarta fotos movidas o sin luz antes de enviar.', envia: 'Una foto comprimida cada pocos minutos, por Wi-Fi. La malla de 2,4 GHz no alcanza para imágenes.', energia: 'Alimentación local o panel: la cámara consume más que un sensor.'},
+  {id: 'suelo', t: 'Suelo y clima', cabezal: 'Sondas de humedad a dos profundidades, temperatura del lecho, temperatura y humedad del aire.', proceso: 'Raspberry Pi Pico 2 W. Promedia y decide alertas locales, como la de helada.', envia: 'Un mensaje corto cada 10 a 15 minutos.', energia: 'Panel solar chico y batería.'},
+  {id: 'pres', t: 'Presión y nivel', cabezal: 'Transductor de presión en un ramal de riego, o sonda de nivel en una piscina.', proceso: 'Raspberry Pi Pico 2 W. Detecta caída de presión contra su propia historia.', envia: 'Un mensaje corto por medición y un aviso inmediato si la presión cae.', energia: 'Panel solar chico y batería.'},
+];
+(function () {
+  const svg = document.getElementById('anatomia');
+  const L = lienzo(190, 352, 18);
+  const CAPAS = [
+    {k: 'tapa', z: 17.4, h: 0.7, c: EQUIPO, t: 'Tapa estanca'},
+    {k: 'radio', z: 13.2, h: 0.5, c: SERVIDOR, t: 'Radio y antena'},
+    {k: 'proc', z: 9.4, h: 0.5, c: EQUIPO, t: 'Procesador'},
+    {k: 'bat', z: 5, h: 1.6, c: ['s2', 's3', 't3'], t: 'Batería y carga'},
+    {k: 'cab', z: 1, h: 1.1, c: NODO, t: 'Cabezal sensor'},
+  ];
+  // de abajo hacia arriba, para que las de arriba tapen a las de abajo
+  [...CAPAS].reverse().forEach((c) => {
+    const g = el('g', {}, svg);
+    L.caja(g, 0, 0, c.z, 7, 5, c.h, c.c);
+    if (c.k === 'radio') L.caja(g, 5.6, 0.6, c.z + c.h, 0.3, 0.3, 1.9, EQUIPO);
+    if (c.k === 'proc') { L.caja(g, 1.2, 1.2, c.z + c.h, 2.2, 2.2, 0.25, SUELO); L.caja(g, 4.4, 3, c.z + c.h, 1.4, 1, 0.25, SUELO); }
+    if (c.k === 'cab') L.caja(g, 2.6, 1.6, c.z - 0.9, 1.8, 1.8, 0.9, NODO);
+    const [x, y] = L.p(7, 2.5, c.z + c.h / 2);
+    el('line', {x1: x + 4, y1: y, x2: 352, y2: y, class: 'guia'}, svg);
+    const t = el('text', {x: 358, y: y + 4, class: 'et'}, svg); t.textContent = c.t;
+  });
+  const tabs = document.getElementById('tabs'), capas = document.getElementById('capas');
+  const elegir = (id) => {
+    const c = CABEZALES.find((x) => x.id === id);
+    tabs.querySelectorAll('button').forEach((b) => { const on = b.dataset.id === id; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
+    capas.innerHTML = `<li><b>Tapa</b><span>Caja estanca para intemperie, con fijación según el lugar: imán, perno, estaca o abrazadera.</span></li>
+      <li><b>Radio</b><span>XBee en malla hacia la puerta de enlace. ${c.envia}</span></li>
+      <li><b>Procesador</b><span>${c.proceso}</span></li>
+      <li><b>Energía</b><span>${c.energia}</span></li>
+      <li class="cab"><b>Cabezal</b><span>${c.cabezal}</span></li>`;
+  };
+  tabs.innerHTML = CABEZALES.map((c) => `<button type="button" role="tab" data-id="${c.id}" aria-selected="false">${c.t}</button>`).join('');
+  tabs.addEventListener('click', (e) => { const b = e.target.closest('button'); b && elegir(b.dataset.id); });
+  tabs.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const bs = [...tabs.querySelectorAll('button')], i = bs.findIndex((b) => b.getAttribute('aria-selected') === 'true');
+    const n = bs[(i + (e.key === 'ArrowRight' ? 1 : bs.length - 1)) % bs.length]; elegir(n.dataset.id); n.focus();
+  });
+  elegir('vib');
+})();
+</script>
+</body>
+</html>
