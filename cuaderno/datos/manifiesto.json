@@ -61,6 +61,20 @@
    "filas": 16,
    "bytes": 1055,
    "sha256": "77377423264f70eb70375f1d9b539dbc617ea2c8f3307b0305a3f1b2b77ba88c"
+  },
+  "historiador_8_semanas.csv": {
+   "que": "Campaña larga: ocho semanas con 15 cambios de mineral, medias de 10 minutos de 12 tags",
+   "sistema": "DCS / historiador",
+   "filas": 8065,
+   "bytes": 835255,
+   "sha256": "7a47983014659d6c75b867c01c46d5634ba7ac0b2ccc08fad61f51c4bada0bbc"
+  },
+  "historiador_8_semanas_eventos.csv": {
+   "que": "Campaña larga: cuándo cambió el mineral y cuándo disparó el rectificador",
+   "sistema": "DCS / historiador",
+   "filas": 20,
+   "bytes": 692,
+   "sha256": "8f7a694c5aefa33823fa8262049a62a53b83713b0cd5c71a3987498bd0febe70"
   }
  }
 }
