@@ -7,13 +7,13 @@
 <meta name="description" content="Prueba con 5.000 fotos reales de faena: cuánto aciertan los modelos de visión de NVIDIA detectando personas sin casco, cuántas falsas alarmas dan y cuánto trabajo ahorran.">
 <meta property="og:image" content="https://jsnn15.github.io/img/ia-epp.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
 /* Layout: capítulo de lectura en una columna (~68ch) con laboratorios interactivos a todo el ancho del contenedor. */
 :root{
   --paper:#f5f5f3; --card:#ffffff; --line:#dcdedf; --fg:#171b20; --muted:#5a636c; --soft:#eef0f1;
   --copper:#b8642c; --copper-2:#e08a4a; --blue:#1f5f99; --ok:#2b7a4b; --warn:#a86a00; --bad:#c0281f; --ink:#0b0f14;
-  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --display:"Geist",system-ui, sans-serif; --sans:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Geist Mono",ui-monospace,Consolas,monospace;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0f1317;--card:#161c22;--line:#2a333c;--fg:#e6eaee;--muted:#9aa5af;--soft:#1d242b;--copper:#e8975a;--blue:#6aa9e0;--ok:#5cc98b;--warn:#e9b44c;--bad:#ff6b61;color-scheme:dark}}
@@ -27,7 +27,7 @@ a{color:var(--blue)}
 .in{max-width:62rem;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
 header.ch{padding-block:48px 8px}
 .kick{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
-h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;margin:10px 0 14px;letter-spacing:.01em}
+h1{font-family:var(--display);font-size: clamp(2rem, 4.2vw, 3.1rem);line-height: 1.04;margin:10px 0 14px;letter-spacing:.01emletter-spacing: -0.035em;}
 .lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
 article{padding-block:16px 40px}
 .prose{max-width:68ch}
@@ -88,8 +88,7 @@ code{font-family:var(--mono);font-size:.88em}
 </style>
 </head>
 <body>
-<!--jnbar--><div class="jnb" role="navigation" aria-label="Portafolio y código"><a class="jnb-back" href="https://jsnn15.github.io/">← Portafolio</a><span class="jnb-who"><b>Inspección de EPP con IA</b> · DelaCruz · Julián Neira Nova</span><span class="jnb-sp"></span><a class="jnb-gh" href="https://github.com/JSNN15/jsnn15.github.io/tree/main/ia-epp" target="_blank" rel="noopener" title="Ver el código de esta máquina en GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Código en GitHub</span></a><a class="jnb-in" href="https://www.linkedin.com/in/julian-neira-nova/" target="_blank" rel="noopener" title="Julián Neira Nova en LinkedIn"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect width="16" height="16" rx="3" fill="currentColor"/><path fill="#0b0f13" d="M3.6 6.2h2v6.2h-2zM4.6 3.2a1.15 1.15 0 110 2.3 1.15 1.15 0 010-2.3zM7 6.2h1.9v.85c.27-.5.93-1 1.9-1 2 0 2.4 1.3 2.4 3v3.35h-2V9.4c0-.73-.01-1.67-1.02-1.67-1.02 0-1.18.8-1.18 1.62v3.05H7z"/></svg><span>LinkedIn</span></a></div><!--/jnbar-->
-<div class="top"><div class="in"><a href="../">← jsnn15.github.io</a><span>IA visual · prueba con datos reales</span></div></div>
+<!--jnbar--><div class="jnb" role="navigation" aria-label="Portafolio y código"><a class="jnb-back" href="https://jsnn15.github.io/">← Portafolio</a><span class="jnb-who"><b>Inspección de EPP con IA</b> · DelaCruz · Julián Neira Nova</span><span class="jnb-sp"></span><a class="jnb-gh" href="https://github.com/JSNN15/jsnn15.github.io/tree/main/ia-epp" target="_blank" rel="noopener" title="Ver el código en GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Código en GitHub</span></a><a class="jnb-in" href="https://www.linkedin.com/in/julian-neira-nova/" target="_blank" rel="noopener" title="Julián Neira Nova en LinkedIn"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect width="16" height="16" rx="3" fill="currentColor"/><path fill="#0b0f13" d="M3.6 6.2h2v6.2h-2zM4.6 3.2a1.15 1.15 0 110 2.3 1.15 1.15 0 010-2.3zM7 6.2h1.9v.85c.27-.5.93-1 1.9-1 2 0 2.4 1.3 2.4 3v3.35h-2V9.4c0-.73-.01-1.67-1.02-1.67-1.02 0-1.18.8-1.18 1.62v3.05H7z"/></svg><span>LinkedIn</span></a></div><!--/jnbar-->
 <div class="in">
   <header class="ch">
     <div class="kick">Inspección de EPP con IA · noviembre 2026</div>
@@ -108,7 +107,7 @@ code{font-family:var(--mono);font-size:.88em}
       </div>
     </div>
 
-    <div class="analogy prose"><b>De la prueba al producto:</b> con lo aprendido aquí construí <a href="../vigia/">Vigía EPP</a>, un detector propio que corre en el celular o en el equipo de la faena, sin nube. Pruébalo con tu cámara.</div>
+    <div class="analogy prose"><b>De la prueba al producto:</b> con lo aprendido aquí construí <a href="../ppe_detection_computer_vision_2026/">Vigía EPP</a>, un detector propio que corre en el celular o en el equipo de la faena, sin nube. Pruébalo con tu cámara.</div>
 
     <h2><span class="n">02</span>Resultados en las 200 fotos de prueba</h2>
     <div class="tbl"><table id="t-res"><thead><tr><th>Modelo</th><th>Tipo</th><th>Infracciones detectadas</th><th>Falsas alarmas</th><th>Acierto</th><th>Error de conteo</th><th>Tiempo por foto</th></tr></thead><tbody></tbody></table></div>
@@ -161,7 +160,7 @@ code{font-family:var(--mono);font-size:.88em}
         <li>Revisé a mano las 25 falsas alarmas del modelo grande. En 3 hay personas sin casco claramente visibles que el etiquetado original no marcó.</li>
         <li>Código completo, sin claves: <a href="https://github.com/JSNN15/jsnn15.github.io/tree/main/ia-epp/codigo">GitHub</a>.</li>
       </ul>
-      <div class="next"><a href="../">← Portafolio</a><a href="../vigia/">Vigía EPP: el producto →</a></div>
+      <div class="next"><a href="../">← Portafolio</a><a href="../ppe_detection_computer_vision_2026/">Vigía EPP: el producto →</a></div>
     </div>
   </article>
 </div>
