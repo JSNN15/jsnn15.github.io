@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Cuaderno de planta</title>
+    <meta name="description" content="Un notebook de Jupyter sobre los datos crudos de la planta virtual LX-SX-EW: calidad del historiador, alarmas ISA-18.2, vibraciones y un modelo evaluado con honestidad. Se puede ejecutar en el navegador." />
+    <meta property="og:title" content="Cuaderno de planta · Julián Neira Nova" />
+    <meta property="og:description" content="Una semana de la planta virtual leída desde sus datos crudos, en un notebook de Python que se puede ejecutar en el navegador." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" />
+    <script>
+      try {
+        var t = localStorage.getItem('tema');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="max-width: 60ch; margin: 40px auto; padding: 0 16px; font: 16px/1.5 system-ui, sans-serif">
+        Esta página necesita JavaScript. El cuaderno también se puede leer en
+        <a href="https://github.com/JSNN15/jsnn15.github.io/blob/main/cuaderno/cuaderno.ipynb">GitHub</a>.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
