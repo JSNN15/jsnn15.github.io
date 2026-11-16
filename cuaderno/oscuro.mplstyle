@@ -1,0 +1,40 @@
+# Estilo de los gráficos del cuaderno, tema oscuro. Colores comprobados contra la superficie #0e1924.
+figure.facecolor: 0e1924
+axes.facecolor: 0e1924
+savefig.facecolor: 0e1924
+figure.figsize: 9, 3.1
+figure.dpi: 144
+savefig.dpi: 144
+font.family: DejaVu Sans
+font.size: 9.5
+text.color: eaf1f6
+axes.labelcolor: b4c2ce
+axes.titlecolor: eaf1f6
+axes.titlesize: 10.5
+axes.titleweight: bold
+axes.titlelocation: left
+axes.titlepad: 10
+axes.edgecolor: 35506a
+axes.linewidth: 0.8
+axes.spines.top: False
+axes.spines.right: False
+axes.grid: True
+axes.axisbelow: True
+grid.color: 1c2c3b
+grid.linewidth: 0.6
+grid.linestyle: -
+xtick.color: 9db0bf
+ytick.color: 9db0bf
+xtick.labelsize: 8.5
+ytick.labelsize: 8.5
+xtick.major.size: 0
+ytick.major.size: 0
+lines.linewidth: 1.5
+lines.solid_capstyle: round
+axes.prop_cycle: cycler('color', ['3987e5', 'd95926', '199e70', 'c98500'])
+legend.frameon: False
+legend.fontsize: 8.5
+figure.constrained_layout.use: True
+date.autoformatter.day: %d-%m
+date.autoformatter.hour: %d-%m %H:%M
+date.autoformatter.minute: %H:%M

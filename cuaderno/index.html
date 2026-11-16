@@ -4,18 +4,28 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Cuaderno de planta</title>
-    <meta name="description" content="Abre la planilla de la planta y revisa, limpia y modela los datos en el navegador. El archivo no sale de tu equipo y no hay licencias. Receta de limpieza repetible, modelo validado por fecha y vigilancia con datos nuevos." />
+    <meta name="description" content="Un notebook de Jupyter sobre los datos crudos de la planta virtual LX-SX-EW: calidad del historiador, alarmas ISA-18.2, vibraciones y un modelo evaluado con honestidad. Se puede ejecutar en el navegador." />
     <meta property="og:title" content="Cuaderno de planta · Julián Neira Nova" />
-    <meta property="og:description" content="De la planilla al modelo, en el navegador: calidad de datos, limpieza repetible, validación por fecha y vigilancia. Sin subir el archivo y sin licencias." />
+    <meta property="og:description" content="Una semana de la planta virtual leída desde sus datos crudos, en un notebook de Python que se puede ejecutar en el navegador." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" />
-    <script type="module" crossorigin src="./assets/index-Cqp6u1a-.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BJbMpsyw.css">
+    <script>
+      try {
+        var t = localStorage.getItem('tema');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+    <script type="module" crossorigin src="./assets/pagina-anhnbJNa.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/pagina-D87e8Psm.css">
   </head>
   <body>
-    <!-- sesión con el intermediario de IA, solo para el asistente opcional -->
-    <script src="../nv.js"></script>
     <div id="root"></div>
+    <noscript>
+      <p style="max-width: 60ch; margin: 40px auto; padding: 0 16px; font: 16px/1.5 system-ui, sans-serif">
+        Esta página necesita JavaScript. El cuaderno también se puede leer en
+        <a href="https://github.com/JSNN15/jsnn15.github.io/blob/main/cuaderno/cuaderno.ipynb">GitHub</a>.
+      </p>
+    </noscript>
   </body>
 </html>
