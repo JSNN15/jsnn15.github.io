@@ -386,7 +386,7 @@ export default function App() {
               <h2>Relacionado</h2>
               <ul className="enlaces">
                 <li>
-                  <a href="../planta-virtual/">Planta virtual: la sala de control</a>
+                  <a href="../copper_plant_simulator_2026/">Planta virtual: la sala de control</a>
                 </li>
                 <li>
                   <a href="cuaderno.ipynb" download>
@@ -409,7 +409,7 @@ export default function App() {
         <main className="hoja" id="cuaderno">
           <ol className="origen" aria-label="De dónde salen los datos">
             <li>
-              <a href="../planta-virtual/">Planta virtual</a>
+              <a href="../copper_plant_simulator_2026/">Planta virtual</a>
               <small>el motor de la sala de control</small>
             </li>
             <li>
@@ -419,7 +419,7 @@ export default function App() {
               <small>12 fallas y un operador</small>
             </li>
             <li>
-              <span>8 archivos crudos</span>
+              <span>{catalogo.archivos.length} archivos crudos</span>
               <small>{num(FILAS)} filas</small>
             </li>
             <li>
