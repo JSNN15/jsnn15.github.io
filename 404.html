@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Página no encontrada · Julián Neira Nova</title>
+    <script>
+      // Los repositorios cambiaron de nombre en noviembre de 2026. Las direcciones antiguas llevan a las nuevas,
+      // conservando el resto de la ruta, los parámetros y el ancla.
+      var NUEVO = {
+        supervisor: 'supervisor_computer_vision_2026',
+        'consulta-electrica': 'electrical_code_rag_2026',
+        'planta-virtual': 'copper_plant_simulator_2026',
+        'monitor-correas': 'conveyor_crack_detection_2026',
+        lector: 'gauge_reader_computer_vision_2026',
+        vigia: 'ppe_detection_computer_vision_2026',
+        'selector-fruta': 'fruit_sorting_computer_vision_2026',
+      };
+      var partes = location.pathname.split('/');
+      if (NUEVO[partes[1]]) {
+        partes[1] = NUEVO[partes[1]];
+        location.replace(partes.join('/') + location.search + location.hash);
+      }
+    </script>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #071019;
+        color: #eaf1f6;
+        font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+      main {
+        max-width: 46ch;
+        padding: 24px;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 24px;
+      }
+      a {
+        color: #ff8e3c;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Esa página no existe</h1>
+      <p>Puede que el proyecto haya cambiado de dirección. Todos están en el <a href="/">portafolio</a>.</p>
+    </main>
+  </body>
+</html>
