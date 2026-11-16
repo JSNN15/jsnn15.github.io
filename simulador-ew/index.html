@@ -11,13 +11,13 @@
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
 /* Layout: consola de operación estilo HMI de alto desempeño (ISA-101): grises neutros, color solo para lo anormal. */
 :root{
   --bg:#dcdee0; --panel:#eceeef; --panel-2:#f6f7f7; --line:#c4c8cc; --fg:#1d2226; --muted:#5a636b;
   --cell:#9aa3ab; --cell-hi:#7f8a94; --copper:#b5652d; --alarm:#d1201a; --warn:#e8a317; --ok:#2f7d4f; --accent:#1f5f99;
-  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --sans:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Geist Mono",ui-monospace,Consolas,monospace;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -98,10 +98,10 @@ footer a{color:inherit}
 </style>
 </head>
 <body>
-<!--jnbar--><div class="jnb" role="navigation" aria-label="Portafolio y código"><a class="jnb-back" href="https://jsnn15.github.io/">← Portafolio</a><span class="jnb-who"><b>Simulador de nave EW</b> · DelaCruz · Julián Neira Nova</span><span class="jnb-sp"></span><a class="jnb-gh" href="https://github.com/JSNN15/jsnn15.github.io/tree/main/simulador-ew" target="_blank" rel="noopener" title="Ver el código de esta máquina en GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Código en GitHub</span></a><a class="jnb-in" href="https://www.linkedin.com/in/julian-neira-nova/" target="_blank" rel="noopener" title="Julián Neira Nova en LinkedIn"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect width="16" height="16" rx="3" fill="currentColor"/><path fill="#0b0f13" d="M3.6 6.2h2v6.2h-2zM4.6 3.2a1.15 1.15 0 110 2.3 1.15 1.15 0 010-2.3zM7 6.2h1.9v.85c.27-.5.93-1 1.9-1 2 0 2.4 1.3 2.4 3v3.35h-2V9.4c0-.73-.01-1.67-1.02-1.67-1.02 0-1.18.8-1.18 1.62v3.05H7z"/></svg><span>LinkedIn</span></a></div><!--/jnbar-->
+<!--jnbar--><div class="jnb" role="navigation" aria-label="Portafolio y código"><a class="jnb-back" href="https://jsnn15.github.io/">← Portafolio</a><span class="jnb-who"><b>Simulador de nave EW</b> · DelaCruz · Julián Neira Nova</span><span class="jnb-sp"></span><a class="jnb-gh" href="https://github.com/JSNN15/jsnn15.github.io/tree/main/simulador-ew" target="_blank" rel="noopener" title="Ver el código en GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Código en GitHub</span></a><a class="jnb-in" href="https://www.linkedin.com/in/julian-neira-nova/" target="_blank" rel="noopener" title="Julián Neira Nova en LinkedIn"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect width="16" height="16" rx="3" fill="currentColor"/><path fill="#0b0f13" d="M3.6 6.2h2v6.2h-2zM4.6 3.2a1.15 1.15 0 110 2.3 1.15 1.15 0 010-2.3zM7 6.2h1.9v.85c.27-.5.93-1 1.9-1 2 0 2.4 1.3 2.4 3v3.35h-2V9.4c0-.73-.01-1.67-1.02-1.67-1.02 0-1.18.8-1.18 1.62v3.05H7z"/></svg><span>LinkedIn</span></a></div><!--/jnbar-->
 <div class="wrap">
   <header>
-    <div class="tag"><a href="../" style="text-decoration:none">← Portafolio</a> · Electroobtención de cobre · simulador</div>
+    <div class="tag">Electroobtención de cobre · simulador</div>
     <h1>Simulador de nave EW</h1>
     <p>Una nave de electroobtención con sus celdas en serie. Ajusta el rectificador y mira la producción y la energía. Provoca cortocircuitos y compara cuánto cobre se pierde según cómo se detectan.</p>
   </header>
