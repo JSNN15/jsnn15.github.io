@@ -118,7 +118,7 @@ export default function App() {
     setError('');
     setOcupado('Cargando el ejemplo (5 MB)');
     try {
-      const t = await traer('flotacion.csv');
+      const t = await traer('../flotacion.csv');
       cargar(t, 'flotacion.csv', true);
       if (completo) {
         const r = [
@@ -282,14 +282,15 @@ export default function App() {
   return (
     <div className="app">
       <header className="top">
-        <a className="marca" href="../" aria-label="Volver al portafolio">
+        <a className="marca" href="../../" aria-label="Volver al portafolio">
           <img src={tema === 'dark' ? logoOscuro : logoClaro} alt="DelaCruz" width="36" height="36" />
           <span>
-            Julián Neira Nova<small>Cuaderno de planta</small>
+            Julián Neira Nova<small>Cuaderno de planta · tu planilla</small>
           </span>
         </a>
         <nav aria-label="Principal">
-          <a href="../">Portafolio</a>
+          <a href="../">Cuaderno de la planta virtual</a>
+          <a href="../../">Portafolio</a>
           <a href="https://github.com/JSNN15/jsnn15.github.io/tree/main/cuaderno/fuente" target="_blank" rel="noopener">
             Código
           </a>
@@ -717,7 +718,7 @@ export default function App() {
                 <>
                   <div className="fila">
                     {esEjemplo && (
-                      <button type="button" className="cta" disabled={!!ocupado} onClick={() => vigilarCon(() => traer('flotacion_nuevo.csv'), 'el mes siguiente del ejemplo')}>
+                      <button type="button" className="cta" disabled={!!ocupado} onClick={() => vigilarCon(() => traer('../flotacion_nuevo.csv'), 'el mes siguiente del ejemplo')}>
                         Probar con el mes siguiente
                       </button>
                     )}
