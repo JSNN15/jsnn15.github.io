@@ -1,0 +1,66 @@
+{
+ "generado_con": "herramientas/genera.js",
+ "ruido_medicion": "0,15 % del rango de cada instrumento",
+ "motor": "planta-virtual/sim.js",
+ "motor_sha256": "280b343ca7853ccf02aa9ce33c9c3c336e4a0b48df0169c426f02f71b7a8421f",
+ "desde": "2026-11-02 08:00:00",
+ "hasta": "2026-11-09 08:00:00",
+ "archivos": {
+  "historiador.csv": {
+   "que": "Historiador de proceso: una fila por minuto, una columna por tag",
+   "sistema": "DCS / historiador",
+   "filas": 10071,
+   "bytes": 3068198,
+   "sha256": "b47e0996af14ea18a14640c85957401c8b7391b3cc41d7312e38ca03644eb9f8"
+  },
+  "alarmas.csv": {
+   "que": "Registro de alarmas: activación, reconocimiento y normalización",
+   "sistema": "Sistema de alarmas",
+   "filas": 129,
+   "bytes": 13063,
+   "sha256": "36cbbac3eef793942ae6ff1317ebfc483708170168fb158ea691d19e06678692"
+  },
+  "bitacora.csv": {
+   "que": "Bitácora: órdenes del operador, disparos, secuencias y mantenimiento",
+   "sistema": "Bitácora de sala de control",
+   "filas": 487,
+   "bytes": 33599,
+   "sha256": "0b642e7e21d13269c4cba7403edc0ab60c9b468377b9839b67353faaec8c75c9"
+  },
+  "vibraciones.csv": {
+   "que": "Monitoreo de condición: una lectura cada 5 min por motor",
+   "sistema": "Monitoreo de condición",
+   "filas": 32272,
+   "bytes": 1476698,
+   "sha256": "5a3004d71d7f45b5cfaf4240ccc328baa5318a47b7f39440a3aff477b61aac65"
+  },
+  "laboratorio.csv": {
+   "que": "Laboratorio: pH del PLS cada 2 h y compósito de cátodo por turno",
+   "sistema": "Laboratorio",
+   "filas": 147,
+   "bytes": 5346,
+   "sha256": "63b95806c0a724ad02a6782653f5d18092052a321a7d1165085bb43cb911d4b0"
+  },
+  "turnos.csv": {
+   "que": "Cierre de turno: producción, consumos, pérdidas y alarmas",
+   "sistema": "Reporte de turno",
+   "filas": 21,
+   "bytes": 1381,
+   "sha256": "7ddc54029db765ccf91a9e669d28d7123187da93ee8471cc611d84dc87a4f17e"
+  },
+  "tags.csv": {
+   "que": "Diccionario de tags: descripción, unidad, rango del instrumento y banda normal",
+   "sistema": "Configuración",
+   "filas": 49,
+   "bytes": 2567,
+   "sha256": "2dcb15bbecb5bc0f87eb6c89d06852c4bb92710ace8aa0305e92ae395cb26c25"
+  },
+  "equipos.csv": {
+   "que": "Motores: potencia, centro de control y límites de vibración ISO 20816-3",
+   "sistema": "Configuración",
+   "filas": 16,
+   "bytes": 1055,
+   "sha256": "77377423264f70eb70375f1d9b539dbc617ea2c8f3307b0305a3f1b2b77ba88c"
+  }
+ }
+}

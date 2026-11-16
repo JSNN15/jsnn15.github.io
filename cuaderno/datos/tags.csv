@@ -1,0 +1,50 @@
+tag,descripcion,unidad,area,rango_min,rango_max,normal_min,normal_max
+WIT-101,Tonelaje en pesómetro,t/h,100,0,2500,1500,1900
+SIT-101,Velocidad alimentador,%,100,0,100,50,95
+FIT-102,Caudal de ácido,m³/h,100,0,30,14,23
+KY-102,Dosis real de ácido,kg/t,100,0,40,18,22
+FIT-104,Caudal de agua,m³/h,100,0,250,90,150
+AIT-105,Humedad del aglomerado,%,100,0,20,8,10.5
+LIT-103,Nivel estanque diario de ácido,%,100,0,100,30,95
+PIT-202,Presión cabezal de riego,bar,200,0,7,3,5
+FIT-211,Riego módulo 1,m³/h,200,0,1200,600,850
+FIT-212,Riego módulo 2,m³/h,200,0,1200,600,850
+FIT-213,Riego módulo 3,m³/h,200,0,1200,600,850
+FIT-200,Riego total,m³/h,200,0,3500,1900,2500
+LIT-201,Nivel piscina de refino,m,200,0,5,2,4.2
+FIT-206,Agua de reposición,m³/h,200,0,300,0,200
+FIT-203,Caudal de PLS desde pilas,m³/h,200,0,3500,1800,2500
+LIT-204,Nivel piscina PLS,m,200,0,5,2,4.2
+AIT-206,Cobre en PLS,g/L,200,0,6,2.5,4.5
+AIT-207,pH del PLS,pH,200,0,4,1.6,2.2
+FIT-205,Alimentación a SX,m³/h,200,0,3000,1800,2400
+AIT-208,Cobre en refino,g/L,300,0,2,0,0.4
+FIT-301,Caudal de orgánico,m³/h,300,0,3500,1500,2300
+KY-301,Razón O/A,,300,0,2,0.8,1.05
+AIT-302,Cobre en orgánico cargado,g/L,300,0,9.24,4.5,7
+KY-303,Extracción,%,300,50,100,90,100
+LIT-303,Interfase E1 (espesor orgánico),m,300,0,0.6,0.2,0.35
+AIT-309,Arrastre acuoso en orgánico,ppm,300,0,2000,0,400
+KY-304,Transferencia de cobre,t/h,300,0,10,5.5,7.5
+IIT-401,Corriente del rectificador,kA,400,0,50,33,40
+EIT-401,Voltaje del rectificador,V,400,0,450,250,360
+JIT-401,Potencia del rectificador,MW,400,0,20,8,14
+KY-401,Densidad de corriente,A/m²,400,0,450,250,340
+KY-402,Voltaje medio de celda,V,400,1.5,2.5,1.85,2.15
+FIT-402,Caudal de electrolito a celdas,m³/h,400,0,1500,800,1200
+TIT-403,Temperatura del electrolito,°C,400,20,65,42,50
+AIT-405,Cobre en electrolito,g/L,400,30,55,40,48
+AIT-406,Ácido en electrolito,g/L,400,140,220,170,195
+AIT-407,Hierro en electrolito,mg/L,400,0,3000,0,1200
+AIT-408,Cobalto en electrolito,mg/L,400,0,300,120,200
+LIT-401,Nivel estanque de electrolito,%,400,0,100,40,85
+KY-405,Producción de cátodo,t/h,400,0,10,5.5,7.5
+KY-406,Eficiencia de corriente,%,400,60,100,88,100
+KY-407,Energía específica,kWh/t,400,1000,3500,1600,2200
+FIT-404,Dosificación de cobalto,L/h,400,0,100,30,70
+FIT-409,Sangrado de electrolito,m³/h,400,0,20,3,12
+JIT-500,Demanda total de la planta,MW,500,0,25,10,18
+KY-501,Factor de potencia,,500,0.5,1,0.92,1
+KY-502,Distorsión armónica (THD),%,500,0,15,0,5
+LIT-501,Stock de ácido,t,500,0,2000,500,1900
+LIT-502,Piscina de agua de proceso,m³,500,0,5000,1500,4800

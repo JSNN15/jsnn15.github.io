@@ -1,0 +1,488 @@
+fecha,quien,clase,mensaje
+2026-11-02 11:50:00,Mantenimiento,op,Ronda manual de la nave: 8 celdas con cortocircuito encontradas
+2026-11-02 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 4
+2026-11-02 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 14
+2026-11-02 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 38
+2026-11-02 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 48
+2026-11-02 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 115
+2026-11-02 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 118
+2026-11-02 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 119
+2026-11-02 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 146
+2026-11-02 12:20:00,Mantenimiento,op,Celda 4 corregida
+2026-11-02 12:20:00,Mantenimiento,op,Celda 14 corregida
+2026-11-02 12:20:00,Mantenimiento,op,Celda 38 corregida
+2026-11-02 12:20:00,Mantenimiento,op,Celda 48 corregida
+2026-11-02 12:20:00,Mantenimiento,op,Celda 115 corregida
+2026-11-02 12:20:00,Mantenimiento,op,Celda 118 corregida
+2026-11-02 12:20:00,Mantenimiento,op,Celda 119 corregida
+2026-11-02 12:20:00,Mantenimiento,op,Celda 146 corregida
+2026-11-02 14:20:00,Sistema,trip,CV-101 disparado: cordón de emergencia
+2026-11-02 14:20:01,Sistema,warn,FD-101 detenido por enclavamiento: correa detenida
+2026-11-02 14:20:01,Sistema,warn,P-102 detenido por enclavamiento: permisivo perdido
+2026-11-02 14:20:01,Sistema,warn,P-104 detenido por enclavamiento: permisivo perdido
+2026-11-02 14:23:00,Operador,op,Rearme de CV-101
+2026-11-02 14:25:00,Operador,op,Inicio de Partida secuencial del área 100
+2026-11-02 14:25:15,Secuencia,op,Partida de CV-101
+2026-11-02 14:25:35,Secuencia,op,WIC-101 a MAN
+2026-11-02 14:25:35,Secuencia,op,Partida de FD-101
+2026-11-02 14:26:44,Secuencia,op,WIC-101 a AUTO
+2026-11-02 14:26:49,Secuencia,op,Partida de P-102
+2026-11-02 14:26:49,Secuencia,op,Partida de P-104
+2026-11-02 14:26:54,Secuencia,op,Partida secuencial del área 100 completada
+2026-11-02 15:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-02 16:00:00,Sistema,op,Cambio de turno: entra el turno B
+2026-11-02 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 15
+2026-11-02 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 77
+2026-11-02 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 142
+2026-11-02 16:20:00,Mantenimiento,op,Celda 15 corregida
+2026-11-02 16:20:00,Mantenimiento,op,Celda 77 corregida
+2026-11-02 16:20:00,Mantenimiento,op,Celda 142 corregida
+2026-11-02 19:50:00,Mantenimiento,op,Ronda manual de la nave: 4 celdas con cortocircuito encontradas
+2026-11-02 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 114
+2026-11-02 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 129
+2026-11-02 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 139
+2026-11-02 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 148
+2026-11-02 20:20:00,Mantenimiento,op,Celda 114 corregida
+2026-11-02 20:20:00,Mantenimiento,op,Celda 129 corregida
+2026-11-02 20:20:00,Mantenimiento,op,Celda 139 corregida
+2026-11-02 20:20:00,Mantenimiento,op,Celda 148 corregida
+2026-11-02 23:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-03 00:00:00,Sistema,op,Cambio de turno: entra el turno C
+2026-11-03 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 37
+2026-11-03 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 60
+2026-11-03 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 159
+2026-11-03 00:20:00,Mantenimiento,op,Celda 37 corregida
+2026-11-03 00:20:00,Mantenimiento,op,Celda 60 corregida
+2026-11-03 00:20:00,Mantenimiento,op,Celda 159 corregida
+2026-11-03 03:10:00,Sistema,trip,P-201A disparado: sobrecorriente
+2026-11-03 03:10:01,Sistema,op,P-201B partió por respaldo automático
+2026-11-03 03:45:00,Operador,op,Rearme de P-201A
+2026-11-03 03:45:00,Operador,op,P-201A en respaldo automático
+2026-11-03 03:50:00,Mantenimiento,op,Ronda manual de la nave: 10 celdas con cortocircuito encontradas
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 30
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 34
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 68
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 80
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 86
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 87
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 95
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 126
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 128
+2026-11-03 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 151
+2026-11-03 04:20:00,Mantenimiento,op,Celda 30 corregida
+2026-11-03 04:20:00,Mantenimiento,op,Celda 34 corregida
+2026-11-03 04:20:00,Mantenimiento,op,Celda 68 corregida
+2026-11-03 04:20:00,Mantenimiento,op,Celda 80 corregida
+2026-11-03 04:20:00,Mantenimiento,op,Celda 86 corregida
+2026-11-03 04:20:00,Mantenimiento,op,Celda 87 corregida
+2026-11-03 04:20:00,Mantenimiento,op,Celda 95 corregida
+2026-11-03 04:20:00,Mantenimiento,op,Celda 126 corregida
+2026-11-03 04:20:00,Mantenimiento,op,Celda 128 corregida
+2026-11-03 04:20:00,Mantenimiento,op,Celda 151 corregida
+2026-11-03 07:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-03 08:00:00,Sistema,op,Cambio de turno: entra el turno A
+2026-11-03 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 43
+2026-11-03 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 61
+2026-11-03 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 65
+2026-11-03 08:20:00,Mantenimiento,op,Celda 43 corregida
+2026-11-03 08:20:00,Mantenimiento,op,Celda 61 corregida
+2026-11-03 08:20:00,Mantenimiento,op,Celda 65 corregida
+2026-11-03 11:50:00,Mantenimiento,op,Ronda manual de la nave: 5 celdas con cortocircuito encontradas
+2026-11-03 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 45
+2026-11-03 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 78
+2026-11-03 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 82
+2026-11-03 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 92
+2026-11-03 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 126
+2026-11-03 12:20:00,Mantenimiento,op,Celda 45 corregida
+2026-11-03 12:20:00,Mantenimiento,op,Celda 78 corregida
+2026-11-03 12:20:00,Mantenimiento,op,Celda 82 corregida
+2026-11-03 12:20:00,Mantenimiento,op,Celda 92 corregida
+2026-11-03 12:20:00,Mantenimiento,op,Celda 126 corregida
+2026-11-03 12:40:00,Mantenimiento,op,AIT-207 calibrado con tampones pH 2 y 4
+2026-11-03 15:50:00,Mantenimiento,op,Ronda manual de la nave: 1 celdas con cortocircuito encontradas
+2026-11-03 16:00:00,Sistema,op,Cambio de turno: entra el turno B
+2026-11-03 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 44
+2026-11-03 16:20:00,Mantenimiento,op,Celda 44 corregida
+2026-11-03 19:50:00,Mantenimiento,op,Ronda manual de la nave: 1 celdas con cortocircuito encontradas
+2026-11-03 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 79
+2026-11-03 20:20:00,Mantenimiento,op,Celda 79 corregida
+2026-11-03 23:50:00,Mantenimiento,op,Ronda manual de la nave: 4 celdas con cortocircuito encontradas
+2026-11-04 00:00:00,Sistema,op,Cambio de turno: entra el turno C
+2026-11-04 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 65
+2026-11-04 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 74
+2026-11-04 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 76
+2026-11-04 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 80
+2026-11-04 00:20:00,Mantenimiento,op,Celda 65 corregida
+2026-11-04 00:20:00,Mantenimiento,op,Celda 74 corregida
+2026-11-04 00:20:00,Mantenimiento,op,Celda 76 corregida
+2026-11-04 00:20:00,Mantenimiento,op,Celda 80 corregida
+2026-11-04 03:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-04 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 136
+2026-11-04 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 139
+2026-11-04 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 157
+2026-11-04 04:20:00,Mantenimiento,op,Celda 136 corregida
+2026-11-04 04:20:00,Mantenimiento,op,Celda 139 corregida
+2026-11-04 04:20:00,Mantenimiento,op,Celda 157 corregida
+2026-11-04 06:24:22,Sistema,trip,"M-103 disparado: vibración muy alta (> 8,9 mm/s)"
+2026-11-04 06:24:23,Sistema,warn,CV-101 detenido por enclavamiento: tambor detenido
+2026-11-04 06:24:23,Sistema,warn,FD-101 detenido por enclavamiento: correa detenida
+2026-11-04 06:24:23,Sistema,warn,P-102 detenido por enclavamiento: permisivo perdido
+2026-11-04 06:24:23,Sistema,warn,P-104 detenido por enclavamiento: permisivo perdido
+2026-11-04 06:44:22,Mantenimiento,op,Cambio de rodamiento M-103: equipo detenido 30 min
+2026-11-04 07:14:22,Mantenimiento,op,M-103 disponible tras cambio de rodamiento
+2026-11-04 07:16:22,Operador,op,Inicio de Partida secuencial del área 100
+2026-11-04 07:16:22,Secuencia,op,Partida de M-103
+2026-11-04 07:16:37,Secuencia,op,Partida de CV-101
+2026-11-04 07:16:57,Secuencia,op,WIC-101 a MAN
+2026-11-04 07:16:57,Secuencia,op,Partida de FD-101
+2026-11-04 07:18:05,Secuencia,op,WIC-101 a AUTO
+2026-11-04 07:18:10,Secuencia,op,Partida de P-102
+2026-11-04 07:18:10,Secuencia,op,Partida de P-104
+2026-11-04 07:18:15,Secuencia,op,Partida secuencial del área 100 completada
+2026-11-04 07:50:00,Mantenimiento,op,Ronda manual de la nave: 7 celdas con cortocircuito encontradas
+2026-11-04 08:00:00,Sistema,op,Cambio de turno: entra el turno A
+2026-11-04 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 11
+2026-11-04 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 19
+2026-11-04 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 24
+2026-11-04 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 38
+2026-11-04 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 60
+2026-11-04 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 99
+2026-11-04 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 108
+2026-11-04 08:20:00,Mantenimiento,op,Celda 11 corregida
+2026-11-04 08:20:00,Mantenimiento,op,Celda 19 corregida
+2026-11-04 08:20:00,Mantenimiento,op,Celda 24 corregida
+2026-11-04 08:20:00,Mantenimiento,op,Celda 38 corregida
+2026-11-04 08:20:00,Mantenimiento,op,Celda 60 corregida
+2026-11-04 08:20:00,Mantenimiento,op,Celda 99 corregida
+2026-11-04 08:20:00,Mantenimiento,op,Celda 108 corregida
+2026-11-04 11:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-04 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 41
+2026-11-04 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 69
+2026-11-04 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 159
+2026-11-04 12:20:00,Mantenimiento,op,Celda 41 corregida
+2026-11-04 12:20:00,Mantenimiento,op,Celda 69 corregida
+2026-11-04 12:20:00,Mantenimiento,op,Celda 159 corregida
+2026-11-04 15:50:00,Mantenimiento,op,Ronda manual de la nave: 7 celdas con cortocircuito encontradas
+2026-11-04 16:00:00,Sistema,op,Cambio de turno: entra el turno B
+2026-11-04 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 1
+2026-11-04 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 5
+2026-11-04 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 25
+2026-11-04 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 50
+2026-11-04 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 61
+2026-11-04 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 86
+2026-11-04 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 136
+2026-11-04 16:20:00,Mantenimiento,op,Celda 1 corregida
+2026-11-04 16:20:00,Mantenimiento,op,Celda 5 corregida
+2026-11-04 16:20:00,Mantenimiento,op,Celda 25 corregida
+2026-11-04 16:20:00,Mantenimiento,op,Celda 50 corregida
+2026-11-04 16:20:00,Mantenimiento,op,Celda 61 corregida
+2026-11-04 16:20:00,Mantenimiento,op,Celda 86 corregida
+2026-11-04 16:20:00,Mantenimiento,op,Celda 136 corregida
+2026-11-04 16:30:00,Sistema,trip,Interruptor MCC-200 abierto por protección
+2026-11-04 16:30:01,Sistema,trip,P-201B disparado: sin tensión en MCC-200
+2026-11-04 16:30:01,Sistema,trip,P-202A disparado: sin tensión en MCC-200
+2026-11-04 16:42:00,Operador,op,Interruptor MCC-200 cerrado
+2026-11-04 16:42:01,Sistema,op,P-202B partió por respaldo automático
+2026-11-04 16:44:00,Operador,op,Rearme de P-201A
+2026-11-04 16:44:00,Operador,op,Rearme de P-201B
+2026-11-04 16:44:00,Operador,op,Rearme de P-202A
+2026-11-04 16:44:00,Operador,op,Partida de P-201B
+2026-11-04 16:44:00,Operador,op,Partida de P-202A
+2026-11-04 19:50:00,Mantenimiento,op,Ronda manual de la nave: 5 celdas con cortocircuito encontradas
+2026-11-04 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 10
+2026-11-04 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 26
+2026-11-04 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 27
+2026-11-04 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 29
+2026-11-04 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 53
+2026-11-04 20:20:00,Mantenimiento,op,Celda 10 corregida
+2026-11-04 20:20:00,Mantenimiento,op,Celda 26 corregida
+2026-11-04 20:20:00,Mantenimiento,op,Celda 27 corregida
+2026-11-04 20:20:00,Mantenimiento,op,Celda 29 corregida
+2026-11-04 20:20:00,Mantenimiento,op,Celda 53 corregida
+2026-11-04 23:50:00,Mantenimiento,op,Ronda manual de la nave: 8 celdas con cortocircuito encontradas
+2026-11-05 00:00:00,Sistema,op,Cambio de turno: entra el turno C
+2026-11-05 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 25
+2026-11-05 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 33
+2026-11-05 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 46
+2026-11-05 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 72
+2026-11-05 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 108
+2026-11-05 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 115
+2026-11-05 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 133
+2026-11-05 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 141
+2026-11-05 00:20:00,Mantenimiento,op,Celda 25 corregida
+2026-11-05 00:20:00,Mantenimiento,op,Celda 33 corregida
+2026-11-05 00:20:00,Mantenimiento,op,Celda 46 corregida
+2026-11-05 00:20:00,Mantenimiento,op,Celda 72 corregida
+2026-11-05 00:20:00,Mantenimiento,op,Celda 108 corregida
+2026-11-05 00:20:00,Mantenimiento,op,Celda 115 corregida
+2026-11-05 00:20:00,Mantenimiento,op,Celda 133 corregida
+2026-11-05 00:20:00,Mantenimiento,op,Celda 141 corregida
+2026-11-05 03:50:00,Mantenimiento,op,Ronda manual de la nave: 2 celdas con cortocircuito encontradas
+2026-11-05 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 109
+2026-11-05 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 157
+2026-11-05 04:20:00,Mantenimiento,op,Celda 109 corregida
+2026-11-05 04:20:00,Mantenimiento,op,Celda 157 corregida
+2026-11-05 07:50:00,Mantenimiento,op,Ronda manual de la nave: 5 celdas con cortocircuito encontradas
+2026-11-05 08:00:00,Sistema,op,Cambio de turno: entra el turno A
+2026-11-05 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 49
+2026-11-05 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 67
+2026-11-05 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 87
+2026-11-05 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 96
+2026-11-05 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 119
+2026-11-05 08:20:00,Mantenimiento,op,Celda 49 corregida
+2026-11-05 08:20:00,Mantenimiento,op,Celda 67 corregida
+2026-11-05 08:20:00,Mantenimiento,op,Celda 87 corregida
+2026-11-05 08:20:00,Mantenimiento,op,Celda 96 corregida
+2026-11-05 08:20:00,Mantenimiento,op,Celda 119 corregida
+2026-11-05 11:50:00,Mantenimiento,op,Ronda manual de la nave: 2 celdas con cortocircuito encontradas
+2026-11-05 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 25
+2026-11-05 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 33
+2026-11-05 12:20:00,Mantenimiento,op,Celda 25 corregida
+2026-11-05 12:20:00,Mantenimiento,op,Celda 33 corregida
+2026-11-05 15:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-05 16:00:00,Sistema,op,Cambio de turno: entra el turno B
+2026-11-05 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 17
+2026-11-05 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 117
+2026-11-05 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 122
+2026-11-05 16:20:00,Mantenimiento,op,Celda 17 corregida
+2026-11-05 16:20:00,Mantenimiento,op,Celda 117 corregida
+2026-11-05 16:20:00,Mantenimiento,op,Celda 122 corregida
+2026-11-05 19:50:00,Mantenimiento,op,Ronda manual de la nave: 6 celdas con cortocircuito encontradas
+2026-11-05 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 5
+2026-11-05 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 35
+2026-11-05 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 38
+2026-11-05 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 50
+2026-11-05 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 52
+2026-11-05 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 158
+2026-11-05 20:20:00,Mantenimiento,op,Celda 5 corregida
+2026-11-05 20:20:00,Mantenimiento,op,Celda 35 corregida
+2026-11-05 20:20:00,Mantenimiento,op,Celda 38 corregida
+2026-11-05 20:20:00,Mantenimiento,op,Celda 50 corregida
+2026-11-05 20:20:00,Mantenimiento,op,Celda 52 corregida
+2026-11-05 20:20:00,Mantenimiento,op,Celda 158 corregida
+2026-11-05 23:50:00,Mantenimiento,op,Ronda manual de la nave: 0 celdas con cortocircuito encontradas
+2026-11-06 00:00:00,Sistema,op,Cambio de turno: entra el turno C
+2026-11-06 01:00:00,Sistema,trip,Racha de cortocircuitos en la nave
+2026-11-06 03:50:00,Mantenimiento,op,Ronda manual de la nave: 14 celdas con cortocircuito encontradas
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 21
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 30
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 58
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 67
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 78
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 80
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 81
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 90
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 111
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 121
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 126
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 130
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 134
+2026-11-06 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 148
+2026-11-06 04:20:00,Mantenimiento,op,Celda 21 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 30 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 58 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 67 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 78 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 80 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 81 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 90 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 111 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 121 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 126 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 130 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 134 corregida
+2026-11-06 04:20:00,Mantenimiento,op,Celda 148 corregida
+2026-11-06 07:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-06 08:00:00,Sistema,op,Cambio de turno: entra el turno A
+2026-11-06 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 15
+2026-11-06 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 119
+2026-11-06 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 142
+2026-11-06 08:20:00,Mantenimiento,op,Celda 15 corregida
+2026-11-06 08:20:00,Mantenimiento,op,Celda 119 corregida
+2026-11-06 08:20:00,Mantenimiento,op,Celda 142 corregida
+2026-11-06 11:50:00,Mantenimiento,op,Ronda manual de la nave: 0 celdas con cortocircuito encontradas
+2026-11-06 13:00:00,Sistema,trip,RT-401 disparado: falla de refrigeración del transformador
+2026-11-06 13:08:00,Operador,op,Rearme de RT-401
+2026-11-06 13:10:00,Operador,op,Inicio de Puesta en servicio de la nave EW
+2026-11-06 13:10:08,Secuencia,op,IIC-401 a AUTO
+2026-11-06 13:10:08,Secuencia,op,"RT-401 en servicio, rampa de corriente"
+2026-11-06 13:12:38,Sistema,warn,Nave reenergizada tras 11 min sin corriente: riesgo de plomo en el cátodo
+2026-11-06 13:14:54,Secuencia,op,IIC-401 consigna 37 kA
+2026-11-06 13:28:23,Secuencia,op,IIC-401 a CAS
+2026-11-06 13:28:28,Secuencia,op,Puesta en servicio de la nave EW completada
+2026-11-06 15:50:00,Mantenimiento,op,Ronda manual de la nave: 4 celdas con cortocircuito encontradas
+2026-11-06 16:00:00,Sistema,op,Cambio de turno: entra el turno B
+2026-11-06 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 27
+2026-11-06 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 70
+2026-11-06 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 126
+2026-11-06 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 134
+2026-11-06 16:20:00,Mantenimiento,op,Celda 27 corregida
+2026-11-06 16:20:00,Mantenimiento,op,Celda 70 corregida
+2026-11-06 16:20:00,Mantenimiento,op,Celda 126 corregida
+2026-11-06 16:20:00,Mantenimiento,op,Celda 134 corregida
+2026-11-06 19:50:00,Mantenimiento,op,Ronda manual de la nave: 0 celdas con cortocircuito encontradas
+2026-11-06 23:50:00,Mantenimiento,op,Ronda manual de la nave: 4 celdas con cortocircuito encontradas
+2026-11-07 00:00:00,Sistema,op,Cambio de turno: entra el turno C
+2026-11-07 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 23
+2026-11-07 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 49
+2026-11-07 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 93
+2026-11-07 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 102
+2026-11-07 00:20:00,Mantenimiento,op,Celda 23 corregida
+2026-11-07 00:20:00,Mantenimiento,op,Celda 49 corregida
+2026-11-07 00:20:00,Mantenimiento,op,Celda 93 corregida
+2026-11-07 00:20:00,Mantenimiento,op,Celda 102 corregida
+2026-11-07 03:50:00,Mantenimiento,op,Ronda manual de la nave: 4 celdas con cortocircuito encontradas
+2026-11-07 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 94
+2026-11-07 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 102
+2026-11-07 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 104
+2026-11-07 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 138
+2026-11-07 04:20:00,Mantenimiento,op,Celda 94 corregida
+2026-11-07 04:20:00,Mantenimiento,op,Celda 102 corregida
+2026-11-07 04:20:00,Mantenimiento,op,Celda 104 corregida
+2026-11-07 04:20:00,Mantenimiento,op,Celda 138 corregida
+2026-11-07 07:50:00,Mantenimiento,op,Ronda manual de la nave: 0 celdas con cortocircuito encontradas
+2026-11-07 08:00:00,Sistema,op,Cambio de turno: entra el turno A
+2026-11-07 11:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-07 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 19
+2026-11-07 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 39
+2026-11-07 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 78
+2026-11-07 12:20:00,Mantenimiento,op,Celda 19 corregida
+2026-11-07 12:20:00,Mantenimiento,op,Celda 39 corregida
+2026-11-07 12:20:00,Mantenimiento,op,Celda 78 corregida
+2026-11-07 13:00:00,Mantenimiento,op,Intercambiador HX-401 reparado
+2026-11-07 15:50:00,Mantenimiento,op,Ronda manual de la nave: 7 celdas con cortocircuito encontradas
+2026-11-07 16:00:00,Sistema,op,Cambio de turno: entra el turno B
+2026-11-07 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 21
+2026-11-07 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 30
+2026-11-07 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 35
+2026-11-07 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 84
+2026-11-07 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 97
+2026-11-07 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 151
+2026-11-07 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 158
+2026-11-07 16:20:00,Mantenimiento,op,Celda 21 corregida
+2026-11-07 16:20:00,Mantenimiento,op,Celda 30 corregida
+2026-11-07 16:20:00,Mantenimiento,op,Celda 35 corregida
+2026-11-07 16:20:00,Mantenimiento,op,Celda 84 corregida
+2026-11-07 16:20:00,Mantenimiento,op,Celda 97 corregida
+2026-11-07 16:20:00,Mantenimiento,op,Celda 151 corregida
+2026-11-07 16:20:00,Mantenimiento,op,Celda 158 corregida
+2026-11-07 19:50:00,Mantenimiento,op,Ronda manual de la nave: 8 celdas con cortocircuito encontradas
+2026-11-07 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 6
+2026-11-07 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 18
+2026-11-07 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 20
+2026-11-07 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 43
+2026-11-07 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 82
+2026-11-07 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 86
+2026-11-07 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 133
+2026-11-07 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 143
+2026-11-07 20:20:00,Mantenimiento,op,Celda 6 corregida
+2026-11-07 20:20:00,Mantenimiento,op,Celda 18 corregida
+2026-11-07 20:20:00,Mantenimiento,op,Celda 20 corregida
+2026-11-07 20:20:00,Mantenimiento,op,Celda 43 corregida
+2026-11-07 20:20:00,Mantenimiento,op,Celda 82 corregida
+2026-11-07 20:20:00,Mantenimiento,op,Celda 86 corregida
+2026-11-07 20:20:00,Mantenimiento,op,Celda 133 corregida
+2026-11-07 20:20:00,Mantenimiento,op,Celda 143 corregida
+2026-11-07 23:00:00,Mantenimiento,op,AIT-207 calibrado con tampones pH 2 y 4
+2026-11-07 23:50:00,Mantenimiento,op,Ronda manual de la nave: 0 celdas con cortocircuito encontradas
+2026-11-08 00:00:00,Sistema,op,Cambio de turno: entra el turno C
+2026-11-08 03:50:00,Mantenimiento,op,Ronda manual de la nave: 6 celdas con cortocircuito encontradas
+2026-11-08 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 18
+2026-11-08 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 82
+2026-11-08 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 117
+2026-11-08 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 125
+2026-11-08 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 139
+2026-11-08 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 153
+2026-11-08 04:20:00,Mantenimiento,op,Celda 18 corregida
+2026-11-08 04:20:00,Mantenimiento,op,Celda 82 corregida
+2026-11-08 04:20:00,Mantenimiento,op,Celda 117 corregida
+2026-11-08 04:20:00,Mantenimiento,op,Celda 125 corregida
+2026-11-08 04:20:00,Mantenimiento,op,Celda 139 corregida
+2026-11-08 04:20:00,Mantenimiento,op,Celda 153 corregida
+2026-11-08 07:50:00,Mantenimiento,op,Ronda manual de la nave: 5 celdas con cortocircuito encontradas
+2026-11-08 08:00:00,Sistema,op,Cambio de turno: entra el turno A
+2026-11-08 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 35
+2026-11-08 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 37
+2026-11-08 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 38
+2026-11-08 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 60
+2026-11-08 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 153
+2026-11-08 08:20:00,Mantenimiento,op,Celda 35 corregida
+2026-11-08 08:20:00,Mantenimiento,op,Celda 37 corregida
+2026-11-08 08:20:00,Mantenimiento,op,Celda 38 corregida
+2026-11-08 08:20:00,Mantenimiento,op,Celda 60 corregida
+2026-11-08 08:20:00,Mantenimiento,op,Celda 153 corregida
+2026-11-08 11:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-08 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 8
+2026-11-08 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 25
+2026-11-08 12:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 50
+2026-11-08 12:20:00,Mantenimiento,op,Celda 8 corregida
+2026-11-08 12:20:00,Mantenimiento,op,Celda 25 corregida
+2026-11-08 12:20:00,Mantenimiento,op,Celda 50 corregida
+2026-11-08 13:17:59,Mantenimiento,op,Cambio de rodamiento M-103: equipo detenido 30 min
+2026-11-08 13:18:00,Sistema,warn,CV-101 detenido por enclavamiento: tambor detenido
+2026-11-08 13:18:00,Sistema,warn,FD-101 detenido por enclavamiento: correa detenida
+2026-11-08 13:18:00,Sistema,warn,P-102 detenido por enclavamiento: permisivo perdido
+2026-11-08 13:18:00,Sistema,warn,P-104 detenido por enclavamiento: permisivo perdido
+2026-11-08 13:47:59,Mantenimiento,op,M-103 disponible tras cambio de rodamiento
+2026-11-08 13:49:59,Operador,op,Inicio de Partida secuencial del área 100
+2026-11-08 13:49:59,Secuencia,op,Partida de M-103
+2026-11-08 13:50:14,Secuencia,op,Partida de CV-101
+2026-11-08 13:50:34,Secuencia,op,WIC-101 a MAN
+2026-11-08 13:50:34,Secuencia,op,Partida de FD-101
+2026-11-08 13:51:43,Secuencia,op,WIC-101 a AUTO
+2026-11-08 13:51:48,Secuencia,op,Partida de P-102
+2026-11-08 13:51:48,Secuencia,op,Partida de P-104
+2026-11-08 13:51:53,Secuencia,op,Partida secuencial del área 100 completada
+2026-11-08 14:00:00,Mantenimiento,op,Borra retirada del decantador E1
+2026-11-08 15:50:00,Mantenimiento,op,Ronda manual de la nave: 5 celdas con cortocircuito encontradas
+2026-11-08 16:00:00,Sistema,op,Cambio de turno: entra el turno B
+2026-11-08 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 31
+2026-11-08 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 52
+2026-11-08 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 69
+2026-11-08 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 98
+2026-11-08 16:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 107
+2026-11-08 16:20:00,Mantenimiento,op,Celda 31 corregida
+2026-11-08 16:20:00,Mantenimiento,op,Celda 52 corregida
+2026-11-08 16:20:00,Mantenimiento,op,Celda 69 corregida
+2026-11-08 16:20:00,Mantenimiento,op,Celda 98 corregida
+2026-11-08 16:20:00,Mantenimiento,op,Celda 107 corregida
+2026-11-08 19:50:00,Mantenimiento,op,Ronda manual de la nave: 4 celdas con cortocircuito encontradas
+2026-11-08 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 56
+2026-11-08 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 124
+2026-11-08 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 130
+2026-11-08 20:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 159
+2026-11-08 20:20:00,Mantenimiento,op,Celda 56 corregida
+2026-11-08 20:20:00,Mantenimiento,op,Celda 124 corregida
+2026-11-08 20:20:00,Mantenimiento,op,Celda 130 corregida
+2026-11-08 20:20:00,Mantenimiento,op,Celda 159 corregida
+2026-11-08 23:50:00,Mantenimiento,op,Ronda manual de la nave: 3 celdas con cortocircuito encontradas
+2026-11-09 00:00:00,Sistema,op,Cambio de turno: entra el turno C
+2026-11-09 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 87
+2026-11-09 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 100
+2026-11-09 00:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 120
+2026-11-09 00:20:00,Mantenimiento,op,Celda 87 corregida
+2026-11-09 00:20:00,Mantenimiento,op,Celda 100 corregida
+2026-11-09 00:20:00,Mantenimiento,op,Celda 120 corregida
+2026-11-09 03:50:00,Mantenimiento,op,Ronda manual de la nave: 8 celdas con cortocircuito encontradas
+2026-11-09 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 8
+2026-11-09 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 23
+2026-11-09 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 33
+2026-11-09 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 56
+2026-11-09 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 61
+2026-11-09 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 98
+2026-11-09 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 111
+2026-11-09 04:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 147
+2026-11-09 04:20:00,Mantenimiento,op,Celda 8 corregida
+2026-11-09 04:20:00,Mantenimiento,op,Celda 23 corregida
+2026-11-09 04:20:00,Mantenimiento,op,Celda 33 corregida
+2026-11-09 04:20:00,Mantenimiento,op,Celda 56 corregida
+2026-11-09 04:20:00,Mantenimiento,op,Celda 61 corregida
+2026-11-09 04:20:00,Mantenimiento,op,Celda 98 corregida
+2026-11-09 04:20:00,Mantenimiento,op,Celda 111 corregida
+2026-11-09 04:20:00,Mantenimiento,op,Celda 147 corregida
+2026-11-09 07:50:00,Mantenimiento,op,Ronda manual de la nave: 4 celdas con cortocircuito encontradas
+2026-11-09 08:00:00,Sistema,op,Cambio de turno: entra el turno A
+2026-11-09 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 5
+2026-11-09 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 46
+2026-11-09 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 146
+2026-11-09 08:00:00,Mantenimiento,op,Cuadrilla enviada a corregir celda 159

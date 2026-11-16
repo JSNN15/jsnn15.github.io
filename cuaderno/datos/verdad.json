@@ -1,0 +1,177 @@
+{
+ "nota": "Lo que se sembró. El cuaderno no lo lee para detectar: solo para medir si detectó.",
+ "fallas": [
+  {
+   "inicio": "2026-11-02 14:20:00",
+   "tipo": "falla_proceso",
+   "id": "cord",
+   "nombre": "Tirón de cordón en CV-101",
+   "area": 100,
+   "nota": "El operador rearma a los 3 min y parte en secuencia a los 5."
+  },
+  {
+   "inicio": "2026-11-03 03:10:00",
+   "tipo": "falla_proceso",
+   "id": "p201",
+   "nombre": "Falla de la bomba de riego P-201A",
+   "area": 200,
+   "nota": "P-201B en respaldo automático. La A se rearma a los 35 min y queda de respaldo."
+  },
+  {
+   "inicio": "2026-11-03 10:00:00",
+   "tipo": "falla_proceso",
+   "id": "ph",
+   "nombre": "Deriva del pHmetro AIT-207",
+   "area": 200,
+   "nota": "Deriva de 0,12 pH/h. Se calibra 50 min después de la alarma contra laboratorio."
+  },
+  {
+   "inicio": "2026-11-04 02:00:00",
+   "tipo": "falla_proceso",
+   "id": "bearing",
+   "nombre": "Rodamiento dañado en M-103",
+   "area": 100,
+   "nota": "Nadie interviene: dispara por vibración. Cambio de rodamiento 20 min después del disparo."
+  },
+  {
+   "inicio": "2026-11-04 16:30:00",
+   "tipo": "falla_proceso",
+   "id": "mcc",
+   "nombre": "Caída del MCC-200",
+   "area": 500,
+   "nota": "Se cierra el interruptor a los 12 min y se vuelve a la alineación anterior."
+  },
+  {
+   "inicio": "2026-11-05 09:00:00",
+   "tipo": "falla_proceso",
+   "id": "ore",
+   "nombre": "Cambio de mineral",
+   "area": 200,
+   "nota": "Dura hasta el sábado a las 09:00."
+  },
+  {
+   "inicio": "2026-11-06 01:00:00",
+   "tipo": "falla_proceso",
+   "id": "shorts",
+   "nombre": "Racha de cortocircuitos en EW",
+   "area": 400,
+   "nota": "La cuadrilla corrige lo que encuentra la ronda manual."
+  },
+  {
+   "inicio": "2026-11-06 13:00:00",
+   "tipo": "falla_proceso",
+   "id": "rt",
+   "nombre": "Disparo del rectificador RT-401",
+   "area": 400,
+   "nota": "Rearme a los 8 min y puesta en servicio a los 10."
+  },
+  {
+   "inicio": "2026-11-07 04:00:00",
+   "tipo": "falla_proceso",
+   "id": "hx",
+   "nombre": "Falla del intercambiador HX-401",
+   "area": 400,
+   "nota": "Reparado a las 13:00."
+  },
+  {
+   "inicio": "2026-11-07 09:00:00",
+   "tipo": "fin",
+   "id": "ore",
+   "nombre": "Vuelve el mineral original",
+   "area": 200,
+   "nota": ""
+  },
+  {
+   "inicio": "2026-11-07 15:00:00",
+   "tipo": "falla_proceso",
+   "id": "ph_lenta",
+   "nombre": "Deriva lenta del pHmetro AIT-207",
+   "area": 200,
+   "nota": "Deriva de 0,03 pH/h, cuatro veces más lenta que el escenario. Se calibra 70 min después de la alarma."
+  },
+  {
+   "inicio": "2026-11-07 20:00:00",
+   "tipo": "falla_proceso",
+   "id": "crud",
+   "nombre": "Borra en el decantador E1",
+   "area": 300,
+   "nota": "Retirada el domingo a las 14:00."
+  },
+  {
+   "inicio": "2026-11-08 10:00:00",
+   "tipo": "falla_proceso",
+   "id": "bearing",
+   "nombre": "Rodamiento dañado en M-103",
+   "area": 100,
+   "nota": "Mantenimiento cambia el rodamiento 40 min después de la alarma de zona C."
+  }
+ ],
+ "defectos": [
+  {
+   "tipo": "sin_dato",
+   "tags": [
+    "AIT-208",
+    "FIT-301",
+    "KY-301",
+    "AIT-302",
+    "KY-303",
+    "LIT-303",
+    "AIT-309",
+    "KY-304"
+   ],
+   "desde": "2026-11-03 21:14:00",
+   "hasta": "2026-11-03 22:00:00",
+   "nota": "Pérdida de comunicación con el PLC del área 300"
+  },
+  {
+   "tipo": "congelado",
+   "tags": [
+    "TIT-403"
+   ],
+   "desde": "2026-11-05 02:11:00",
+   "hasta": "2026-11-05 05:30:00",
+   "nota": "El transmisor repite el último valor"
+  },
+  {
+   "tipo": "fuera_de_rango",
+   "tags": [
+    "FIT-205"
+   ],
+   "desde": "2026-11-02 19:41:00",
+   "hasta": "2026-11-02 19:41:00",
+   "nota": "Valor 9999"
+  },
+  {
+   "tipo": "fuera_de_rango",
+   "tags": [
+    "AIT-405"
+   ],
+   "desde": "2026-11-04 11:05:00",
+   "hasta": "2026-11-04 11:05:00",
+   "nota": "Valor -1"
+  },
+  {
+   "tipo": "fuera_de_rango",
+   "tags": [
+    "IIT-401"
+   ],
+   "desde": "2026-11-06 20:17:00",
+   "hasta": "2026-11-06 20:17:00",
+   "nota": "Valor 655.35"
+  },
+  {
+   "tipo": "duplicado",
+   "tags": [],
+   "desde": "2026-11-03 22:01:00",
+   "hasta": "2026-11-03 22:02:00",
+   "nota": "Dos filas reenviadas tras la reconexión"
+  },
+  {
+   "tipo": "filas_faltantes",
+   "tags": [],
+   "desde": "2026-11-08 06:20:00",
+   "hasta": "2026-11-08 06:31:00",
+   "nota": "Reinicio del servidor del historiador"
+  }
+ ]
+}

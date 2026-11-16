@@ -1,0 +1,17 @@
+equipo,descripcion,area,potencia_kw,mcc,grupo_iso,limite_ab,limite_bc,limite_cd
+M-103,Tambor aglomerador AD-101,100,450,MCC-100,1,2.3,4.5,7.1
+CV-101,Correa de alimentación,100,315,MCC-100,1,2.3,4.5,7.1
+FD-101,Alimentador de mineral (VDF),100,75,MCC-100,2,1.4,2.8,4.5
+P-102,Bomba de ácido al tambor,100,15,MCC-100,2,1.4,2.8,4.5
+P-104,Bomba de agua al tambor,100,55,MCC-100,2,1.4,2.8,4.5
+P-201A,Bomba de riego A,200,900,MCC-200,1,2.3,4.5,7.1
+P-201B,Bomba de riego B (respaldo),200,900,MCC-200,1,2.3,4.5,7.1
+P-202A,Bomba de PLS a SX A,200,750,MCC-200,1,2.3,4.5,7.1
+P-202B,Bomba de PLS a SX B (respaldo),200,750,MCC-200,1,2.3,4.5,7.1
+M-301,Mezclador E1,300,110,MCC-300,2,1.4,2.8,4.5
+M-302,Mezclador E2,300,110,MCC-300,2,1.4,2.8,4.5
+M-303,Mezclador S1 (reextracción),300,110,MCC-300,2,1.4,2.8,4.5
+P-305,Bomba de orgánico (VDF),300,250,MCC-300,2,1.4,2.8,4.5
+P-401A,Bomba de electrolito A,400,200,MCC-400,2,1.4,2.8,4.5
+P-401B,Bomba de electrolito B (respaldo),400,200,MCC-400,2,1.4,2.8,4.5
+P-501,Bomba de transferencia de ácido,500,30,MCC-100,2,1.4,2.8,4.5

@@ -1,0 +1,130 @@
+fecha,alarma,evento,prioridad,area,tag,tipo,descripcion
+2026-11-02 14:20:01,CV-101.TRIP,ACTIVA,1,100,CV-101,DISC,CV-101 Correa de alimentación: disparo (cordón de emergencia)
+2026-11-02 14:20:38,CV-101.TRIP,RECONOCE,1,100,CV-101,DISC,CV-101 Correa de alimentación: disparo (cordón de emergencia)
+2026-11-02 14:23:01,CV-101.TRIP,NORMALIZA,1,100,CV-101,DISC,CV-101 Correa de alimentación: disparo
+2026-11-03 03:10:01,P-201A.TRIP,ACTIVA,1,200,P-201A,DISC,P-201A Bomba de riego A: disparo (sobrecorriente)
+2026-11-03 03:11:37,P-201A.TRIP,RECONOCE,1,200,P-201A,DISC,P-201A Bomba de riego A: disparo (sobrecorriente)
+2026-11-03 03:45:01,P-201A.TRIP,NORMALIZA,1,200,P-201A,DISC,P-201A Bomba de riego A: disparo
+2026-11-03 11:50:00,AIT-207.DEV,ACTIVA,3,200,AIT-207,DISC,"AIT-207: desviación contra laboratorio mayor a 0,15 pH"
+2026-11-03 11:51:28,AIT-207.DEV,RECONOCE,3,200,AIT-207,DISC,"AIT-207: desviación contra laboratorio mayor a 0,15 pH"
+2026-11-03 12:00:00,AIT-207.DEV,NORMALIZA,3,200,AIT-207,DISC,"AIT-207: desviación contra laboratorio mayor a 0,15 pH"
+2026-11-04 04:39:31,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:39:42,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:39:59,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:40:09,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:40:10,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:40:11,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:40:20,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:40:21,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:40:22,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:40:45,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:40:46,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:40:47,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:41:01,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 04:41:37,M-103.VIB,RECONOCE,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:52:29,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:52:29,M-103.VIBH,ACTIVA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:52:39,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:52:39,M-103.VIBH,NORMALIZA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:52:43,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:52:43,M-103.VIBH,ACTIVA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:52:56,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:52:56,M-103.VIBH,NORMALIZA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:52:57,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:52:57,M-103.VIBH,ACTIVA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:52:59,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:52:59,M-103.VIBH,NORMALIZA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:53:00,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:53:00,M-103.VIBH,ACTIVA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:53:01,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:53:01,M-103.VIBH,NORMALIZA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:53:09,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:53:09,M-103.VIBH,ACTIVA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:53:14,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:53:14,M-103.VIBH,NORMALIZA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:53:16,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:53:16,M-103.VIBH,ACTIVA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:53:17,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:53:17,M-103.VIBH,NORMALIZA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:53:19,M-103.VIBH,RECONOCE,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:53:21,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:53:21,M-103.VIBH,ACTIVA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:54:00,M-103.VIB,RECONOCE,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:54:08,M-103.VIBH,RECONOCE,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:54:54,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:54:54,M-103.VIBH,NORMALIZA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:54:55,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 05:54:55,M-103.VIBH,ACTIVA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:54:59,M-103.VIBH,RECONOCE,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 05:56:17,M-103.VIB,RECONOCE,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-04 06:24:22,M-103.TRIP,ACTIVA,1,100,M-103,DISC,"M-103 Tambor aglomerador AD-101: disparo (vibración muy alta (> 8,9 mm/s))"
+2026-11-04 06:24:22,M-103.VIBH,NORMALIZA,2,100,M-103,DISC,"M-103: vibración en zona D, grupo 1 (> 7,1 mm/s)"
+2026-11-04 06:27:27,M-103.TRIP,RECONOCE,1,100,M-103,DISC,"M-103 Tambor aglomerador AD-101: disparo (vibración muy alta (> 8,9 mm/s))"
+2026-11-04 06:44:23,M-103.TRIP,NORMALIZA,1,100,M-103,DISC,M-103 Tambor aglomerador AD-101: disparo
+2026-11-04 16:30:01,P-201B.TRIP,ACTIVA,1,200,P-201B,DISC,P-201B Bomba de riego B (respaldo): disparo (sin tensión en MCC-200)
+2026-11-04 16:30:01,P-202A.TRIP,ACTIVA,1,200,P-202A,DISC,P-202A Bomba de PLS a SX A: disparo (sin tensión en MCC-200)
+2026-11-04 16:30:01,MCC-200.OPEN,ACTIVA,1,500,MCC-200,DISC,Interruptor MCC-200 abierto
+2026-11-04 16:30:09,PIT-202.LL,ACTIVA,1,200,PIT-202,LL,Sin presión de riego
+2026-11-04 16:30:12,PIT-202.L,ACTIVA,2,200,PIT-202,L,Presión baja en cabezal de riego
+2026-11-04 16:30:22,P-201B.TRIP,RECONOCE,1,200,P-201B,DISC,P-201B Bomba de riego B (respaldo): disparo (sin tensión en MCC-200)
+2026-11-04 16:30:32,FIT-200.L,ACTIVA,2,200,FIT-200,L,Riego total bajo
+2026-11-04 16:30:32,FIT-205.L,ACTIVA,2,200,FIT-205,L,Alimentación a SX baja
+2026-11-04 16:30:46,PIT-202.L,RECONOCE,2,200,PIT-202,L,Presión baja en cabezal de riego
+2026-11-04 16:30:47,MCC-200.OPEN,RECONOCE,1,500,MCC-200,DISC,Interruptor MCC-200 abierto
+2026-11-04 16:30:49,KY-301.L,ACTIVA,2,300,KY-301,L,Razón O/A baja
+2026-11-04 16:31:01,FIT-205.L,RECONOCE,2,200,FIT-205,L,Alimentación a SX baja
+2026-11-04 16:31:05,P-202A.TRIP,RECONOCE,1,200,P-202A,DISC,P-202A Bomba de PLS a SX A: disparo (sin tensión en MCC-200)
+2026-11-04 16:31:07,FIT-200.L,RECONOCE,2,200,FIT-200,L,Riego total bajo
+2026-11-04 16:31:20,AIT-208.H,ACTIVA,2,300,AIT-208,H,Cobre alto en refino
+2026-11-04 16:31:57,AIT-208.H,RECONOCE,2,300,AIT-208,H,Cobre alto en refino
+2026-11-04 16:32:02,PIT-202.LL,RECONOCE,1,200,PIT-202,LL,Sin presión de riego
+2026-11-04 16:32:08,KY-301.L,RECONOCE,2,300,KY-301,L,Razón O/A baja
+2026-11-04 16:42:01,MCC-200.OPEN,NORMALIZA,1,500,MCC-200,DISC,Interruptor MCC-200 abierto
+2026-11-04 16:42:03,FIT-205.L,NORMALIZA,2,200,FIT-205,L,Alimentación a SX baja
+2026-11-04 16:43:08,KY-301.L,NORMALIZA,2,300,KY-301,L,Razón O/A baja
+2026-11-04 16:44:01,PIT-202.LL,NORMALIZA,1,200,PIT-202,LL,Sin presión de riego
+2026-11-04 16:44:01,P-201B.TRIP,NORMALIZA,1,200,P-201B,DISC,P-201B Bomba de riego B (respaldo): disparo
+2026-11-04 16:44:01,P-202A.TRIP,NORMALIZA,1,200,P-202A,DISC,P-202A Bomba de PLS a SX A: disparo
+2026-11-04 16:44:02,PIT-202.L,NORMALIZA,2,200,PIT-202,L,Presión baja en cabezal de riego
+2026-11-04 16:44:05,FIT-200.L,NORMALIZA,2,200,FIT-200,L,Riego total bajo
+2026-11-04 16:51:50,AIT-208.H,NORMALIZA,2,300,AIT-208,H,Cobre alto en refino
+2026-11-05 13:46:36,IIT-401.L,ACTIVA,2,400,IIT-401,L,Corriente baja en la nave
+2026-11-05 13:47:12,IIT-401.L,RECONOCE,2,400,IIT-401,L,Corriente baja en la nave
+2026-11-05 22:55:24,AIT-206.L,ACTIVA,3,200,AIT-206,L,Cobre bajo en PLS
+2026-11-05 22:56:05,AIT-206.L,RECONOCE,3,200,AIT-206,L,Cobre bajo en PLS
+2026-11-06 13:00:01,RT-401.TRIP,ACTIVA,1,400,RT-401,DISC,RT-401 Rectificador: disparo (falla de refrigeración del transformador)
+2026-11-06 13:00:51,RT-401.TRIP,RECONOCE,1,400,RT-401,DISC,RT-401 Rectificador: disparo (falla de refrigeración del transformador)
+2026-11-06 13:08:01,IIT-401.L,NORMALIZA,2,400,IIT-401,L,Corriente baja en la nave
+2026-11-06 13:08:01,RT-401.TRIP,NORMALIZA,1,400,RT-401,DISC,RT-401 Rectificador: disparo
+2026-11-06 14:53:13,IIT-401.L,ACTIVA,2,400,IIT-401,L,Corriente baja en la nave
+2026-11-06 14:53:55,IIT-401.L,RECONOCE,2,400,IIT-401,L,Corriente baja en la nave
+2026-11-07 07:56:02,TIT-403.L,ACTIVA,2,400,TIT-403,L,Temperatura baja electrolito
+2026-11-07 07:59:19,TIT-403.L,RECONOCE,2,400,TIT-403,L,Temperatura baja electrolito
+2026-11-07 10:37:08,AIT-206.L,NORMALIZA,3,200,AIT-206,L,Cobre bajo en PLS
+2026-11-07 14:14:18,IIT-401.L,NORMALIZA,2,400,IIT-401,L,Corriente baja en la nave
+2026-11-07 16:46:02,TIT-403.L,NORMALIZA,2,400,TIT-403,L,Temperatura baja electrolito
+2026-11-07 21:45:59,AIT-309.H,ACTIVA,2,300,AIT-309,H,Arrastre alto hacia electrolito
+2026-11-07 21:46:33,AIT-309.H,RECONOCE,2,300,AIT-309,H,Arrastre alto hacia electrolito
+2026-11-07 21:50:00,AIT-207.DEV,ACTIVA,3,200,AIT-207,DISC,"AIT-207: desviación contra laboratorio mayor a 0,15 pH"
+2026-11-07 21:51:03,AIT-207.DEV,RECONOCE,3,200,AIT-207,DISC,"AIT-207: desviación contra laboratorio mayor a 0,15 pH"
+2026-11-07 22:00:00,AIT-207.DEV,NORMALIZA,3,200,AIT-207,DISC,"AIT-207: desviación contra laboratorio mayor a 0,15 pH"
+2026-11-07 22:49:20,LIT-303.H,ACTIVA,2,300,LIT-303,H,Interfase alta en E1 (borra)
+2026-11-07 22:50:22,LIT-303.H,RECONOCE,2,300,LIT-303,H,Interfase alta en E1 (borra)
+2026-11-08 12:37:59,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:38:07,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:38:13,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:38:14,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:38:16,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:38:58,M-103.VIB,RECONOCE,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:39:07,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:39:20,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:39:24,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:39:28,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:39:31,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:39:40,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:39:44,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:39:50,M-103.VIB,ACTIVA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 12:40:03,M-103.VIB,RECONOCE,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 13:18:00,M-103.VIB,NORMALIZA,3,100,M-103,DISC,"M-103: vibración en zona C, grupo 1 (> 4,5 mm/s)"
+2026-11-08 14:03:01,LIT-303.H,NORMALIZA,2,300,LIT-303,H,Interfase alta en E1 (borra)
+2026-11-08 14:05:26,AIT-309.H,NORMALIZA,2,300,AIT-309,H,Arrastre alto hacia electrolito
