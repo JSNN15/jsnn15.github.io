@@ -1,8 +1,10 @@
-# Cuaderno de planta
+# Cuaderno de planta · tu planilla
+
+> Esta es la herramienta para analizar una planilla propia sin escribir código. El cuaderno de la planta virtual, en Python, está en [`../`](../).
 
 Abre el archivo que exporta la planta y revisa, limpia y modela los datos en el navegador. El archivo no sale del equipo y no hay licencias que pagar.
 
-**Probar:** https://jsnn15.github.io/cuaderno/
+**Probar:** https://jsnn15.github.io/cuaderno/planilla/
 
 ## Por qué existe
 
