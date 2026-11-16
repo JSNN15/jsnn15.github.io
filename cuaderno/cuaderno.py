@@ -15,19 +15,22 @@
 #
 # **Una semana de la planta virtual LX-SX-EW, leída desde sus datos crudos.**
 #
-# Los datos salen del mismo motor que mueve la [planta virtual](https://jsnn15.github.io/planta-virtual/). Se corrió una semana, del 2 al 9 de noviembre de 2026, con doce fallas programadas y un operador que responde según un guion. Lo exportado imita lo que entregan los sistemas de una planta: historiador, alarmas, bitácora, monitoreo de condición, laboratorio y cierre de turno.
+# Los datos salen del mismo motor que mueve la [planta virtual](https://jsnn15.github.io/copper_plant_simulator_2026/). Se corrió una semana, del 2 al 9 de noviembre de 2026, con doce fallas programadas y un operador que responde según un guion. Lo exportado imita lo que entregan los sistemas de una planta: historiador, alarmas, bitácora, monitoreo de condición, laboratorio y cierre de turno.
 #
 # Por ser un simulador, se sabe qué falló y cuándo (`datos/verdad.json`). Ese archivo no se usa para detectar nada. Sirve para medir, al final de cada sección, si el análisis encontró lo que había.
 #
-# | | Pregunta | Lo que salió |
-# |---|---|---|
-# | 1 | ¿Qué datos hay? | 8 archivos crudos, cada uno con su huella para saber si cambia |
-# | 2 | ¿Se puede confiar en el historiador? | Las pruebas encuentran los 7 defectos sembrados y ninguno de más |
-# | 3 | ¿Qué le pasó a la planta? | 962 t de 1.084 t planificadas: un cambio de mineral explica la baja |
-# | 4 | ¿Las alarmas ayudan o estorban? | Pocas en promedio, pero dos alarmas que repican suman 29 de las 50 |
-# | 5 | ¿Cuánto aviso da la vibración? | 4,3 h antes del disparo; la alarma por límite llegó 2,6 h más tarde |
-# | 6 | ¿El pHmetro se descalibró o cambió el proceso? | 4 de 4 casos bien separados, con ayuda del laboratorio |
-# | 7 | ¿Sirve un modelo para anticipar la producción? | No con una semana de datos: no le gana a suponer que nada cambia |
+# Cada sección es un caso de uso y termina con el mismo contraste: qué habría pasado sin el análisis y qué cambia con él.
+#
+# | | Caso de uso | Sin el análisis | Con el análisis |
+# |---|---|---|---|
+# | 2 | Datos confiables | 580 celdas malas entran a los cálculos sin aviso | Las pruebas marcan los 7 defectos sembrados y ninguno de más |
+# | 3 | Qué pasó en la semana | 121 t bajo el plan, sin causa a la vista | El 79 % de la baja cae en los 7 turnos con mineral distinto |
+# | 4 | Alarmas | 50 anuncios; 29 son dos alarmas que repican | 28 anuncios con un retardo de 60 s |
+# | 5 | Vibración | La alarma por límite avisa 1,7 h antes del disparo | La tendencia avisa 4,3 h antes y pone hora al disparo |
+# | 6 | pH: sensor o proceso | La alarma de planta tarda 110 y 410 min | El detector tarda 29 y 168 min, y dice si es el sensor |
+# | 7 | Anticipar la producción | Suponer que nada cambia: error de 0,73 t/h cuando cambia el mineral | Un modelo con ocho semanas de historia: 0,27 t/h |
+#
+# La sección 1 presenta los datos. La última junta estas cifras, calculadas por el mismo cuaderno.
 
 # %%
 import hashlib
@@ -58,7 +61,7 @@ TENUE = plt.rcParams['xtick.color']
 # %% [markdown]
 # ## 1. Qué datos hay
 #
-# Ocho archivos CSV, uno por sistema de origen. El manifiesto guarda la huella SHA-256 de cada uno: si un archivo cambia, la comprobación de abajo lo dice.
+# Un archivo CSV por sistema de origen, más una campaña larga que usa la sección 7. El manifiesto guarda la huella SHA-256 de cada uno: si un archivo cambia, la comprobación de abajo lo dice.
 
 # %%
 manifiesto = json.loads((DATOS / 'manifiesto.json').read_text(encoding='utf-8'))
@@ -243,6 +246,15 @@ ax.margins(x=0.01)
 plt.show()
 
 print(f'Semana: {turnos.catodo_t.sum():.0f} t de {turnos.plan_t.sum():.0f} t planificadas ({100 * turnos.catodo_t.sum() / turnos.plan_t.sum():.0f} %)')
+
+# ¿Dónde se perdió? Turnos en que el cobre del PLS estuvo bajo su banda normal (mineral distinto) contra el resto.
+inicio_turno = turnos.fecha_cierre - pd.Timedelta('8h')
+cobre_turno = [h['AIT-206'].loc[a:b].mean() for a, b in zip(inicio_turno, turnos.fecha_cierre)]
+mineral_distinto = np.array(cobre_turno) < 3.0
+falta = turnos.plan_t - turnos.catodo_t
+bajo_plan = falta.sum()
+por_mineral = falta[mineral_distinto].sum()
+print(f'Bajo el plan: {bajo_plan:.0f} t. En los {mineral_distinto.sum()} turnos con mineral distinto: {por_mineral:.0f} t ({100 * por_mineral / bajo_plan:.0f} %)')
 
 # %% [markdown]
 # ## 4. Alarmas: ayudan o estorban
@@ -472,9 +484,11 @@ resultado_ph
 # **Lectura.** El detector solo no distingue un sensor que deriva de un mineral distinto: en los dos casos el valor se mueve. La muestra de laboratorio lo resuelve. Si el sensor y el laboratorio coinciden, cambió el proceso; si no, es el instrumento. En la deriva rápida el aviso llega bastante antes que la alarma de planta. En la lenta también, pero ahí la ganancia viene sobre todo de usar un umbral más fino contra el laboratorio (0,05 en vez de 0,15 pH). Ese umbral se eligió mirando esta semana; habría que probarlo con otra.
 
 # %% [markdown]
-# ## 7. Sirve un modelo para anticipar la producción
+# ## 7. Anticipar la producción cuatro horas antes
 #
-# La pregunta es razonable: el cobre tarda horas en pasar de las pilas a la nave, así que lo que se ve aguas arriba debería anticipar el cátodo. Se prueba pronosticar la producción media de la hora que termina cuatro horas después, con dos modelos de scikit-learn y dos cortes en el tiempo: se entrena con lo anterior al corte y se evalúa con lo posterior. La vara es la persistencia: suponer que en cuatro horas se producirá lo mismo que ahora.
+# El cobre tarda horas en pasar de las pilas a la nave, así que lo que se ve aguas arriba debería anticipar el cátodo. El objetivo es la producción media de la hora que termina cuatro horas después. La vara es la persistencia: suponer que en cuatro horas se producirá lo mismo que ahora. Se entrena con lo anterior a un corte en el tiempo y se evalúa con lo posterior.
+#
+# **Primer intento: con la semana de este cuaderno.**
 
 # %%
 from sklearn.ensemble import HistGradientBoostingRegressor
@@ -482,34 +496,114 @@ from sklearn.linear_model import RidgeCV
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-HORAS = 4
-entradas = ['AIT-206', 'KY-304', 'AIT-405', 'IIT-401', 'KY-405', 'AIT-302', 'FIT-205', 'KY-303', 'AIT-208', 'TIT-403', 'AIT-407']
-m10 = h.resample('10min').mean()
-X = m10[entradas].copy()
-for tag in ('AIT-206', 'KY-304', 'AIT-405'):
-    X[tag + ' cambio 2 h'] = m10[tag] - m10[tag].shift(12)
-ahora_ = m10['KY-405'].rolling(6).mean()
-tabla = X.assign(objetivo=ahora_.shift(-6 * HORAS), persistencia=ahora_).dropna()
+ENTRADAS = ['AIT-206', 'FIT-205', 'AIT-208', 'KY-303', 'KY-304', 'AIT-302', 'AIT-405', 'TIT-403', 'AIT-407', 'IIT-401', 'KY-406', 'KY-405']
+
+
+def preparar(m10, horas):
+    """Tabla para pronosticar: entradas de ahora, su cambio reciente, el objetivo a `horas` y la persistencia."""
+    X = m10[ENTRADAS].copy()
+    for tag in ('AIT-206', 'KY-304', 'AIT-405'):
+        X[tag + ' cambio 2 h'] = m10[tag] - m10[tag].shift(12)
+        X[tag + ' cambio 6 h'] = m10[tag] - m10[tag].shift(36)
+    ahora = m10['KY-405'].rolling(6).mean()
+    return X.assign(objetivo=ahora.shift(-6 * horas), persistencia=ahora).dropna()
+
+
+def evaluar(tabla, corte, horas):
+    """Entrena antes del corte y mide después, dejando un hueco igual al horizonte."""
+    entrena, prueba = tabla.loc[:corte], tabla.loc[pd.Timestamp(corte) + pd.Timedelta(hours=horas) :]
+    Xe, Xp = entrena.drop(columns=['objetivo', 'persistencia']), prueba.drop(columns=['objetivo', 'persistencia'])
+    ridge = make_pipeline(StandardScaler(), RidgeCV(alphas=np.logspace(-2, 3, 12))).fit(Xe, entrena.objetivo)
+    boosting = HistGradientBoostingRegressor(max_depth=3, learning_rate=0.05, max_iter=300, random_state=0).fit(Xe, entrena.objetivo)
+    return prueba.assign(ridge=ridge.predict(Xp), boosting=boosting.predict(Xp)), len(entrena)
+
+
+def error(p, columna, filas=slice(None)):
+    return float((p.objetivo - p[columna]).abs()[filas].mean())
+
 
 filas = []
 for corte in ('2026-11-06 08:00', '2026-11-07 00:00'):
-    entrena = tabla.loc[:corte]
-    prueba = tabla.loc[pd.Timestamp(corte) + pd.Timedelta(hours=HORAS) :]  # se deja un hueco: el objetivo mira 4 h adelante
-    Xe, Xp = entrena.drop(columns=['objetivo', 'persistencia']), prueba.drop(columns=['objetivo', 'persistencia'])
-    modelos = {
-        'regresión ridge': make_pipeline(StandardScaler(), RidgeCV(alphas=np.logspace(-2, 3, 12))),
-        'gradient boosting': HistGradientBoostingRegressor(max_depth=3, learning_rate=0.05, max_iter=300, random_state=0),
-    }
-    fila = {'corte': corte, 'horas de entrenamiento': round(len(entrena) / 6), 'horas de prueba': round(len(prueba) / 6), 'persistencia': (prueba.objetivo - prueba.persistencia).abs().mean()}
-    for nombre, modelo in modelos.items():
-        fila[nombre] = np.abs(prueba.objetivo - modelo.fit(Xe, entrena.objetivo).predict(Xp)).mean()
-    filas.append(fila)
-errores = pd.DataFrame(filas).set_index('corte')
-errores.columns = pd.MultiIndex.from_tuples([('', c) if 'horas' in c else ('error absoluto medio (t/h)', c) for c in errores.columns])
-errores
+    p, n = evaluar(preparar(h.resample('10min').mean(), 4), corte, 4)
+    filas.append({'corte': corte, 'horas de entrenamiento': round(n / 6), 'persistencia': error(p, 'persistencia'), 'regresión ridge': error(p, 'ridge'), 'gradient boosting': error(p, 'boosting')})
+una_semana = pd.DataFrame(filas).set_index('corte')
+una_semana
 
 # %% [markdown]
-# **Lectura.** No. La regresión gana por poco en un corte y pierde por mucho en el otro; el gradient boosting pierde en los dos. Una semana trae un solo cambio de mineral: no alcanza para que un modelo aprenda cómo responde la planta. Con meses de historiador la respuesta puede ser otra; con estos datos, lo honesto es no publicar un modelo.
+# No alcanza: ninguno de los dos modelos le gana a la persistencia, en ninguno de los dos cortes. La semana trae un solo cambio de mineral: no hay de dónde aprender cómo responde la planta.
+#
+# **Segundo intento: con ocho semanas.** El mismo motor se corrió ocho semanas con 15 cambios de mineral a intervalos irregulares (`herramientas/genera_largo.js`). El archivo trae medias de 10 minutos. Se entrena con las seis primeras semanas y se prueba con las dos últimas, a 2, 4 y 8 horas. Aparte se mide el error en los momentos que importan: cuando la producción cambia más de 0,3 t/h dentro del horizonte.
+
+# %%
+largo = pd.read_csv(DATOS / 'historiador_8_semanas.csv', parse_dates=['fecha'], index_col='fecha')
+corte_largo = largo.index[0] + pd.Timedelta(weeks=6)
+
+filas, pruebas = [], {}
+for horas in (2, 4, 8):
+    p, n = evaluar(preparar(largo, horas), corte_largo, horas)
+    cambia = (p.objetivo - p.persistencia).abs() > 0.3
+    pruebas[horas] = p
+    filas.append({
+        'horizonte (h)': horas,
+        'persistencia': error(p, 'persistencia'), 'regresión ridge': error(p, 'ridge'), 'gradient boosting': error(p, 'boosting'),
+        'horas con cambio': round(cambia.sum() / 6),
+        'persistencia, con cambio': error(p, 'persistencia', cambia), 'ridge, con cambio': error(p, 'ridge', cambia),
+    })
+ocho_semanas = pd.DataFrame(filas).set_index('horizonte (h)')
+print(f'Entrenamiento: {largo.index[0]:%d-%m} a {corte_largo:%d-%m} · prueba: hasta {largo.index[-1]:%d-%m} · error absoluto medio en t/h')
+ocho_semanas
+
+# %%
+p4 = pruebas[4]
+a_la_hora = lambda col: p4[col].set_axis(p4.index + pd.Timedelta('4h'))  # cada pronóstico, puesto en la hora que pronostica
+real = a_la_hora('objetivo')
+# el cambio de mineral más grande del período de prueba, según el registro de la campaña
+eventos = pd.read_csv(DATOS / 'historiador_8_semanas_eventos.csv', parse_dates=['fecha']).query("evento == 'mineral'")
+eventos['salto'] = eventos.factor_mineral.diff().abs()
+cambio = eventos[eventos.fecha > corte_largo + pd.Timedelta('1D')].sort_values('salto').iloc[-1]
+tramo = slice(cambio.fecha - pd.Timedelta('4h'), cambio.fecha + pd.Timedelta('32h'))
+
+fig, ax = plt.subplots(figsize=(9, 3.4))
+ax.plot(real[tramo].index, real[tramo], color=TENUE, lw=2.4, label='producción real')
+ax.plot(a_la_hora('persistencia')[tramo].index, a_la_hora('persistencia')[tramo], color=NARANJA, label='persistencia (4 h antes)')
+ax.plot(a_la_hora('ridge')[tramo].index, a_la_hora('ridge')[tramo], color=AZUL, label='modelo (4 h antes)')
+ax.axvline(cambio.fecha, color=TENUE, lw=0.8)
+ax.annotate('cambia el mineral', (cambio.fecha, real[tramo].max()), xytext=(4, 0), textcoords='offset points', va='top', fontsize=8.5, color=TENUE)
+ax.set_title('Un cambio de mineral del período de prueba: cátodo (t/h) y lo pronosticado 4 h antes')
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m %H:%M'))
+ax.legend(loc='best')
+ax.margins(x=0.01)
+plt.show()
+
+mejora = 100 * (1 - ocho_semanas.loc[4, 'ridge, con cambio'] / ocho_semanas.loc[4, 'persistencia, con cambio'])
+print(f"A 4 h, cuando la producción cambia: persistencia {ocho_semanas.loc[4, 'persistencia, con cambio']:.2f} t/h, modelo {ocho_semanas.loc[4, 'ridge, con cambio']:.2f} t/h ({mejora:.0f} % menos error)")
+
+# %% [markdown]
+# **Lectura.** Con ocho semanas, sí. La regresión le gana a la persistencia en los tres horizontes, y la diferencia grande está donde sirve: cuando cambia el mineral, el error a cuatro horas baja a menos de la mitad. Eso alcanza para avisar al turno que viene que la producción va a caer, y cuánto. Un disparo del rectificador no se anticipa con estos datos: ahí ningún método sirve. El gradient boosting, más flexible, pierde contra el modelo simple: con estos datos, más complejidad no ayuda. Y el primer intento deja la otra lección: una semana no basta; hace falta historia con varios cambios.
+
+# %% [markdown]
+# ## Qué cambia con el análisis
+#
+# Las cifras de cada caso, tomadas de las variables que calculó el cuaderno.
+
+# %%
+min_alarma_disparo = (disparo - alarma_c[alarma_c >= t0].iloc[0]).total_seconds() / 60
+sensor = resultado_ph[resultado_ph.real == 'sensor']
+contraste = pd.DataFrame(
+    [
+        ['Datos confiables', f'{int(sin_dato.values.sum() + fuera.values.sum() + congelado.values.sum())} celdas malas sin marcar', f'{int(sembrado.encontrado.sum())} de {len(sembrado)} defectos encontrados, {len(de_mas)} de más'],
+        ['Qué pasó en la semana', f'{bajo_plan:.0f} t bajo el plan', f'{100 * por_mineral / bajo_plan:.0f} % en turnos con mineral distinto'],
+        ['Alarmas', f'{len(activas)} anuncios', f'{int(separadas.sum())} con retardo de 60 s'],
+        ['Vibración', f'aviso {min_alarma_disparo / 60:.1f} h antes del disparo (alarma por límite)', f'aviso {(disparo - t0).total_seconds() / 3600:.1f} h antes (tendencia)'],
+        ['pH: sensor o proceso', ' y '.join(f'{v:.0f}' for v in sensor['alarma de planta (min después)']) + ' min hasta la alarma de planta', ' y '.join(f'{v:.0f}' for v in sensor['aviso (min después)']) + ' min hasta el aviso'],
+        ['Anticipar la producción', f"{ocho_semanas.loc[4, 'persistencia, con cambio']:.2f} t/h de error a 4 h cuando cambia", f"{ocho_semanas.loc[4, 'ridge, con cambio']:.2f} t/h"],
+    ],
+    columns=['caso de uso', 'sin el análisis', 'con el análisis'],
+).set_index('caso de uso')
+contraste
+
+# %% [markdown]
+# Son datos de un simulador, con fallas más rápidas que las de una planta y un operador que sigue un guion. Lo que se traslada a una planta real es el procedimiento: probar los datos antes de usarlos, medir cada método contra lo que ya existe (la alarma, la muestra de laboratorio, la persistencia) y publicar también lo que no funcionó.
 
 # %% [markdown]
 # ## Registro de la corrida
@@ -535,7 +629,10 @@ registro = {
         'vibracion_avisos': len(avisos),
         'vibracion_error_disparo_min': evaluacion['disparo: error (min)'].dropna().astype(int).tolist(),
         'ph_veredictos_correctos': f'{int((resultado_ph.veredicto == resultado_ph.real).sum())} de {len(resultado_ph)}',
-        'pronostico_gana_a_persistencia': bool((errores['error absoluto medio (t/h)'].drop(columns='persistencia').min(axis=1) < errores['error absoluto medio (t/h)']['persistencia']).all()),
+        'baja_en_turnos_con_mineral_distinto_pct': round(float(100 * por_mineral / bajo_plan)),
+        'pronostico_una_semana_gana': bool((una_semana['regresión ridge'] < una_semana['persistencia']).all()),
+        'pronostico_8_semanas_error_4h': {'persistencia': round(ocho_semanas.loc[4, 'persistencia'], 3), 'ridge': round(ocho_semanas.loc[4, 'regresión ridge'], 3)},
+        'pronostico_8_semanas_error_4h_con_cambio': {'persistencia': round(ocho_semanas.loc[4, 'persistencia, con cambio'], 2), 'ridge': round(ocho_semanas.loc[4, 'ridge, con cambio'], 2)},
     },
 }
 print(json.dumps(registro, indent=2, ensure_ascii=False))
