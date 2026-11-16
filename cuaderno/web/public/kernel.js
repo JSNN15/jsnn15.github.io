@@ -74,11 +74,11 @@ const bajar = async (url) => {
 
 const ops = {
   async iniciar({raiz, archivos, tema}) {
-    decir('Bajando Python');
+    decir('Bajando Python (paso 1 de 3)');
     py = await loadPyodide({indexURL: BASE});
-    decir('Cargando pandas y matplotlib');
+    decir('Bajando pandas y matplotlib (paso 2 de 3)');
     await py.loadPackage(['numpy', 'pandas', 'matplotlib']);
-    decir('Trayendo los datos');
+    decir('Trayendo los datos (paso 3 de 3)');
     py.FS.mkdirTree('/home/pyodide/datos');
     await Promise.all(archivos.map(async (a) => py.FS.writeFile('/home/pyodide/' + a, await bajar(raiz + a))));
     estilos = {light: await bajar(raiz + 'claro.mplstyle'), dark: await bajar(raiz + 'oscuro.mplstyle')};
@@ -90,7 +90,7 @@ const ops = {
   },
   async ejecutar({codigo}) {
     const t0 = performance.now();
-    if (/\bsklearn\b/.test(codigo)) decir('Cargando scikit-learn');
+    if (/\bsklearn\b/.test(codigo)) decir('Bajando scikit-learn, unos 18 MB la primera vez');
     await py.loadPackagesFromImports(codigo);
     const salidas = JSON.parse(py.globals.get('_ejecutar')(codigo));
     return {salidas, ms: Math.round(performance.now() - t0)};
