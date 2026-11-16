@@ -388,6 +388,18 @@ p {
 .kernel b {
   color: var(--fg);
 }
+.kernel small {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--mut);
+}
+.reloj {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mut);
+}
 .kernel .primario {
   border-color: var(--acc);
   background: var(--acc);

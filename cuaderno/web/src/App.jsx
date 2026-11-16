@@ -94,6 +94,17 @@ function Celda({c, tema, vivo, verCodigo, alEjecutar, alCambiar, alQuitar}) {
   );
 }
 
+// Segundos transcurridos, para que una descarga lenta no parezca una página colgada.
+function Reloj() {
+  const [s, setS] = useState(0);
+  useEffect(() => {
+    const t0 = Date.now();
+    const i = setInterval(() => setS(Math.round((Date.now() - t0) / 1000)), 1000);
+    return () => clearInterval(i);
+  }, []);
+  return <span className="reloj">{s} s</span>;
+}
+
 function VistaArchivo({a, alCerrar}) {
   const ref = useRef(null);
   useEffect(() => {
@@ -219,7 +230,7 @@ export default function App() {
 
   const arrancar = () => {
     if (arranque.current) return arranque.current;
-    setK({fase: 'arrancando', msg: 'Bajando Python'});
+    setK({fase: 'arrancando', msg: 'Bajando Python (paso 1 de 3)'});
     const kn = crearKernel((msg) => setK((x) => ({...x, msg})));
     kernel.current = kn;
     arranque.current = kn
@@ -421,7 +432,7 @@ export default function App() {
             {k.fase === 'apagado' && (
               <>
                 <p>
-                  <b>Salidas guardadas.</b> Se ejecutó el {fechaLarga(cuaderno.ejecutado)} con Jupyter. Puedes volver a correrlo aquí: Python arranca dentro de tu navegador y baja unos {cuaderno.descarga_mb} MB la primera vez. La sección 7 usa scikit-learn y suma {cuaderno.sklearn_mb} MB.
+                  <b>Salidas guardadas.</b> Se ejecutó el {fechaLarga(cuaderno.ejecutado)} con Jupyter. Puedes volver a correrlo aquí: Python arranca dentro de tu navegador y baja unos {cuaderno.descarga_mb} MB la primera vez (de segundos a un par de minutos, según la conexión). La sección 7 usa scikit-learn y suma {cuaderno.sklearn_mb} MB.
                 </p>
                 <button type="button" className="primario" onClick={() => ejecutar(primera.id)}>
                   Arrancar Python
@@ -432,7 +443,8 @@ export default function App() {
               <>
                 <p>
                   <span className="pulso" aria-hidden="true" />
-                  {k.msg}…
+                  {k.msg}… <Reloj />
+                  <small>Con una conexión lenta puede tardar un par de minutos. Queda guardado para la próxima vez.</small>
                 </p>
                 <button type="button" onClick={detener}>
                   Cancelar
