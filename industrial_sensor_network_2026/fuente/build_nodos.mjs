@@ -90,20 +90,7 @@ function portadora(x, y, w, d, z, tipos, litMcu = true) {
 }
 
 const sal = {};
-// ================= 01 · nodo de vibración: caja chica con base magnética y acelerómetro aparte =================
-{
-  const pl = { x: -36, y: -24, w: 72, d: 48, r: 4 };
-  sal.correas = figura("correas", [
-    ["base", [0, 0, 0], () => banco(190, 150), null],
-    ["caja", [0, 0, 0], () => cil(-22, -12, 5, 0, 4, { steps: 16, tone: "lo" }) + cil(22, 12, 5, 0, 4, { steps: 16, tone: "lo" }) + cuerpoDe(pl, 4, 24)() + rollo(eje([-36, 8, 16], [-1, 0, 0]), 0, 4, 4.4, {}) + rollo(eje([-40, 8, 16], [-1, 0, 0]), 0, 5, 3, {}), [34, 22, 16]],
-    ["bateria", [0, 0, 34], () => celdas(-20, -12, 28, 2), [16, 10, 36]],
-    ["placas", [0, 0, 72], () => portadora(-32, -20, 64, 40, 28, ["mcu", "xbee"]), [28, 14, 31]],
-    ["tapa", [0, 0, 112], tapaDe(pl, 28, 5, () => caja(-12, -6, 24, 11, 33, 0.5, { tone: "lo", crease: "none" }) + k.faceTextSvg(k.topMatrix([-9, 1.6], 33.5, P, "x"), "V-01", { size: 5.2, tone: "mid" }) + varilla(24, -14, 33, 30) + k.dotsSvg([at([-26, 14, 33])], { size: 1, tone: "hi", pulse: true })), [20, 20, 33]],
-    ["sensor", [-30, 46, 0], () => cil(-58, 50, 8, 0, 3, { steps: 24 }) + cil(-58, 50, 6.4, 3, 10, { steps: 24, tone: "hi", lit: true, bevel: 0.8 }) + L(k.ring(-58, 50, 3.8, 13, P, 18), { tone: "lo" }) + k.wireSvg(at([-52, 48, 9]), at([-46, 8, 16]), { via: [at([-46, 40, 4])], tone: "hi", size: 0.9, ends: "to" }), [-52, 54, 10]],
-  ], [[-95, -75, -14], [95, -75, -14], [-95, 75, -14], [95, 75, -14], [24, -14, 180], [-90, 100, 0]],
-    "Despiece del nodo de vibración: tapa con antena, placa portadora con procesador y radio XBee, dos baterías cilíndricas, caja estanca con base magnética y, aparte, el acelerómetro con su cable.");
-}
-// ================= 02 · estaca de la pila: tubo enterrado con dos sondas, caja arriba y panel =================
+// ================= 01 · estaca de la pila: tubo enterrado con dos sondas, caja arriba y panel =================
 {
   const pl = { x: -30, y: -22, w: 60, d: 44, r: 4 }, ZC = 84;
   const estaca = () => { const F = eje([0, 0, 0], [0, 0, 1]); return S(G.lathe([[0, 0.6], [14, 5], [ZC, 5]], F, P), { tone: "mid", crease: "lo" }) + [26, 52].map((z) => cil(0, 0, 6.6, z, 5, { steps: 20, tone: "hi", lit: true })).join("") + L(k.ring(0, 0, 26, 66, P, 40), { tone: "mid", dashed: true }) + caja(-9, -9, 18, 18, ZC - 2, 2, { r: 2, tone: "lo" }); };
@@ -118,7 +105,7 @@ const sal = {};
   ], [[-80, -70, -14], [80, -70, -14], [-80, 70, -14], [80, 70, -14], [20, -14, ZC + 160], [-90, -90, ZC + 140], [70, 0, ZC + 110]],
     "Despiece de la estaca: panel solar con su cargador, tapa con antena, placa con procesador y radio LoRa, dos baterías, caja estanca y el tubo de la estaca con sondas a dos profundidades.");
 }
-// ================= 03 · cámara fija: cilindro con visera, se despieza a lo largo =================
+// ================= 02 · cámara fija: cilindro con visera, se despieza a lo largo =================
 {
   const ZC = 62, cuerpo = () => { const F = eje([-30, 0, ZC], [1, 0, 0]); return rollo(F, 0, 56, 17, { inner: L(G.arcOf(F, 8, 17, P) + G.arcOf(F, 48, 17, P), { tone: "faint" }) }) + caja(-34, -19, 70, 38, ZC + 15.5, 2, { r: 2, tone: "hi", crease: "lo" }); };
   sal.planta = figura("planta", [
@@ -131,7 +118,7 @@ const sal = {};
   ], [[-100, -75, -14], [100, -75, -14], [-100, 75, -14], [100, 75, -14], [-80, 0, ZC + 22], [126, 0, ZC + 22], [126, 20, ZC - 20]],
     "Despiece de la cámara fija, a lo largo: frente con anillo de luces, tarjeta de cámara con su lente, carcasa cilíndrica con visera, tapa trasera con prensaestopas y, en la base del soporte, la fuente de alimentación.");
 }
-// ================= 04 · nodo de cultivo: poste con escudo de platos, caja, panel y sondas de suelo =================
+// ================= 03 · nodo de cultivo: poste con escudo de platos, caja, panel y sondas de suelo =================
 {
   const pl = { x: -8, y: -20, w: 52, d: 40, r: 4 }, ZC = 56;
   sal.cultivo = figura("cultivo", [
@@ -147,7 +134,7 @@ const sal = {};
   ], [[-100, -85, -14], [100, -85, -14], [-100, 85, -14], [100, 85, -14], [-30, -58, 210], [112, -12, ZC + 150], [90, 70, 0], [-70, 0, 130]],
     "Despiece del nodo de cultivo sobre su poste: panel solar con cargador, tapa con antena, placa con procesador y radio LoRa, baterías, caja, escudo de platos para la temperatura del aire y dos sondas de suelo a distinta profundidad.");
 }
-// ================= 05 · carga útil del dron: módulo colgante con antena hacia abajo =================
+// ================= 04 · carga útil del dron: módulo colgante con antena hacia abajo =================
 {
   const ZC = 78, pl = { x: -30, y: -22, w: 60, d: 44, r: 5 };
   const girado = (cx, cy, largo, ancho, a) => [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([i, j]) => [cx + (i * largo / 2) * Math.cos(a) - (j * ancho / 2) * Math.sin(a), cy + (i * largo / 2) * Math.sin(a) + (j * ancho / 2) * Math.cos(a)]);
@@ -162,7 +149,7 @@ const sal = {};
   ], [[-105, -95, -14], [105, -95, -14], [-105, 95, -14], [105, 95, -14], [-53, -53, ZC + 150], [53, 53, ZC + 150], [80, 80, ZC + 140]],
     "Despiece de la carga útil del dron: marco del dron, soporte con amortiguadores, placa con computador y radio, batería propia y, abajo, la antena de parche que mira al suelo junto a la cámara.");
 }
-// ================= 07 · repetidor de malla: poste alto, panel grande, antena larga; y el equipo de mano =================
+// ================= 06 · repetidor de malla: poste alto, panel grande, antena larga; y el equipo de mano =================
 {
   const pl = { x: -4, y: -22, w: 56, d: 44, r: 4 }, ZC = 66;
   sal.malla = figura("malla", [
@@ -178,7 +165,7 @@ const sal = {};
   ], [[-105, -90, -14], [105, -90, -14], [-105, 90, -14], [105, 90, -14], [-60, 0, 232], [130, -10, ZC + 110], [0, -76, 240], [-80, 60, 0]],
     "Despiece del repetidor de malla sobre su poste: panel solar, antena larga de varilla, tapa, placa con radio LoRa, receptor de posición y cargador, tres baterías y caja estanca. A un lado, el equipo de mano con pantalla.");
 }
-// ================= 08 · cabezal de torre: dos cámaras sobre giro, gabinete con computador, batería grande y antena direccional =================
+// ================= 07 · cabezal de torre: dos cámaras sobre giro, gabinete con computador, batería grande y antena direccional =================
 {
   const pl = { x: -34, y: -26, w: 68, d: 52, r: 4 }, ZT = 76;
   const cabezal = () => { const o = [cil(0, 0, 13, ZT, 8, { steps: 30, bevel: 0.6 }), L(k.knurl(0, 0, 13, ZT, ZT + 8, 24, P), { tone: "lo" }), cil(0, 0, 9, ZT + 8, 4, { steps: 24 })];

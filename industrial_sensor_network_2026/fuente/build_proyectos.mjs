@@ -1,4 +1,4 @@
-// Una lámina por proyecto: correas, pila, planta, cultivo y dron. Cada una muestra los sensores desplegados,
+// Una lámina por proyecto: pila, planta, cultivo, dron, malla de emergencia e incendios. Cada una muestra los sensores desplegados,
 // el router o la puerta de enlace que los reúne y los enlaces entre ellos.
 // Construidas con el kit isométrico de Anatomy (github.com/wheresryan22/anatomy, licencia MIT, copiado en ./kit).
 // Uso: node build_proyectos.mjs  → fig_proyectos.json
@@ -85,54 +85,7 @@ const enlace = (de, a, o = {}) => `<g data-enlace="${o.tipo ?? "radio"}">${k.wir
 const figura = (pts, label, cuerpo) => k.figureSvg({ width: WIDTH, height: HEIGHT, label, body: cuerpo });
 const proy = (pts, o = {}) => { P = k.fitProjection(pts, WIDTH, HEIGHT, { pad: o.pad ?? 24, azimuth: o.azimuth ?? k.AZIMUTH }); puntas = {}; };
 
-// ================= 01 · correas: N nodos a lo largo de la correa =================
-function correas() {
-  const B = { x: -212, y: -92, w: 430, d: 200, r: 9 }, YC = -22, ZL = 26, X0 = -186, X1 = 150;
-  proy([...k.boxCorners(B, -16, 0), [X0, YC, 70], [10, 44, 112], [172, 40, 96]]);
-  const o = [base(B)];
-  const est = Array.from({ length: 8 }, (_, i) => -164 + i * 42);
-  const lado = (y) => [...est.filter((_, i) => i % 2 === 0).map((x) => caja(x - 1.8, y, 3.6, 3.6, 0, ZL, { r: 0.4, crease: "none" })), caja(X0, y - 0.4, X1 - X0, 4.4, ZL, 4.4, { r: 0.5, inner: L(seg([X0, y + 4, ZL + 2.2], [X1, y + 4, ZL + 2.2]), { tone: "faint" }) })];
-  o.push(lado(YC - 30));
-  o.push(caja(X0 + 6, YC - 22, X1 - X0 - 14, 44, ZL - 10, 1.2, { tone: "lo", crease: "none", r: 0.3 }));
-  // estaciones: travesaño, polín central y dos polines de ala
-  const ala = [0, 14, 9], la = Math.hypot(14, 9);
-  for (const x of est) {
-    o.push(caja(x - 2, YC - 30, 4, 60, ZL + 4.4, 1.6, { r: 0.4, tone: "lo", crease: "none" }));
-    o.push(rollo(eje([x, YC - 10, ZL + 10.4], [0, 1, 0]), 0, 20, 4, { crease: "faint" }));
-    o.push(rollo(eje([x, YC - 25, ZL + 19.6], [0, 14 / la, -9 / la]), 0, la, 4, { crease: "faint" }), rollo(eje([x, YC + 11, ZL + 10.6], [0, 14 / la, 9 / la]), 0, la, 4, { crease: "faint" }));
-  }
-  o.push(rollo(eje([X0 + 4, YC - 24, ZL + 9], [0, 1, 0]), 0, 48, 8.4));
-  // banda en artesa (tres tramos) y carga de mineral
-  const FB = G.frameOf([X0 + 2, YC, ZL + 14.6], [1, 0, 0], [0, 1, 0], [0, 0, 1]), LB = X1 - X0 - 8;
-  const tramo = (pol, tone = "mid") => S(G.prismOf(FB, pol, 0, LB, P), { tone, crease: "lo" });
-  o.push(tramo([[-25, 9.6], [-10.6, 0.4], [-10, 1.8], [-24.4, 11]]));
-  o.push(tramo([[-10.6, 0], [10.6, 0], [10.6, 1.6], [-10.6, 1.6]]));
-  o.push(S(G.prismOf(FB, [[-15, 4.6], [-9, 1.7], [9, 1.7], [15, 4.6], [5, 9.4], [-4, 10]], 14, LB - 10, P), { tone: "mid", crease: "lo" }));
-  o.push(D(Array.from({ length: 34 }, (_, i) => [X0 + 22 + i * 9.4, YC + ((i * 7) % 9) - 4, ZL + 23.6 + ((i * 5) % 3) * 0.4]), { size: 0.45, tone: "lo" }));
-  o.push(tramo([[10, 1.8], [10.6, 0.4], [25, 9.6], [24.4, 11]], "hi"));
-  o.push(rollo(eje([X1 - 4, YC - 26, ZL + 8], [0, 1, 0]), 0, 52, 9.6, { inner: L(G.arcOf(eje([X1 - 4, YC - 26, ZL + 8], [0, 1, 0]), 6, 9.6, P) + G.arcOf(eje([X1 - 4, YC - 26, ZL + 8], [0, 1, 0]), 46, 9.6, P), { tone: "faint" }) }));
-  o.push(caja(X1 + 2, YC - 24, 16, 48, 4, ZL + 4, { r: 1.2, bevel: 0.4 }));
-  o.push(lado(YC + 26));
-  // accionamiento
-  o.push(caja(X1 - 16, YC + 32, 22, 15, 0, ZL - 6, { r: 1, tone: "lo" }), caja(X1 - 13, YC + 33, 12, 12, ZL - 6, 15, { r: 1.4, bevel: 0.4 }));
-  const FM = eje([X1 - 40, YC + 39, ZL + 2], [1, 0, 0]);
-  o.push(rollo(FM, 0, 25, 6, { inner: k.fadedSvg(G.ribsOf(FM, 2, 23, 6, 14, P, { fade: [0.05, 0.5] }), { tone: "lo" }) }), rollo(FM, 25, 27, 2.4, {}));
-  // un nodo cada dos estaciones: acelerómetro en el descanso del polín y caja en el larguero
-  const con = [-164, -80, 4, 88];
-  con.forEach((x, i) => {
-    o.push(cil(x, YC + 28.6, 2.2, ZL + 4.4, 2.8, { steps: 12, tone: "hi" }), caja(x + 6, YC + 30.4, 20, 15, ZL - 4.6, 1.6, { r: 0.6, tone: "lo", crease: "none" }));
-    o.push(nodo("n" + (i + 1), x + 16, YC + 38, ZL - 3));
-    o.push(k.wireSvg(at([x + 1.6, YC + 30, ZL + 5.6]), at([x + 8, YC + 35, ZL + 2]), { tone: "hi", size: 0.8, ends: "from" }));
-  });
-  o.push(poste("router", -22, YC + 96, { alto: 76 }));
-  o.push(gabinete("gw", 176, YC + 66));
-  con.forEach((x, i) => o.push(texto(x + 6, YC + 62, "N" + (i + 1))));
-  o.push(texto(-8, YC + 112, "ROUTER"), texto(66, YC + 118, "PUERTA DE ENLACE"));
-  o.push(enlace("n1", "n2"), enlace("n2", "router"), enlace("n3", "router"), enlace("router", "gw"), enlace("n4", "gw"));
-  return figura(null, "Una correa transportadora en artesa, con carga, sobre ocho estaciones de polines. Cuatro nodos con antena van fijados al larguero, uno cada dos estaciones, cada uno con su acelerómetro en el descanso de un polín. Un poste con un router al costado y un gabinete con la puerta de enlace junto al accionamiento reciben los enlaces de radio.", o);
-}
-
-// ================= 02 · pila de lixiviación =================
+// ================= 01 · pila de lixiviación =================
 function pila() {
   const B = { x: -205, y: -150, w: 410, d: 300, r: 9 };
   proy([...k.boxCorners(B, -16, 0), [-40, -40, 104], [150, 80, 98], [120, -20, 112]]);
@@ -162,7 +115,7 @@ function pila() {
   return figura(null, "Una pila de lixiviación de dos pisos con líneas de riego. Sobre el piso superior hay seis estacas con nodo y panel solar, y un nodo de presión en la matriz de riego. Al pie, una piscina de solución con un nodo de nivel. Un router con panel solar al borde de la pila y un gabinete con la puerta de enlace reciben los enlaces.", o);
 }
 
-// ================= 03 · planta de procesos =================
+// ================= 02 · planta de procesos =================
 function planta() {
   const B = { x: -175, y: -130, w: 350, d: 260, r: 9 };
   proy([...k.boxCorners(B, -16, 0), [-90, -50, 104], [112, -84, 106], [60, 70, 70]]);
@@ -197,7 +150,7 @@ function planta() {
   return figura(null, "Un sector de planta con dos estanques y una bomba con su motor. Una cámara fija sobre un poste mira el manómetro de la descarga. Un nodo de vibración va junto al motor, con su acelerómetro sobre la carcasa. Al fondo, un gabinete con el servidor de borde recibe los dos enlaces.", o);
 }
 
-// ================= 04 · cultivo =================
+// ================= 03 · cultivo =================
 function cultivo() {
   const B = { x: -195, y: -140, w: 390, d: 280, r: 9 };
   proy([...k.boxCorners(B, -16, 0), [140, -100, 112], [120, 70, 84], [-150, -120, 40]]);
@@ -219,7 +172,7 @@ function cultivo() {
   return figura(null, "Un cuartel de cultivo con seis hileras. Tres nodos con estaca, panel solar y sondas de suelo quedan repartidos entre las hileras. Al costado, la matriz de riego con una válvula y un nodo de presión, una estación de clima sobre un mástil y un poste con la puerta de enlace y su panel solar.", o);
 }
 
-// ================= 05 · dron =================
+// ================= 04 · dron =================
 function dron() {
   const B = { x: -215, y: -150, w: 430, d: 300, r: 9 };
   proy([...k.boxCorners(B, -16, 0), [-140, -70, 132], [150, -90, 112], [-60, 110, 120]]);
@@ -258,7 +211,7 @@ const cuadri = (x, y, z, lit) => {
   return d.join("");
 };
 
-// ================= 07 · comunicación en catástrofes: malla LoRa con repetidores solares =================
+// ================= 06 · comunicación en catástrofes: malla LoRa con repetidores solares =================
 function malla() {
   const B = { x: -215, y: -150, w: 430, d: 300, r: 9 };
   proy([...k.boxCorners(B, -16, 0), [-120, -76, 176], [112, -92, 150], [150, 90, 100]]);
@@ -285,7 +238,7 @@ function malla() {
   return figura(null, "Un poblado entre dos cerros, con la antena de celular caída. En cada cima hay un repetidor con panel solar. Tres equipos de mano, de las brigadas y del albergue, se enlazan por radio a los repetidores, y estos al puesto de mando, que tiene la puerta de enlace y una antena satelital.", o);
 }
 
-// ================= 08 · incendios forestales: dos torres dan dos rumbos; el dron confirma =================
+// ================= 07 · incendios forestales: dos torres dan dos rumbos; el dron confirma =================
 function incendios() {
   const B = { x: -215, y: -150, w: 430, d: 300, r: 9 };
   proy([...k.boxCorners(B, -16, 0), [-160, 96, 128], [136, -112, 128], [-40, -40, 120]]);
@@ -324,7 +277,7 @@ function incendios() {
 }
 
 const sal = {};
-for (const [n, f] of Object.entries({ correas, pila, planta, cultivo, dron, malla, incendios })) {
+for (const [n, f] of Object.entries({ pila, planta, cultivo, dron, malla, incendios })) {
   const r = f(); sal[n] = typeof r === "string" ? { svg: r } : r;
   console.log(n.padEnd(8), (sal[n].svg.match(/class="iso-solid/g) || []).length, "sólidos,", Math.round(sal[n].svg.length / 1024), "kB, escala", P.scale.toFixed(2));
 }
