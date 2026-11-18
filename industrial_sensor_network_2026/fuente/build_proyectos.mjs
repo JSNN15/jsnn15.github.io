@@ -236,15 +236,6 @@ function dron() {
   const [px, py] = [118, 62];
   o.push(cil(px, py, 30, 0, 2, { steps: 48, bevel: 0.6 }), L(k.ring(px, py, 24, 2, P, 48), { tone: "lo" }), L(k.lineOnTop([px - 8, py - 10], [px - 8, py + 10], 2, P) + k.lineOnTop([px + 8, py - 10], [px + 8, py + 10], 2, P) + k.lineOnTop([px - 8, py], [px + 8, py], 2, P), { tone: "mid" }));
   o.push(gabinete("gw", 120, -112, { w: 40, d: 24, h: 58 }));
-  const girado = (cx, cy, largo, ancho, a) => [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([i, j]) => [cx + (i * largo / 2) * Math.cos(a) - (j * ancho / 2) * Math.sin(a), cy + (i * largo / 2) * Math.sin(a) + (j * ancho / 2) * Math.cos(a)]);
-  const cuadri = (x, y, z, lit) => {
-    const d = [S(G.sphereOf([x, y, z - 2], 2.8, P), { tone: "mid" })];
-    for (const a of [Math.PI / 4, (3 * Math.PI) / 4]) d.push(S(k.extrude(girado(x, y, 50, 2.8, a), z + 1.2, 1.8, P), { tone: "mid", crease: "none" }));
-    d.push(S(k.slabOf({ x: x - 8, y: y - 6, w: 16, d: 12, r: 3 }, z, 5.8, P, 5, 0.6), { tone: "hi", crease: "lo", lit, className: "nodo-caja" }), k.dotsSvg([at([x + 5, y + 4, z + 5.8])], { size: 0.9, tone: "hi", pulse: true }));
-    for (const [mx, my] of [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([i, j]) => [x + i * 17.7, y + j * 17.7]).sort(cerca)) d.push(cil(mx, my, 2.1, z + 3, 3.2, { steps: 12 }), S(k.cylinder(mx, my, 11, z + 6.4, 0.5, P, 32), { tone: "lo", crease: "none" }), L(k.ring(mx, my, 6.6, z + 6.9, P, 24), { tone: "faint" }), k.dotsSvg([at([mx, my, z + 6.9])], { size: 0.5, tone: "hi" }));
-    d.push(L(seg([x - 6, y + 6, z], [x - 9, y + 9, z - 6]) + seg([x + 6, y + 6, z], [x + 9, y + 9, z - 6]) + seg([x - 11, y + 9, z - 6], [x + 11, y + 9, z - 6]), { tone: "mid" }));
-    return d.join("");
-  };
   o.push(cuadri(px, py, 8.4, false));
   // ruta de vuelo: sale de la base, pasa sobre los dos nodos y vuelve
   const ruta = [[px, py, ZV], [-150, -62, ZV], [-118, 84, ZV], [px, py, ZV]];
@@ -256,8 +247,84 @@ function dron() {
   return { svg: figura(null, "Un terreno partido por un cerro. A un lado, dos nodos con panel solar quedan sin línea de vista. Al otro, una plataforma de vuelo con un dron en espera y un gabinete con la puerta de enlace. Una ruta punteada sale de la plataforma, pasa sobre los dos nodos y vuelve; un dron la recorre.", o), ruta: ruta.map((p) => at(p).map((v) => +v.toFixed(1))) };
 }
 
+// dibuja algo apoyado a una altura z (un poste sobre un cerro, por ejemplo)
+const sube = (z, fn) => { const P0 = P, a = k.iso([0, 0, 0], P0), b = k.iso([0, 0, z], P0); P = { ...P0, origin: [P0.origin[0] + b[0] - a[0], P0.origin[1] + b[1] - a[1]] }; const r = fn(); P = P0; return r; };
+const girado = (cx, cy, largo, ancho, a) => [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([i, j]) => [cx + (i * largo / 2) * Math.cos(a) - (j * ancho / 2) * Math.sin(a), cy + (i * largo / 2) * Math.sin(a) + (j * ancho / 2) * Math.cos(a)]);
+const cuadri = (x, y, z, lit) => {
+  const d = [S(G.sphereOf([x, y, z - 2], 2.8, P), { tone: "mid" })];
+  for (const a of [Math.PI / 4, (3 * Math.PI) / 4]) d.push(S(k.extrude(girado(x, y, 50, 2.8, a), z + 1.2, 1.8, P), { tone: "mid", crease: "none" }));
+  d.push(S(k.slabOf({ x: x - 8, y: y - 6, w: 16, d: 12, r: 3 }, z, 5.8, P, 5, 0.6), { tone: "hi", crease: "lo", lit, className: "nodo-caja" }), k.dotsSvg([at([x + 5, y + 4, z + 5.8])], { size: 0.9, tone: "hi", pulse: true }));
+  for (const [mx, my] of [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([i, j]) => [x + i * 17.7, y + j * 17.7]).sort(cerca)) d.push(cil(mx, my, 2.1, z + 3, 3.2, { steps: 12 }), S(k.cylinder(mx, my, 11, z + 6.4, 0.5, P, 32), { tone: "lo", crease: "none" }), L(k.ring(mx, my, 6.6, z + 6.9, P, 24), { tone: "faint" }));
+  return d.join("");
+};
+
+// ================= 07 · comunicación en catástrofes: malla LoRa con repetidores solares =================
+function malla() {
+  const B = { x: -215, y: -150, w: 430, d: 300, r: 9 };
+  proy([...k.boxCorners(B, -16, 0), [-120, -76, 176], [112, -92, 150], [150, 90, 100]]);
+  const o = [base(B)];
+  // dos cerros con un repetidor solar en cada cima
+  o.push(S(tronco(-196, -138, 150, 124, 0, 50, 40), { tone: "mid", crease: "lo" }), sube(50, () => texto(-152, -60, "REPETIDOR", 8)));
+  o.push(sube(50, () => poste("ra", -121, -76, { alto: 70, panel: true })));
+  o.push(S(tronco(44, -140, 140, 96, 0, 34, 28), { tone: "mid", crease: "lo" }), sube(34, () => texto(76, -78, "REPETIDOR", 8)));
+  o.push(sube(34, () => poste("rb", 114, -92, { alto: 70, panel: true })));
+  // antena de celular caída: la red normal no está
+  o.push(caja(-46, -58, 14, 14, 0, 3, { r: 1.5 }), rollo(eje([-34, -46, 4], [0.95, 0.3, 0.04]), 0, 68, 2.2, { crease: "none", tone: "lo" }), L(seg([-8, -44, 7], [4, -52, 8]) + seg([12, -36, 7], [24, -44, 8]), { tone: "lo" }));
+  // el poblado: casas bajas y una calle
+  o.push(caja(-150, 54, 250, 12, 0, 0.6, { tone: "lo", crease: "none", r: 1 }), L(k.lineOnTop([-146, 60], [96, 60], 0.6, P), { tone: "faint", dashed: true }));
+  const casas = [[-140, 14], [-104, 20], [-66, 12], [-26, 22], [14, 14], [-128, 84], [-88, 90], [-44, 82], [0, 92], [44, 84]].sort(cerca);
+  for (const [x, y] of casas) { const F = G.frameOf([x, y, 12], [1, 0, 0], [0, 1, 0], [0, 0, 1]); o.push(caja(x, y, 26, 20, 0, 12, { r: 0.8, tone: "mid" }), S(G.prismOf(F, [[-1.5, 0], [21.5, 0], [10, 8]], -1.5, 27.5, P), { tone: "mid", crease: "lo" })); }
+  // equipos de mano de las brigadas y del albergue
+  o.push(nodo("b1", -116, 50, 0, { chico: true }), nodo("b2", -20, 62, 0, { chico: true }), nodo("b3", 62, 108, 0, { chico: true }));
+  // puesto de mando: puerta de enlace y antena satelital
+  o.push(gabinete("gw", 146, 62, { w: 38, d: 22, h: 50 }));
+  const FD = eje([126, 104, 16], [0.45, 0.5, 0.74]);
+  o.push(cil(126, 104, 2, 0, 14, { steps: 10, tone: "hi", crease: "none" }), rollo(FD, 0, 2.2, 14, { tone: "hi", inner: L(G.arcOf(FD, 2.2, 9, P), { tone: "faint" }) }), rollo(FD, 2.2, 9, 1, { crease: "none" }));
+  o.push(texto(-150, 126, "BRIGADAS Y ALBERGUE CON EQUIPO DE MANO"), texto(92, 132, "PUESTO DE MANDO"), texto(-40, -8, "RED CELULAR CAÍDA", 8.5, "lo"));
+  o.push(enlace("b1", "ra"), enlace("b2", "ra"), enlace("ra", "rb"), enlace("b3", "rb"), enlace("rb", "gw"), enlace("b2", "b3"));
+  return figura(null, "Un poblado entre dos cerros, con la antena de celular caída. En cada cima hay un repetidor con panel solar. Tres equipos de mano, de las brigadas y del albergue, se enlazan por radio a los repetidores, y estos al puesto de mando, que tiene la puerta de enlace y una antena satelital.", o);
+}
+
+// ================= 08 · incendios forestales: dos torres dan dos rumbos; el dron confirma =================
+function incendios() {
+  const B = { x: -215, y: -150, w: 430, d: 300, r: 9 };
+  proy([...k.boxCorners(B, -16, 0), [-160, 96, 128], [136, -112, 128], [-40, -40, 120]]);
+  const o = [base(B)], ZV = 86, FOCO = [-46, -44];
+  const arbol = (x, y, h) => cil(x, y, 1.1, 0, 5, { steps: 6, crease: "none", tone: "lo" }) + S(G.lathe([[0, h * 0.42], [h, 0.6]], eje([x, y, 4], [0, 0, 1]), P, { steps: 14 }), { tone: "mid", crease: "none" });
+  const torre = (clave, x, y) => {
+    const t = [];
+    for (const [dx, dy] of [[-7, -7], [7, -7], [-7, 7], [7, 7]].sort(cerca)) t.push(cil(x + dx, y + dy, 1, 0, 62, { steps: 8, tone: "hi", crease: "none" }));
+    t.push(L(seg([x - 7, y + 7, 4], [x + 7, y + 7, 30]) + seg([x + 7, y + 7, 4], [x - 7, y + 7, 30]) + seg([x - 7, y + 7, 30], [x + 7, y + 7, 58]) + seg([x + 7, y + 7, 30], [x - 7, y + 7, 58]) + seg([x + 7, y - 7, 4], [x + 7, y + 7, 30]) + seg([x + 7, y + 7, 4], [x + 7, y - 7, 30]) + seg([x + 7, y - 7, 30], [x + 7, y + 7, 58]) + seg([x + 7, y + 7, 30], [x + 7, y - 7, 58]), { tone: "lo" }));
+    t.push(caja(x - 12, y - 12, 24, 24, 62, 2.4, { r: 1.2, bevel: 0.4 }));
+    const FP = G.frameOf([x - 13, y - 13, 66], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
+    t.push(S(G.prismOf(FP, [[0, 0], [12, 7], [11.4, 8], [-0.6, 1]], 0, 22, P), { tone: "mid", crease: "lo" }));
+    t.push(cil(x + 2, y + 2, 4.6, 64.4, 4, { steps: 16 }), S(k.slabOf({ x: x - 5, y: y - 3, w: 14, d: 10, r: 1.5 }, 68.4, 8, P, 3, 0.5), { tone: "hi", crease: "lo", lit: true, className: "nodo-caja" }), cil(x + 8, y - 8, 0.7, 64.4, 20, { steps: 8, tone: "hi", crease: "none" }));
+    puntas[clave] = at([x + 8, y - 8, 86]); puntas[clave + "ojo"] = at([x + 2, y + 2, 73]);
+    return t.join("");
+  };
+  // bosque: árboles por delante y por detrás del foco, de atrás hacia adelante
+  const arboles = [];
+  for (let i = 0; i < 46; i++) { const x = -196 + ((i * 53) % 290), y = -134 + ((i * 97) % 210), h = 13 + ((i * 7) % 9); if (Math.hypot(x - FOCO[0], y - FOCO[1]) < 22 || (x > 80 && y > 20) || Math.hypot(x + 160, y - 96) < 22 || Math.hypot(x - 136, y + 112) < 24) continue; arboles.push([x, y, h]); }
+  const cosas = arboles.map(([x, y, h]) => [x, y, () => arbol(x, y, h)]);
+  cosas.push([FOCO[0], FOCO[1], () => `<g data-fuego>${S(G.lathe([[0, 5], [12, 0.6]], eje([FOCO[0], FOCO[1], 0], [0, 0, 1]), P, { steps: 14 }), { tone: "hi", crease: "none", lit: true })}</g>` + [[2, -2, 18, 5], [-3, 3, 30, 7], [3, 2, 44, 9], [-2, -1, 60, 10]].map(([dx, dy, z, r], i) => `<g data-humo style="--i:${i}">${S(G.sphereOf([FOCO[0] + dx, FOCO[1] + dy, z], r, P), { tone: "lo" })}</g>`).join("")]);
+  cosas.push([-160, 96, () => torre("t1", -160, 96)], [136, -112, () => torre("t2", 136, -112)]);
+  const [px, py] = [126, 84];
+  cosas.push([px, py, () => cil(px, py, 28, 0, 2, { steps: 48, bevel: 0.6 }) + L(k.ring(px, py, 22, 2, P, 44), { tone: "lo" })]);
+  cosas.push([170, 30, () => gabinete("gw", 152, 22, { w: 40, d: 24, h: 54 })]);
+  cosas.sort(cerca).forEach((c) => o.push(c[2]()));
+  // rumbos de las dos torres: se cruzan en el foco
+  puntas.foco = at([FOCO[0], FOCO[1], 14]);
+  o.push(`<g data-capa="rumbos">${k.wireSvg(puntas.t1ojo, puntas.foco, { tone: "mid", dashed: true, size: 1.1, ends: "to" })}${k.wireSvg(puntas.t2ojo, puntas.foco, { tone: "mid", dashed: true, size: 1.1, ends: "to" })}</g>`);
+  const ruta = [[px, py, ZV], [FOCO[0] + 26, FOCO[1] + 26, ZV], [px, py, ZV]];
+  o.push(`<g data-capa="ruta">${L(k.pathOf(ruta.slice(0, 2).map(at)), { tone: "mid", dashed: true })}</g>`);
+  o.push(texto(-196, 136, "TORRE 1"), texto(100, -72, "TORRE 2"), texto(-100, -8, "FOCO"), texto(92, 124, "BASE DEL DRON"), texto(164, 68, "CENTRAL"));
+  o.push(enlace("t1", "gw"), enlace("t2", "gw"));
+  o.push(`<g data-dron>${cuadri(px, py, ZV, true)}</g>`);
+  return { svg: figura(null, "Un bosque con un foco de incendio que levanta humo. Dos torres con cámaras, una a cada lado, apuntan al foco: sus dos rumbos se cruzan sobre él. Las torres se enlazan por radio a una central, junto a la cual está la base del dron. El dron vuela desde la base hasta el foco y vuelve.", o), ruta: ruta.map((p) => at(p).map((v) => +v.toFixed(1))) };
+}
+
 const sal = {};
-for (const [n, f] of Object.entries({ correas, pila, planta, cultivo, dron })) {
+for (const [n, f] of Object.entries({ correas, pila, planta, cultivo, dron, malla, incendios })) {
   const r = f(); sal[n] = typeof r === "string" ? { svg: r } : r;
   console.log(n.padEnd(8), (sal[n].svg.match(/class="iso-solid/g) || []).length, "sólidos,", Math.round(sal[n].svg.length / 1024), "kB, escala", P.scale.toFixed(2));
 }
