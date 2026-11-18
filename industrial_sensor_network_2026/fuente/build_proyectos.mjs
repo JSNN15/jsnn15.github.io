@@ -85,34 +85,48 @@ const enlace = (de, a, o = {}) => `<g data-enlace="${o.tipo ?? "radio"}">${k.wir
 const figura = (pts, label, cuerpo) => k.figureSvg({ width: WIDTH, height: HEIGHT, label, body: cuerpo });
 const proy = (pts, o = {}) => { P = k.fitProjection(pts, WIDTH, HEIGHT, { pad: o.pad ?? 24, azimuth: o.azimuth ?? k.AZIMUTH }); puntas = {}; };
 
-// ================= 01 · pila de lixiviación =================
+// ================= 01 · pila de lixiviación: corte de la pila con picas clavadas y esferas enterradas =================
+// una pica: tubo clavado con tres bandas de medición y la cabeza al aire, con panel y antena
+function pica(clave, x, y, zs, { largo = 40, corte = false } = {}) {
+  const o = [];
+  if (corte) {
+    o.push(S(G.lathe([[0, 0.5], [7, 2.1], [largo + 7, 2.1]], eje([x, y, zs - largo - 7], [0, 0, 1]), P), { tone: "hi", crease: "lo" }));
+    for (const f of [0.2, 0.5, 0.8]) o.push(cil(x, y, 3, zs - largo * f - 1.7, 3.4, { steps: 14, tone: "hi", lit: true }));
+  }
+  o.push(cil(x, y, 5.4, zs, 1.6, { steps: 18, tone: "lo" }), S(k.cylinder(x, y, 3.8, zs + 1.6, 7, P, 16), { tone: "hi", crease: "lo", lit: true, className: "nodo-caja" }));
+  const FP = G.frameOf([x - 7, y - 8, zs + 9.6], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
+  o.push(S(G.prismOf(FP, [[0, 0], [9, 5], [8.5, 5.9], [-0.5, 0.9]], 0, 12, P), { tone: "mid", crease: "lo" }));
+  o.push(cil(x + 2.2, y + 2.2, 0.6, zs + 8.6, 15, { steps: 8, tone: "hi", crease: "none" }), cil(x + 2.2, y + 2.2, 1.1, zs + 23.6, 1.6, { steps: 8, tone: "hi" }));
+  puntas[clave] = at([x + 2.2, y + 2.2, zs + 25.2]); puntas[clave + "pie"] = at([x, y, zs - largo * 0.8]);
+  return `<g data-nodo="${clave}">${o.join("")}</g>`;
+}
 function pila() {
-  const B = { x: -205, y: -150, w: 410, d: 300, r: 9 };
-  proy([...k.boxCorners(B, -16, 0), [-40, -40, 104], [150, 80, 98], [120, -20, 112]]);
+  const B = { x: -196, y: -146, w: 388, d: 250, r: 9 }, H = 98, YC = -8, X0 = -178, X1 = 92;
+  proy([...k.boxCorners(B, -16, 0), [X0, -134, H], [X1, YC, H + 30], [150, -44, 140], [-130, YC, H + 28]]);
   const o = [base(B)];
-  o.push(S(tronco(-180, -128, 262, 204, 0, 30, 27), { tone: "mid", crease: "lo" }));
-  for (let y = -92; y <= 40; y += 11) o.push(L(k.lineOnTop([42, y], [50, y], 30, P), { tone: "faint" }));
-  for (let x = -140; x <= 30; x += 11) o.push(L(k.lineOnTop([x, 36], [x, 44], 30, P), { tone: "faint" }));
-  o.push(S(tronco(-140, -88, 180, 124, 30, 22, 20), { tone: "mid", crease: "lo" }));
-  const zt = 52;
-  for (let y = -60; y <= 8; y += 8.5) o.push(L(k.lineOnTop([-112, y], [8, y], zt, P), { tone: "lo" }));
-  o.push(rollo(eje([12, -64, zt + 1.8], [0, 1, 0]), 0, 76, 1.8, { crease: "none" }), D([-60, -43, -26, -9, 8].map((y) => [12, y, zt + 3.6]), { size: 0.45, tone: "lo" }));
-  // seis estacas sobre el piso superior, de atrás hacia adelante
-  const est = [[-96, -48], [-52, -48], [-8, -48], [-96, -6], [-52, -6], [-8, -6]].sort(cerca);
-  est.forEach(([x, y], i) => o.push(nodo("e" + (i + 1), x, y, zt, { estaca: 9, panel: true })));
-  // nodo de presión en la matriz de riego
-  o.push(rollo(eje([12, 12, zt + 1.8], [0, 1, 0]), 0, 8, 2.6, {}), nodo("pr", 20, 20, zt, { estaca: 4, chico: true }));
-  // canaleta, piscina de solución y nodo de nivel
-  o.push(caja(-180, 80, 262, 7, 0, 1, { tone: "lo", crease: "none", r: 0.5 }));
-  const pis = { x: -150, y: 98, w: 150, d: 40, r: 6 };
-  o.push(S(k.slabOf(pis, 0, 1.6, P, 5), { tone: "lo", crease: "none" }), L(k.planOutline(k.insetPlan(pis, 5), 1.6, P, 5), { tone: "mid" }), L(k.lineOnTop([-130, 112], [-30, 112], 1.6, P) + k.lineOnTop([-118, 122], [-52, 122], 1.6, P), { tone: "faint", dashed: true }));
-  o.push(caja(-6, 110, 14, 4, 0, 14, { r: 0.6, tone: "lo" }), nodo("nivel", 2, 112, 14, { chico: true }));
-  o.push(poste("router", 118, -16, { alto: 82, panel: true }));
-  o.push(gabinete("gw", 140, 78));
-  o.push(texto(-170, 92, "PISCINA DE SOLUCIÓN"), texto(96, 22, "ROUTER SOLAR"), texto(86, 132, "PUERTA DE ENLACE"), texto(-176, -136, "PILA · 2 PISOS", 8.5, "lo"));
-  const orden = est.map((_, i) => "e" + (i + 1));
-  o.push(enlace(orden[0], orden[1]), enlace(orden[1], orden[2]), enlace(orden[3], orden[4]), enlace(orden[0], orden[3]), enlace(orden[2], orden[5]), enlace(orden[4], orden[5]), enlace(orden[5], "router"), enlace("pr", "router"), enlace("router", "gw"), enlace("nivel", "gw"));
-  return figura(null, "Una pila de lixiviación de dos pisos con líneas de riego. Sobre el piso superior hay seis estacas con nodo y panel solar, y un nodo de presión en la matriz de riego. Al pie, una piscina de solución con un nodo de nivel. Un router con panel solar al borde de la pila y un gabinete con la puerta de enlace reciben los enlaces.", o);
+  // el bloque de pila: talud atrás, techo regado y dos caras de corte
+  const FB = G.frameOf([X0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
+  o.push(S(G.prismOf(FB, [[-134, 0], [-100, H], [YC, H], [YC, 0]], 0, X1 - X0, P), { tone: "mid", crease: "lo" }));
+  for (let y = -88; y <= YC - 10; y += 9.5) o.push(L(k.lineOnTop([X0 + 8, y], [X1 - 8, y], H, P), { tone: "lo" }));
+  o.push(rollo(eje([X0 + 5, -94, H + 1.6], [0, 1, 0]), 0, 84, 1.6, { crease: "none" }));
+  // picas de la fila de atrás: solo se ve la cabeza
+  o.push(pica("p4", -86, -58, H), pica("p5", 6, -58, H));
+  // la cara del corte: límite entre pisos, lámina del fondo y grano del mineral
+  o.push(L(seg([X0, YC, H / 2], [X1, YC, H / 2]) + seg([X1, YC, H / 2], [X1, -117, H / 2]), { tone: "lo", dashed: true }), L(seg([X0, YC, 1.4], [X1, YC, 1.4]), { tone: "mid" }));
+  const grano = []; for (let i = 0; i < 150; i++) grano.push([X0 + 6 + ((i * 67) % (X1 - X0 - 12)), YC, 5 + ((i * 41 + (i % 7) * 13) % (H - 9))]);
+  o.push(D(grano, { size: 0.45, tone: "lo" }));
+  // esferas enterradas, a media altura del piso de abajo y del de arriba
+  const esf = [["s1", -154, 66], ["s2", -104, 30], ["s3", -66, 22], ["s4", -10, 34], ["s5", 26, 20], ["s6", 74, 34]];
+  for (const [c, x, z] of esf) { o.push(S(G.sphereOf([x, YC + 0.5, z], 6.2, P), { tone: "hi", lit: true }), L(k.sideArc(x, YC + 0.5, 6.2, z, P, 16), { tone: "lo" })); puntas[c] = at([x, YC + 0.5, z]); }
+  // picas sobre el corte: se ve el tubo dentro del mineral
+  o.push(pica("p1", -130, YC, H, { corte: true, largo: 46 }), pica("p2", -40, YC, H, { corte: true, largo: 46 }), pica("p3", 50, YC, H, { corte: true, largo: 46 }));
+  o.push(poste("router", 150, -44, { alto: 108, panel: true }));
+  o.push(gabinete("gw", 146, 62));
+  o.push(texto(-172, 10, "CORTE DE LA PILA · SIN ESCALA"), texto(112, -14, "ROUTER SOLAR"), texto(52, 92, "PUERTA DE ENLACE"));
+  const ind = (a, b) => `<g data-enlace="induccion">${k.wireSvg(puntas[a], puntas[b + "pie"], { tone: "mid", dashed: true, size: 1, ends: "none" })}</g>`;
+  o.push(ind("s1", "p1"), ind("s2", "p1"), ind("s3", "p2"), ind("s4", "p2"), ind("s5", "p3"), ind("s6", "p3"));
+  o.push(enlace("p4", "router"), enlace("p5", "router"), enlace("p1", "p2"), enlace("p2", "p3"), enlace("p3", "router"), enlace("router", "gw"));
+  return figura(null, "Corte de una pila de lixiviación de dos pisos. Tres picas están clavadas desde el techo: el tubo queda dentro del mineral, con tres bandas de medición, y la cabeza con panel y antena queda al aire. Seis esferas están enterradas más abajo y se comunican con la pica más cercana. Las picas se enlazan por radio a un router solar al borde de la pila, y este a la puerta de enlace.", o);
 }
 
 // ================= 02 · planta de procesos =================

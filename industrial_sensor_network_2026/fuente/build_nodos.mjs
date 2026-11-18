@@ -90,20 +90,49 @@ function portadora(x, y, w, d, z, tipos, litMcu = true) {
 }
 
 const sal = {};
-// ================= 01 · estaca de la pila: tubo enterrado con dos sondas, caja arriba y panel =================
+// ================= 01 · pica de la pila: se clava en el mineral; mide a tres profundidades y tiene la cabeza al aire =================
 {
-  const pl = { x: -30, y: -22, w: 60, d: 44, r: 4 }, ZC = 84;
-  const estaca = () => { const F = eje([0, 0, 0], [0, 0, 1]); return S(G.lathe([[0, 0.6], [14, 5], [ZC, 5]], F, P), { tone: "mid", crease: "lo" }) + [26, 52].map((z) => cil(0, 0, 6.6, z, 5, { steps: 20, tone: "hi", lit: true })).join("") + L(k.ring(0, 0, 26, 66, P, 40), { tone: "mid", dashed: true }) + caja(-9, -9, 18, 18, ZC - 2, 2, { r: 2, tone: "lo" }); };
+  const punta = () => S(G.lathe([[0, 0.6], [16, 5.5]], eje([0, 0, 4], [0, 0, 1]), P), { tone: "mid", crease: "lo" });
+  const varilla3 = () => caja(-3, -0.6, 6, 1.2, 22, 66, { tone: "lo", crease: "none", r: 0.3 }) + [31, 51, 71].map((z) => caja(-2, 0.6, 4, 1, z - 2.5, 5, { r: 0.2, tone: "hi", lit: true })).join("") + caja(-2.4, -1.2, 4.8, 2.4, 88, 3, { r: 0.3 });
+  const tubo = () => cil(0, 0, 5.5, 20, 70, { steps: 24, inner: L(k.sideArc(0, 0, 5.5, 88, P, 12), { tone: "lo" }) }) + [30, 50, 70].map((z) => cil(0, 0, 6.5, z - 3.5, 7, { steps: 24, tone: "hi", crease: "lo", lit: true })).join("");
+  const cabezal = () => cil(0, 0, 13, 90, 24, { steps: 36, inner: L(k.sideArc(0, 0, 13, 110, P, 20) + k.sideArc(0, 0, 13, 94, P, 20), { tone: "lo" }) }) + L(k.ring(0, 0, 10.6, 114, P, 36), { tone: "lo" });
+  const pilas2 = () => [[-5, -1], [5, 1]].map(([x, y]) => cil(x, y, 4.3, 92, 20, { steps: 18, inner: L(k.sideArc(x, y, 4.3, 96, P, 10), { tone: "faint" }) }) + cil(x, y, 1.6, 112, 1.2, { steps: 10, tone: "hi" })).join("");
+  const placa = () => cil(0, 0, 11.5, 100, 1.2, { steps: 32, tone: "lo", crease: "none" }) + caja(-8, -6, 8, 8, 101.2, 1.6, { r: 0.4, tone: "hi", crease: "lo", lit: true }) + caja(2, -7, 7, 7, 101.2, 2.2, { r: 0.6, tone: "hi", crease: "lo" }) + cil(3.5, 5, 3.3, 101.2, 2.6, { steps: 14, inner: L(k.ring(3.5, 5, 1.6, 103.8, P, 12), { tone: "lo" }) }) + D([[-7, 6, 101.2], [-4.5, 6, 101.2], [-2, 6, 101.2]], { size: 0.35, tone: "mid" });
+  const tapa = () => cil(0, 0, 14, 114, 4, { steps: 36, tone: "hi", crease: "lo" }) + caja(-4, -9, 3, 3, 118, 8, { r: 0.5, crease: "none" }) + panel(-13, -19, 124, 24, 20) + varilla(8, 7, 118, 30);
   sal.pila = figura("pila", [
-    ["base", [0, 0, 0], () => banco(150, 130), null],
-    ["estaca", [0, 0, 0], estaca, [5, 4, 30]],
-    ["caja", [0, 0, 14], cuerpoDe(pl, ZC, 24), [28, 20, ZC + 12]],
-    ["bateria", [0, 0, 36], () => celdas(-19, -11, ZC + 2, 2), [16, 10, ZC + 10]],
-    ["placas", [0, 0, 60], () => portadora(-27, -19, 54, 38, ZC + 24, ["mcu", "lora"]) , [24, 14, ZC + 27]],
-    ["tapa", [0, 0, 84], tapaDe(pl, ZC + 24, 5, () => varilla(20, -14, ZC + 29, 38)), [16, 18, ZC + 29]],
-    ["panel", [-46, -30, 96], () => caja(-27, -28, 4, 4, ZC + 29, 12, { r: 0.6, crease: "none" }) + panel(-34, -52, ZC + 38, 64, 50) + TARJETA.carga(-10, -24, ZC + 29).svg, [20, -20, ZC + 56]],
-  ], [[-80, -70, -14], [80, -70, -14], [-80, 70, -14], [80, 70, -14], [20, -14, ZC + 160], [-90, -90, ZC + 140], [70, 0, ZC + 110]],
-    "Despiece de la estaca: panel solar con su cargador, tapa con antena, placa con procesador y radio LoRa, dos baterías, caja estanca y el tubo de la estaca con sondas a dos profundidades.");
+    ["base", [0, 0, 0], () => banco(100, 86) + L(k.ring(0, 0, 9, 0.2, P, 28), { tone: "mid", dashed: true }), null],
+    ["punta", [0, 0, 0], punta, [3, 3, 14]],
+    ["varilla", [-30, 30, 14], varilla3, [3, 0.6, 60]],
+    ["tubo", [0, 0, 14], tubo, [4, 4, 60]],
+    ["pilas", [0, 0, 64], pilas2, [7, 4, 104]],
+    ["placa", [0, 0, 92], placa, [8, 6, 101.2]],
+    ["cabezal", [0, 0, 30], cabezal, [9, 9, 100]],
+    ["tapa", [0, 0, 118], tapa, [10, 9, 116]],
+  ], [[-50, -43, -12], [50, -43, -12], [-50, 43, -12], [50, 43, -12], [8, 7, 266], [-36, 36, 100]],
+    "Despiece de la pica: punta cónica, varilla electrónica con sensores en tres zonas, tubo con tres bandas de medición, cabezal, dos baterías, placa redonda con procesador, radio y bobina receptora, y tapa con panel solar y antena.");
+}
+// ================= esfera enterrada: dos mitades impresas, pila de litio, placa con chips y bobina; queda dentro del mineral =================
+{
+  const R = 30, Z0 = 8, N = 14;
+  const abajo = Array.from({ length: N + 1 }, (_, i) => { const a = (i / N) * Math.PI / 2; return [R * (1 - Math.cos(a)), Math.max(0.6, R * Math.sin(a))]; });
+  const arriba = Array.from({ length: N + 1 }, (_, i) => { const a = (i / N) * Math.PI / 2; return [R * Math.sin(a), Math.max(0.6, R * Math.cos(a))]; });
+  const anillo = (r0, r1, z, h, tone) => cil(0, 0, r0, z, h, { steps: 48, tone, crease: "lo" }) + S(k.cylinder(0, 0, r1, z + h - 0.2, 0.3, P, 40), { tone: "lo", crease: "none" });
+  const inferior = () => S(G.lathe(abajo, eje([0, 0, Z0], [0, 0, 1]), P, { smooth: true }), { tone: "mid", crease: "none" }) + [35, 60].map((g) => L(k.sideArc(0, 0, R * Math.sin((g * Math.PI) / 180), Z0 + R * (1 - Math.cos((g * Math.PI) / 180)), P, 30), { tone: "faint" })).join("") + anillo(R, R - 4, Z0 + R - 1.2, 1.2, "hi") + L(k.ring(0, 0, R - 8, Z0 + R + 0.1, P, 36), { tone: "faint" });
+  const pila = () => cil(0, 0, 8.5, Z0 + 3, 26, { steps: 24, inner: L(k.sideArc(0, 0, 8.5, Z0 + 9, P, 14) + k.sideArc(0, 0, 8.5, Z0 + 24, P, 14), { tone: "faint" }) }) + cil(0, 0, 3, Z0 + 29, 1.6, { steps: 12, tone: "hi" });
+  const placa = () => cil(0, 0, R - 5, Z0 + R, 1.2, { steps: 44, tone: "lo", crease: "none" }) + caja(-13, -11, 10, 10, Z0 + R + 1.2, 1.8, { r: 0.5, tone: "hi", crease: "lo", lit: true }) + caja(4, -13, 7, 7, Z0 + R + 1.2, 1.4, { r: 0.4, tone: "hi", crease: "lo", lit: true }) + caja(8, 2, 5, 5, Z0 + R + 1.2, 1.2, { r: 0.3, tone: "hi", lit: true }) + caja(-11, 6, 6, 6, Z0 + R + 1.2, 1.2, { r: 0.3, tone: "hi", lit: true }) + D([[-2, 14, Z0 + R + 1.2], [1, 14, Z0 + R + 1.2], [4, 14, Z0 + R + 1.2]], { size: 0.4, tone: "mid" });
+  const bobina = () => anillo(R - 2, R - 7, Z0 + R + 2, 4, "hi") + L(k.sideArc(0, 0, R - 2, Z0 + R + 3.3, P, 30) + k.sideArc(0, 0, R - 2, Z0 + R + 4.6, P, 30), { tone: "lo" });
+  const junta = () => anillo(R - 0.5, R - 3, Z0 + R + 0.4, 1.6, "lo");
+  const superior = () => S(G.lathe(arriba, eje([0, 0, Z0 + R], [0, 0, 1]), P, { smooth: true }), { tone: "hi", crease: "none" }) + [25, 50].map((g) => L(k.ring(0, 0, R * Math.cos((g * Math.PI) / 180), Z0 + R + R * Math.sin((g * Math.PI) / 180), P, 40), { tone: "faint" })).join("");
+  sal.esfera = figura("esfera", [
+    ["base", [0, 0, 0], () => banco(116, 100) + cil(0, 0, 13, 0, 5, { steps: 28, tone: "lo" }), null],
+    ["pila", [0, 0, 48], pila, [6, 6, Z0 + 16]],
+    ["inferior", [0, 0, 0], inferior, [20, 16, Z0 + 18]],
+    ["placa", [0, 0, 82], placa, [16, 12, Z0 + R + 1.2]],
+    ["bobina", [0, 0, 104], bobina, [18, 18, Z0 + R + 5]],
+    ["junta", [0, 0, 124], junta, [20, 20, Z0 + R + 1.6]],
+    ["superior", [0, 0, 142], superior, [16, 14, Z0 + R + 18]],
+  ], [[-62, -54, -14], [62, -54, -14], [-62, 54, -14], [62, 54, -14], [0, 0, Z0 + 2 * R + 146], [70, 0, 120], [-50, 0, 120]],
+    "Despiece de la esfera: semiesfera inferior, pila de litio, placa redonda con microcontrolador y sensores en chip, bobina de 125 kHz, junta tórica y semiesfera superior.");
 }
 // ================= 02 · cámara fija: cilindro con visera, se despieza a lo largo =================
 {
