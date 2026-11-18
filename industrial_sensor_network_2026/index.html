@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Hardware de terreno · diseño</title>
-<meta name="description" content="Ocho proyectos de hardware: nodos en correas, sensores en pilas de lixiviación, cámara fija en planta, cultivo, recolección con dron, rover de inspección, malla de emergencia y detección de incendios forestales. Cada uno con su diagrama de bloques, su nodo en despiece, su esquema eléctrico y su lista de materiales." />
+<meta name="description" content="Siete proyectos de hardware: sensores en pilas de lixiviación, cámara fija en planta, cultivo, recolección con dron, rover de inspección, malla de emergencia y detección de incendios forestales. Cada uno con su diagrama de bloques, su nodo en despiece, su esquema eléctrico y su lista de materiales." />
 <meta property="og:title" content="Hardware de terreno · Julián Neira Nova" />
-<meta property="og:description" content="Ocho proyectos de hardware con diagrama de bloques, nodo en despiece, esquema eléctrico y lista de materiales." />
+<meta property="og:description" content="Siete proyectos de hardware con diagrama de bloques, nodo en despiece, esquema eléctrico y lista de materiales." />
 <meta property="og:image" content="https://jsnn15.github.io/img/v/red-oscuro.jpg" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://jsnn15.github.io/industrial_sensor_network_2026/" />
@@ -404,10 +404,10 @@ td{color:var(--fg2)}
 <main>
   <span class="estado">Diseño teórico · visión de prototipo</span>
   <h1>Hardware de terreno</h1>
-  <p class="bajada">Ocho proyectos de hardware para problemas conocidos de la industria y del territorio. Cada uno con su solución desplegada, su diagrama de bloques, su nodo en despiece, su esquema eléctrico y su lista de materiales.</p>
+  <p class="bajada">Siete proyectos de hardware para problemas conocidos de la industria y del territorio. Cada uno con su solución desplegada, su diagrama de bloques, su nodo en despiece, su esquema eléctrico y su lista de materiales.</p>
   <p class="hay">Son diseños teóricos, pensados como prototipos. Traen desde ya algunas definiciones que evitan rehacer el trabajo al industrializar: protocolos que no se saturan con la carga prevista, energía dimensionada, esquemas con símbolos normalizados y materiales con alternativa. Lo que existe hoy son las placas, el software que recibe el dato (las herramientas del <a href="../">portafolio</a>) y un <a href="https://github.com/JSNN15/vibration-analyzer">analizador de vibraciones con Raspberry Pi</a> de 2022.</p>
 
-  <div class="pnav" id="pnav" role="tablist" aria-label="Proyectos"><button type="button" role="tab" data-id="correas" aria-selected="false"><i>01</i>Correas transportadoras</button><button type="button" role="tab" data-id="pila" aria-selected="false"><i>02</i>Pilas de lixiviación</button><button type="button" role="tab" data-id="planta" aria-selected="false"><i>03</i>Planta de procesos</button><button type="button" role="tab" data-id="cultivo" aria-selected="false"><i>04</i>Zonas de cultivo</button><button type="button" role="tab" data-id="dron" aria-selected="false"><i>05</i>Retransmisión con dron</button><button type="button" role="tab" data-id="rover" aria-selected="false"><i>06</i>Rover de inspección</button><button type="button" role="tab" data-id="malla" aria-selected="false"><i>07</i>Comunicación en catástrofes</button><button type="button" role="tab" data-id="incendios" aria-selected="false"><i>08</i>Incendios forestales</button></div>
+  <div class="pnav" id="pnav" role="tablist" aria-label="Proyectos"><button type="button" role="tab" data-id="pila" aria-selected="false"><i>01</i>Pilas de lixiviación</button><button type="button" role="tab" data-id="planta" aria-selected="false"><i>02</i>Planta de procesos</button><button type="button" role="tab" data-id="cultivo" aria-selected="false"><i>03</i>Zonas de cultivo</button><button type="button" role="tab" data-id="dron" aria-selected="false"><i>04</i>Retransmisión con dron</button><button type="button" role="tab" data-id="rover" aria-selected="false"><i>05</i>Rover de inspección</button><button type="button" role="tab" data-id="malla" aria-selected="false"><i>06</i>Comunicación en catástrofes</button><button type="button" role="tab" data-id="incendios" aria-selected="false"><i>07</i>Incendios forestales</button></div>
   <div id="proyectos" aria-live="polite"><p class="cargando">Cargando el proyecto…</p></div>
 
   <section aria-labelledby="h-criterios">
@@ -427,9 +427,8 @@ td{color:var(--fg2)}
     <h2 id="h-equipos">De prototipo a equipo</h2>
     <p class="sub">Cada prototipo de software del portafolio tiene una versión para terreno entre estos proyectos.</p>
     <ul class="equipos">
-      <li id="eq-supervisor"><p class="rot"><a href="../supervisor_computer_vision_2026/">Supervisor normativo</a></p><h3>Rover de inspección</h3><p>Recorre la sala o la bodega, fotografía cada equipo y entrega la misma revisión que hoy se hace con una foto tomada a mano.</p><p class="con"><b>Con:</b> Raspberry Pi 5, STM32, cámara con giro, LiDAR</p><p class="est"><a href="#rover">Proyecto 06</a></p></li>
-      <li id="eq-correas"><p class="rot"><a href="../conveyor_crack_detection_2026/">Monitor de correas</a></p><h3>Nodo de vibración y cámara de correa</h3><p>El nodo vigila los polines; la cámara mira la banda en marcha y ubica cada grieta en metros desde el empalme.</p><p class="con"><b>Con:</b> STM32, XBee, Raspberry Pi 5 con cámara</p><p class="est"><a href="#correas">Proyecto 01</a></p></li>
-      <li id="eq-lector"><p class="rot"><a href="../gauge_reader_computer_vision_2026/">Lector de instrumentos</a></p><h3>Cámara fija frente al instrumento</h3><p>Una cámara con luz propia frente al manómetro. Envía la foto cada pocos minutos y el lector entrega el número.</p><p class="con"><b>Con:</b> ESP32-CAM</p><p class="est"><a href="#planta">Proyecto 03</a></p></li>
+      <li id="eq-supervisor"><p class="rot"><a href="../supervisor_computer_vision_2026/">Supervisor normativo</a></p><h3>Rover de inspección</h3><p>Recorre la sala o la bodega, fotografía cada equipo y entrega la misma revisión que hoy se hace con una foto tomada a mano.</p><p class="con"><b>Con:</b> Raspberry Pi 5, STM32, cámara con giro, LiDAR</p><p class="est"><a href="#rover">Proyecto 05</a></p></li>
+      <li id="eq-lector"><p class="rot"><a href="../gauge_reader_computer_vision_2026/">Lector de instrumentos</a></p><h3>Cámara fija frente al instrumento</h3><p>Una cámara con luz propia frente al manómetro. Envía la foto cada pocos minutos y el lector entrega el número.</p><p class="con"><b>Con:</b> ESP32-CAM</p><p class="est"><a href="#planta">Proyecto 02</a></p></li>
       <li id="eq-vigia"><p class="rot"><a href="../ppe_detection_computer_vision_2026/">Vigía EPP</a></p><h3>Cámara de acceso con proceso local</h3><p>Detecta en el propio equipo y solo envía el evento: quién entró sin casco, con su imagen de respaldo.</p><p class="con"><b>Con:</b> Raspberry Pi 5 o Pi Zero 2 W con cámara</p></li>
       <li id="eq-fruta"><p class="rot"><a href="../fruit_sorting_computer_vision_2026/">Selector de fruta</a></p><h3>Estación de selección</h3><p>Cámara sobre la línea y un expulsor de aire que actúa según lo que decide el modelo.</p><p class="con"><b>Con:</b> Raspberry Pi 5, Arduino Mega</p></li>
     </ul>
@@ -525,7 +524,7 @@ document.addEventListener('click', (e) => {
 (() => {
   const nav = document.getElementById('pnav'), caja = document.getElementById('proyectos'), cargados = {};
   const IDS = [...nav.querySelectorAll('button')].map((b) => b.dataset.id);
-  const ANTES = {'#eq-supervisor': 'rover', '#h-cerca': 'correas', '#eq-correas': 'correas', '#eq-lector': 'planta'};
+  const ANTES = {'#eq-supervisor': 'rover', '#eq-lector': 'planta'};
   let pedido = '';
   const mostrar = (id) => { for (const k in cargados) cargados[k].hidden = k !== id; };
   const elegir = async (id, mover) => {
@@ -547,77 +546,8 @@ document.addEventListener('click', (e) => {
   nav.addEventListener('click', (e) => { const b = e.target.closest('button'); b && elegir(b.dataset.id, true); });
   document.addEventListener('click', (e) => { const a = e.target.closest('a[href^="#"]'); if (a && (ANTES[a.getAttribute('href')] || IDS.includes(a.getAttribute('href').slice(1)))) { e.preventDefault(); location.hash = a.getAttribute('href'); } });
   window.addEventListener('hashchange', () => deHash(true));
-  if (!deHash(true)) elegir('correas', false).then(() => { const el = location.hash.length > 1 && document.getElementById(location.hash.slice(1)); el && el.scrollIntoView(); });
+  if (!deHash(true)) elegir(IDS[0], false).then(() => { const el = location.hash.length > 1 && document.getElementById(location.hash.slice(1)); el && el.scrollIntoView(); });
 })();
-
-// ---------- figura 2: el nodo de vibración ----------
-INICIA.correas = () => {
-  const CUADROS = {"centro":["<g opacity=\"0.45\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M409 194.2L351.9 216.5M424.5 234.3L367.5 256.6\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M417.6 199.7L360.5 222M424.5 211.3L367.5 233.6M427.2 224.5L370.2 246.8\"/>","<g opacity=\"0.75\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M410.4 194.6L353.3 216.9\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M418.9 201.3L361.9 223.6M425.3 213.5L368.3 235.8M427.1 226.5L370.1 248.8\"/><g opacity=\"0.20\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M423.6 235.4L366.6 257.6\"/></g>","<g opacity=\"0.95\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M411.8 195.2L354.8 217.5\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M420.2 203.1L363.2 225.4M426 215.8L369 238.1M426.9 228.4L369.9 250.7\"/>","<path class=\"iso-line\" data-tone=\"lo\" d=\"M413.3 196L356.2 218.3M421.5 205L364.4 227.3M426.5 218L369.5 240.3M426.5 230.1L369.5 252.4\"/>","<g opacity=\"0.00\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M406.3 194.2L349.3 216.5\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M414.7 197.1L357.7 219.4M422.6 207L365.6 229.3M426.9 220.3L369.9 242.5\"/><g opacity=\"0.90\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M426 231.7L369 254\"/></g>","<g opacity=\"0.20\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M407.6 194.1L350.6 216.4\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M416.2 198.3L359.1 220.6M423.6 209.1L366.6 231.4M427.1 222.4L370.1 244.7\"/><g opacity=\"0.70\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M425.3 233.1L368.3 255.4\"/></g>"],"lejos":["<g opacity=\"0.95\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M465.6 139.4L420.8 185.6\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M474.2 144.9L429.5 191.1M484.4 154.3L439.7 200.4M492.3 163.9L447.6 210\"/><g opacity=\"0.10\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M495 170L450.2 216.2\"/></g>","<path class=\"iso-line\" data-tone=\"lo\" d=\"M466.7 140L422 186.1M475.9 146.3L431.2 192.5M486 155.9L441.3 202.1M493.2 165.2L448.5 211.3\"/>","<path class=\"iso-line\" data-tone=\"lo\" d=\"M468 140.7L423.3 186.8M477.6 147.8L432.9 193.9M487.5 157.6L442.8 203.8M493.9 166.4L449.2 212.6\"/>","<g opacity=\"0.15\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M463 138.8L418.2 185\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M469.4 141.5L424.7 187.7M479.3 149.3L434.6 195.5M488.9 159.3L444.2 205.4\"/><g opacity=\"0.95\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M494.4 167.6L449.7 213.7\"/></g>","<g opacity=\"0.45\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M463.7 138.9L419 185\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M470.9 142.5L426.2 188.7M481.1 150.9L436.3 197.1M490.2 160.9L445.5 207\"/><g opacity=\"0.70\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M494.8 168.5L450.1 214.7\"/></g>","<g opacity=\"0.80\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M464.6 139.1L419.8 185.2\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M472.5 143.7L427.8 189.8M482.8 152.6L438 198.7M491.3 162.4L446.6 208.5\"/><g opacity=\"0.40\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M495 169.4L450.2 215.5\"/></g>"],"cerca":["<g opacity=\"0.80\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M348.7 222.6L303.9 211.4\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M352.4 234.5L307.6 223.3M349.7 248.2L305 237\"/><g opacity=\"0.95\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M341.8 258.5L297.1 247.3\"/></g>","<g opacity=\"0.95\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M349.7 224.3L305 213.1\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M352.4 236.8L307.6 225.6M348.7 250.3L304 239.1\"/><g opacity=\"0.85\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M340.2 259.6L295.4 248.4\"/></g>","<g opacity=\"0.00\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M343.3 218.1L298.6 206.9\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M350.6 226.1L305.8 214.9M352.2 239.2L307.5 228M347.6 252.3L302.8 241.1\"/><g opacity=\"0.70\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M338.5 260.5L293.7 249.3\"/></g>","<g opacity=\"0.15\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M344.8 218.9L300.1 207.7\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M351.3 228L306.5 216.8M351.8 241.5L307.1 230.3M346.3 254.1L301.6 242.9\"/><g opacity=\"0.50\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M336.7 261.1L292 249.9\"/></g>","<g opacity=\"0.35\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M346.2 219.9L301.5 208.7\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M351.8 230.1L307.1 218.9M351.3 243.8L306.6 232.6M344.9 255.8L300.2 244.6\"/><g opacity=\"0.25\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M335 261.5L290.3 250.3\"/></g>","<g opacity=\"0.60\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M347.5 221.2L302.8 210\"/></g><path class=\"iso-line\" data-tone=\"lo\" d=\"M352.2 232.3L307.4 221.1M350.6 246L305.9 234.8M343.4 257.3L298.7 246.1\"/><g opacity=\"0.10\"><path class=\"iso-line\" data-tone=\"lo\" d=\"M333.3 261.6L288.5 250.4\"/></g>"]};
-  const SUBE = [0, -1.3060561807932345], LEVANTE = 30, ANCHO = 760, ALTO = 520, FOCO = [366.7, 330.0];
-  const fig = document.getElementById('fig-nodo'), lectura = fig.querySelector('[data-readout]');
-  const mando = document.getElementById('desgaste'), pct = document.getElementById('desgaste-v'), dice = document.getElementById('dice');
-  const zonas = [...document.querySelectorAll('#zonas span')], abrir = document.getElementById('abrir');
-  const tapa = fig.querySelector('[data-part=tapa]'), sensor = fig.querySelector('[data-part=sensor]'), polines = [...fig.querySelectorAll('[data-part=polin]')];
-  const marcas = Object.fromEntries(Object.keys(CUADROS).map((n) => [n, fig.querySelector(`[data-marcas=${n}]`)]));
-  // límites de zona del simulador de planta, en mm/s
-  const LIM = [2.3, 4.5, 7.1], DISPARO = 8.9;
-  const TEXTO = ['Zona A, bueno. El nodo informa cada 15 minutos.', 'Zona B, aceptable. El nodo informa cada 15 minutos.', 'Zona C, aviso. El nodo avisa de inmediato y pasa a informar cada minuto.', 'Zona D, alarma. Sobre 8,9 mm/s la protección detiene el motor.'];
-  let v = 1.6;
-  const pinta = () => {
-    const d = +mando.value / 100;
-    v = 1.6 + 8.4 * Math.pow(d, 2.2);
-    const z = v <= LIM[0] ? 0 : v <= LIM[1] ? 1 : v <= LIM[2] ? 2 : 3;
-    pct.textContent = mando.value + ' %';
-    lectura.textContent = v.toFixed(1).replace('.', ',') + ' mm/s · zona ' + 'ABCD'[z];
-    zonas.forEach((s, i) => s.toggleAttribute('data-on', i === z));
-    dice.textContent = v >= DISPARO ? 'Disparo. La protección detuvo el motor a 8,9 mm/s.' : TEXTO[z];
-  };
-  mando.addEventListener('input', pinta);
-  pinta();
-  abrir.addEventListener('click', () => {
-    const on = abrir.getAttribute('aria-pressed') !== 'true';
-    abrir.setAttribute('aria-pressed', String(on));
-    abrir.textContent = on ? 'Cerrar el nodo' : 'Abrir el nodo';
-    fig.classList.toggle('abierto', on);
-    tapa.style.transform = on ? `translate(${(SUBE[0] * LEVANTE).toFixed(1)}px,${(SUBE[1] * LEVANTE).toFixed(1)}px)` : '';
-    acerca(on ? 1 : 0);
-  });
-  // al abrir, la vista se acerca a la caja para que se lea el interior
-  const svg = fig.querySelector('svg'), Z = 2.3;
-  let zoom = 0, anim = 0;
-  const encuadra = (k) => {
-    const w = ANCHO / (1 + (Z - 1) * k), h = ALTO / (1 + (Z - 1) * k);
-    const x = Math.min(Math.max(FOCO[0] - w / 2, 0), ANCHO - w) * k, y = Math.min(Math.max(FOCO[1] - h / 2, 0), ALTO - h) * k;
-    svg.setAttribute('viewBox', `${x.toFixed(1)} ${y.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`);
-  };
-  const acerca = (meta) => {
-    cancelAnimationFrame(anim);
-    if (quieto.matches) { zoom = meta; encuadra(zoom); return; }
-    const desde = zoom, t0 = performance.now();
-    const cuadroZ = (t) => {
-      const u = Math.min(1, (t - t0) / 800), e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
-      zoom = desde + (meta - desde) * e; encuadra(zoom);
-      if (u < 1) anim = requestAnimationFrame(cuadroZ);
-    };
-    anim = requestAnimationFrame(cuadroZ);
-  };
-  // movimiento: las marcas de los polines giran con la correa; el polín cercano y el acelerómetro tiemblan según la vibración
-  let visible = true, cuadro = 0, antes = 0;
-  new IntersectionObserver((e) => { visible = e[0].isIntersecting; }).observe(fig);
-  const paso = (t) => {
-    requestAnimationFrame(paso);
-    if (!visible || quieto.matches) return;
-    const parado = v >= DISPARO;
-    if (!parado && t - antes > 90) {
-      antes = t; cuadro = (cuadro + 1) % CUADROS.centro.length;
-      for (const n in marcas) marcas[n].innerHTML = CUADROS[n][cuadro];
-    }
-    const a = parado ? 0 : Math.min(1.5, (v - 1.2) * 0.17) * Math.sin(t / 16);
-    const mueve = `translate(0,${a.toFixed(2)}px)`;
-    sensor.style.transform = mueve; polines[polines.length - 1].style.transform = mueve;
-  };
-  requestAnimationFrame(paso);
-};
 
 // ---------- figura 3: el rover ----------
 INICIA.rover = () => {
