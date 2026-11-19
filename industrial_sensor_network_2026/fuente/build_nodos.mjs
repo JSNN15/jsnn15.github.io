@@ -119,10 +119,10 @@ const sal = {};
   const anillo = (r0, r1, z, h, tone) => cil(0, 0, r0, z, h, { steps: 48, tone, crease: "lo" }) + S(k.cylinder(0, 0, r1, z + h - 0.2, 0.3, P, 40), { tone: "lo", crease: "none" });
   const inferior = () => S(G.lathe(abajo, eje([0, 0, Z0], [0, 0, 1]), P, { smooth: true }), { tone: "mid", crease: "none" }) + [35, 60].map((g) => L(k.sideArc(0, 0, R * Math.sin((g * Math.PI) / 180), Z0 + R * (1 - Math.cos((g * Math.PI) / 180)), P, 30), { tone: "faint" })).join("") + anillo(R, R - 4, Z0 + R - 1.2, 1.2, "hi") + L(k.ring(0, 0, R - 8, Z0 + R + 0.1, P, 36), { tone: "faint" });
   const pila = () => cil(0, 0, 8.5, Z0 + 3, 26, { steps: 24, inner: L(k.sideArc(0, 0, 8.5, Z0 + 9, P, 14) + k.sideArc(0, 0, 8.5, Z0 + 24, P, 14), { tone: "faint" }) }) + cil(0, 0, 3, Z0 + 29, 1.6, { steps: 12, tone: "hi" });
-  const placa = () => cil(0, 0, R - 5, Z0 + R, 1.2, { steps: 44, tone: "lo", crease: "none" }) + caja(-13, -11, 10, 10, Z0 + R + 1.2, 1.8, { r: 0.5, tone: "hi", crease: "lo", lit: true }) + caja(4, -13, 7, 7, Z0 + R + 1.2, 1.4, { r: 0.4, tone: "hi", crease: "lo", lit: true }) + caja(8, 2, 5, 5, Z0 + R + 1.2, 1.2, { r: 0.3, tone: "hi", lit: true }) + caja(-11, 6, 6, 6, Z0 + R + 1.2, 1.2, { r: 0.3, tone: "hi", lit: true }) + D([[-2, 14, Z0 + R + 1.2], [1, 14, Z0 + R + 1.2], [4, 14, Z0 + R + 1.2]], { size: 0.4, tone: "mid" });
+  const placa = () => cil(0, 0, R - 5, Z0 + R, 1.2, { steps: 44, tone: "lo", crease: "none" }) + caja(-13, -11, 10, 10, Z0 + R + 1.2, 1.8, { r: 0.5, tone: "hi", crease: "lo", lit: true }) + caja(4, -13, 7, 7, Z0 + R + 1.2, 1.4, { r: 0.4, tone: "hi", crease: "lo", lit: true }) + caja(8, 2, 5, 5, Z0 + R + 1.2, 1.2, { r: 0.3, tone: "hi", lit: true }) + caja(-11, 6, 6, 6, Z0 + R + 1.2, 1.2, { r: 0.3, tone: "hi", lit: true }) + caja(-2, 0, 6, 6, Z0 + R + 1.2, 1.4, { r: 0.3, tone: "hi", lit: true }) + caja(15, -6, 5, 6, Z0 + R + 1.2, 1.2, { r: 0.3, tone: "hi", lit: true }) + D([[-2, 14, Z0 + R + 1.2], [1, 14, Z0 + R + 1.2], [4, 14, Z0 + R + 1.2]], { size: 0.4, tone: "mid" });
   const bobina = () => anillo(R - 2, R - 7, Z0 + R + 2, 4, "hi") + L(k.sideArc(0, 0, R - 2, Z0 + R + 3.3, P, 30) + k.sideArc(0, 0, R - 2, Z0 + R + 4.6, P, 30), { tone: "lo" });
   const junta = () => anillo(R - 0.5, R - 3, Z0 + R + 0.4, 1.6, "lo");
-  const superior = () => S(G.lathe(arriba, eje([0, 0, Z0 + R], [0, 0, 1]), P, { smooth: true }), { tone: "hi", crease: "none" }) + [25, 50].map((g) => L(k.ring(0, 0, R * Math.cos((g * Math.PI) / 180), Z0 + R + R * Math.sin((g * Math.PI) / 180), P, 40), { tone: "faint" })).join("");
+  const superior = () => S(G.lathe(arriba, eje([0, 0, Z0 + R], [0, 0, 1]), P, { smooth: true }), { tone: "hi", crease: "none" }) + [25].map((g) => L(k.ring(0, 0, R * Math.cos((g * Math.PI) / 180), Z0 + R + R * Math.sin((g * Math.PI) / 180), P, 40), { tone: "faint" })).join("") + [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([i, j]) => { const a = (52 * Math.PI) / 180, q = (R * Math.cos(a)) / Math.SQRT2; return cil(i * q, j * q, 2.1, Z0 + R + R * Math.sin(a) - 0.6, 1.6, { steps: 10, tone: "hi", lit: true }); }).join("") + cil(0, 0, 5.4, Z0 + 2 * R - 1.4, 1.8, { steps: 18, tone: "hi", crease: "lo", lit: true }) + L(k.ring(0, 0, 3, Z0 + 2 * R + 0.5, P, 14), { tone: "lo" });
   sal.esfera = figura("esfera", [
     ["base", [0, 0, 0], () => banco(116, 100) + cil(0, 0, 13, 0, 5, { steps: 28, tone: "lo" }), null],
     ["pila", [0, 0, 48], pila, [6, 6, Z0 + 16]],
@@ -133,6 +133,31 @@ const sal = {};
     ["superior", [0, 0, 142], superior, [16, 14, Z0 + R + 18]],
   ], [[-62, -54, -14], [62, -54, -14], [-62, 54, -14], [62, 54, -14], [0, 0, Z0 + 2 * R + 146], [70, 0, 120], [-50, 0, 120]],
     "Despiece de la esfera: semiesfera inferior, pila de litio, placa redonda con microcontrolador y sensores en chip, bobina de 125 kHz, junta tórica y semiesfera superior.");
+}
+// ================= sonda de desagüe: celda de flujo en la tubería, con fotómetro, sondas químicas y su caja de electrónica =================
+{
+  const ZP = 16, ZB = 70, pl = { x: -31, y: -20, w: 62, d: 40, r: 4 };
+  const F = eje([-80, 0, ZP], [1, 0, 0]);
+  const tub = (s0, s1) => S(G.disc(s0, s1, 8, F, P), { tone: "mid", crease: "lo" });
+  const brida = (s) => S(G.disc(s, s + 4, 12.5, F, P), { tone: "hi", crease: "lo" });
+  const bloque = { x: -22, y: -14, w: 46, d: 28, r: 2.5 };
+  const celda = () => brida(0) + tub(4, 58) + S(k.slabOf(bloque, 1, 31, P, 4, 0.8), { tone: "mid", inner: L(k.sideSeam(bloque, 26, P, 4), { tone: "lo" }) }) + L([[-13, 0], [-2, 0], [9, 0], [18, 0]].map(([x, y]) => k.ring(x, y, 3.6, 32, P, 14)).join(""), { tone: "lo" }) + tub(104, 150) + brida(150) + caja(-66, -7, 10, 14, 0, 8, { r: 1, tone: "lo" }) + caja(52, -7, 10, 14, 0, 8, { r: 1, tone: "lo" });
+  const foto = () => S(G.disc(16, 30, 12, F, P), { tone: "hi", crease: "lo", lit: true }) + caja(-62, -5, 10, 10, ZP + 11, 7, { r: 1, tone: "hi", crease: "lo" }) + D([[-57, 0, ZP + 18]], { size: 0.6, tone: "hi" });
+  const sonda1 = (x, r, h, cuad) => cil(x, 0, r + 1.4, 32, 2.6, { steps: 14, tone: "hi", crease: "lo", lit: true }) + cil(x, 0, r, 34.6, h, { steps: 14 }) + (cuad ? caja(x - 3.4, -3.4, 6.8, 6.8, 34.6 + h, 4, { r: 0.8, tone: "hi" }) : cil(x, 0, r + 0.8, 34.6 + h, 3.4, { steps: 14, tone: "hi" })) + L(seg([x, 0, 38 + h + (cuad ? 0.6 : 0)], [x, 0, 46 + h]), { tone: "mid" });
+  const sondas = () => sonda1(-13, 2.6, 22, true) + sonda1(-2, 2.6, 22, false) + sonda1(9, 1.5, 20, false) + cil(18, 0, 5.6, 32, 3.4, { steps: 20, tone: "hi", crease: "lo", lit: true }) + S(k.cylinder(18, 0, 2.4, 35.2, 0.3, P, 14), { tone: "lo", crease: "none" }) + cil(18, 0, 1.6, 35.4, 20, { steps: 10 }) + cil(18, 0, 2.6, 55.4, 3.4, { steps: 12, tone: "hi" });
+  const postes = () => [[-26, -15], [26, 15]].map(([x, y]) => cil(x, y, 1.3, 32, ZB - 32, { steps: 8, tone: "hi", crease: "none" })).join("");
+  sal.sonda = figura("sonda", [
+    ["base", [0, 0, 0], () => banco(190, 110), null],
+    ["celda", [0, 0, 0], celda, [20, 14, 20]],
+    ["foto", [0, 0, 30], foto, [-52, 9, ZP + 4]],
+    ["sondas", [0, 0, 22], sondas, [-11, 2.6, 48]],
+    ["bateria", [0, 0, 74], () => celdas(-20, -15, ZB + 2, 3, 38, 4.2), [16, 12, ZB + 9]],
+    ["caja", [0, 0, 46], () => postes() + cuerpoDe(pl, ZB, 24)(), [29, 18, ZB + 12]],
+    ["placas", [0, 0, 96], () => portadora(-28, -17, 56, 34, ZB + 24, ["mcu", "lora"]), [24, 14, ZB + 27]],
+    ["tapa", [0, 0, 120], tapaDe(pl, ZB + 24, 5, () => varilla(22, -12, ZB + 29, 34)), [18, 16, ZB + 29]],
+    ["panel", [-46, -30, 132], () => caja(-27, -28, 4, 4, ZB + 29, 12, { r: 0.6, crease: "none" }) + panel(-38, -56, ZB + 38, 72, 54) + TARJETA.carga(-10, -24, ZB + 29).svg, [22, -22, ZB + 58]],
+  ], [[-98, -58, -14], [98, -58, -14], [-98, 58, -14], [98, 58, -14], [22, -12, ZB + 196], [-90, -90, ZB + 170], [80, 0, ZB + 110]],
+    "Despiece de la sonda de desagüe: celda de flujo intercalada en la tubería, fotómetro abrazado a la tubería, cuatro sondas que entran por arriba, caja estanca con tres baterías y placa, tapa con antena y panel solar.");
 }
 // ================= 02 · cámara fija: cilindro con visera, se despieza a lo largo =================
 {

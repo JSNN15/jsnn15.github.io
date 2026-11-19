@@ -100,33 +100,51 @@ function pica(clave, x, y, zs, { largo = 40, corte = false } = {}) {
   puntas[clave] = at([x + 2.2, y + 2.2, zs + 25.2]); puntas[clave + "pie"] = at([x, y, zs - largo * 0.8]);
   return `<g data-nodo="${clave}">${o.join("")}</g>`;
 }
+// sonda de desagüe: celda intercalada en la tubería que sale del pie de la pila, con su mástil de panel y antena
+function sonda(clave, y, x0, x1) {
+  const o = [rollo(eje([x0, y, 3.4], [1, 0, 0]), 0, x1 - x0, 2.6, { crease: "none" })];
+  const xs = x0 + 18;
+  o.push(S(G.disc(0, 14, 5.6, eje([xs, y, 3.6], [1, 0, 0]), P), { tone: "hi", crease: "lo", lit: true }));
+  o.push(cil(xs + 7, y, 0.8, 9, 22, { steps: 8, tone: "hi", crease: "none" }));
+  const FP = G.frameOf([xs + 1, y - 8, 24], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
+  o.push(S(G.prismOf(FP, [[0, 0], [9, 5], [8.5, 5.9], [-0.5, 0.9]], 0, 12, P), { tone: "mid", crease: "lo" }), cil(xs + 7, y, 1.2, 31, 1.6, { steps: 8, tone: "hi" }));
+  puntas[clave] = at([xs + 7, y, 32.6]);
+  return `<g data-nodo="${clave}">${o.join("")}</g>`;
+}
 function pila() {
-  const B = { x: -196, y: -146, w: 388, d: 250, r: 9 }, H = 98, YC = -8, X0 = -178, X1 = 92;
-  proy([...k.boxCorners(B, -16, 0), [X0, -134, H], [X1, YC, H + 30], [150, -44, 140], [-130, YC, H + 28]]);
+  const B = { x: -200, y: -150, w: 400, d: 258, r: 9 }, H = 92, YC = -4, YB = -138, X0 = -186, X1 = 118, XT = X1 - 44;
+  const talud = (z) => X1 - ((X1 - XT) * z) / H;
+  proy([...k.boxCorners(B, -16, 0), [X0, YB, H], [XT, YC, H + 30], [182, -132, 140], [-144, YC, H + 28]]);
   const o = [base(B)];
-  // el bloque de pila: talud atrás, techo regado y dos caras de corte
-  const FB = G.frameOf([X0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
-  o.push(S(G.prismOf(FB, [[-134, 0], [-100, H], [YC, H], [YC, 0]], 0, X1 - X0, P), { tone: "mid", crease: "lo" }));
-  for (let y = -88; y <= YC - 10; y += 9.5) o.push(L(k.lineOnTop([X0 + 8, y], [X1 - 8, y], H, P), { tone: "lo" }));
-  o.push(rollo(eje([X0 + 5, -94, H + 1.6], [0, 1, 0]), 0, 84, 1.6, { crease: "none" }));
-  // picas de la fila de atrás: solo se ve la cabeza
-  o.push(pica("p4", -86, -58, H), pica("p5", 6, -58, H));
-  // la cara del corte: límite entre pisos, lámina del fondo y grano del mineral
-  o.push(L(seg([X0, YC, H / 2], [X1, YC, H / 2]) + seg([X1, YC, H / 2], [X1, -117, H / 2]), { tone: "lo", dashed: true }), L(seg([X0, YC, 1.4], [X1, YC, 1.4]), { tone: "mid" }));
-  const grano = []; for (let i = 0; i < 150; i++) grano.push([X0 + 6 + ((i * 67) % (X1 - X0 - 12)), YC, 5 + ((i * 41 + (i % 7) * 13) % (H - 9))]);
+  // el bloque de pila: techo regado, cara de corte al frente y talud hacia el desagüe
+  const FB = G.frameOf([0, YB, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0]);
+  o.push(S(G.prismOf(FB, [[0, X0], [H, X0], [H, XT], [0, X1]], 0, YC - YB, P), { tone: "mid", crease: "lo" }));
+  for (let y = YB + 12; y <= YC - 8; y += 10) o.push(L(k.lineOnTop([X0 + 8, y], [XT - 8, y], H, P), { tone: "faint" }));
+  // dónde hay una esfera enterrada: una marca en el techo por cada una, a lo largo y a lo ancho
+  for (const y of [-118, -82, -46]) for (const x of [-164, -124, -84, -44, -4, 36]) o.push(L(k.ring(x, y, 4.4, H + 0.1, P, 18), { tone: "mid", dashed: true }), D([[x, y, H + 0.1]], { size: 0.7, tone: "hi" }));
+  // picas, menos densas que las esferas; las de atrás solo muestran la cabeza
+  o.push(pica("p4", -144, -82, H), pica("p5", -64, -82, H), pica("p6", 16, -82, H));
+  // router, canaleta de PLS y un desagüe con sonda por módulo
+  o.push(poste("router", 182, -132, { alto: 104, panel: true }));
+  o.push(caja(164, -128, 9, 96, 0, 2.6, { tone: "lo", crease: "none", r: 1 }), L(k.lineOnTop([168.5, -124], [168.5, -36], 2.6, P), { tone: "faint", dashed: true }));
+  o.push(sonda("d1", -108, X1 - 8, 165), sonda("d2", -54, X1 - 8, 165));
+  // la cara del corte: límite entre pisos, lámina del fondo, drenes y grano del mineral
+  o.push(L(seg([X0, YC, H / 2], [talud(H / 2), YC, H / 2]), { tone: "lo", dashed: true }), L(seg([X0, YC, 1.4], [X1, YC, 1.4]), { tone: "mid" }));
+  for (const x of [-150, -90, -30, 30, 88]) o.push(rollo(eje([x, YC - 2.4, 4.4], [0, 1, 0]), 0, 3.2, 2.5, { tone: "hi" }));
+  const grano = []; for (let i = 0; i < 170; i++) { const z = 9 + ((i * 41 + (i % 7) * 13) % (H - 13)), x = X0 + 6 + ((i * 67) % (X1 - X0 - 12)); if (x < talud(z) - 5) grano.push([x, YC, z]); }
   o.push(D(grano, { size: 0.45, tone: "lo" }));
-  // esferas enterradas, a media altura del piso de abajo y del de arriba
-  const esf = [["s1", -154, 66], ["s2", -104, 30], ["s3", -66, 22], ["s4", -10, 34], ["s5", 26, 20], ["s6", 74, 34]];
-  for (const [c, x, z] of esf) { o.push(S(G.sphereOf([x, YC + 0.5, z], 6.2, P), { tone: "hi", lit: true }), L(k.sideArc(x, YC + 0.5, 6.2, z, P, 16), { tone: "lo" })); puntas[c] = at([x, YC + 0.5, z]); }
+  // esferas enterradas en los dos pisos
+  const esf = [["l1", -156, 24], ["l2", -106, 24], ["l3", -56, 24], ["l4", -6, 24], ["l5", 44, 24], ["l6", 88, 22], ["u1", -124, 62], ["u2", -84, 62], ["u3", -28, 62], ["u4", 36, 62]];
+  for (const [c, x, z] of esf) { o.push(S(G.sphereOf([x, YC + 0.5, z], 6, P), { tone: "hi", lit: true }), L(k.sideArc(x, YC + 0.5, 6, z, P, 16), { tone: "lo" })); puntas[c] = at([x, YC + 0.5, z]); }
   // picas sobre el corte: se ve el tubo dentro del mineral
-  o.push(pica("p1", -130, YC, H, { corte: true, largo: 46 }), pica("p2", -40, YC, H, { corte: true, largo: 46 }), pica("p3", 50, YC, H, { corte: true, largo: 46 }));
-  o.push(poste("router", 150, -44, { alto: 108, panel: true }));
-  o.push(gabinete("gw", 146, 62));
-  o.push(texto(-172, 10, "CORTE DE LA PILA · SIN ESCALA"), texto(112, -14, "ROUTER SOLAR"), texto(52, 92, "PUERTA DE ENLACE"));
-  const ind = (a, b) => `<g data-enlace="induccion">${k.wireSvg(puntas[a], puntas[b + "pie"], { tone: "mid", dashed: true, size: 1, ends: "none" })}</g>`;
-  o.push(ind("s1", "p1"), ind("s2", "p1"), ind("s3", "p2"), ind("s4", "p2"), ind("s5", "p3"), ind("s6", "p3"));
-  o.push(enlace("p4", "router"), enlace("p5", "router"), enlace("p1", "p2"), enlace("p2", "p3"), enlace("p3", "router"), enlace("router", "gw"));
-  return figura(null, "Corte de una pila de lixiviación de dos pisos. Tres picas están clavadas desde el techo: el tubo queda dentro del mineral, con tres bandas de medición, y la cabeza con panel y antena queda al aire. Seis esferas están enterradas más abajo y se comunican con la pica más cercana. Las picas se enlazan por radio a un router solar al borde de la pila, y este a la puerta de enlace.", o);
+  o.push(pica("p1", -144, YC, H, { corte: true, largo: 46 }), pica("p2", -64, YC, H, { corte: true, largo: 46 }), pica("p3", 16, YC, H, { corte: true, largo: 46 }));
+  o.push(gabinete("gw", 164, 62, { w: 30, d: 18, h: 44 }));
+  o.push(texto(-176, 10, "CORTE DE LA PILA · SIN ESCALA"), texto(100, -22, "SONDAS DE DESAGÜE", 7.5), texto(66, 92, "PUERTA DE ENLACE"));
+  // malla inductiva: de esfera en esfera hasta la pica más cercana
+  const ind = (a, b) => `<g data-enlace="induccion">${k.wireSvg(puntas[a], puntas[b + "pie"] ?? puntas[b], { tone: "mid", dashed: true, size: 1, ends: "none" })}</g>`;
+  o.push(ind("l1", "u1"), ind("l2", "u1"), ind("l3", "u2"), ind("l4", "u3"), ind("l5", "u4"), ind("l6", "l5"), ind("u1", "p1"), ind("u2", "p2"), ind("u3", "p2"), ind("u4", "p3"));
+  o.push(enlace("p4", "p5"), enlace("p5", "p6"), enlace("p6", "router"), enlace("p1", "p2"), enlace("p2", "p3"), enlace("p3", "router"), enlace("d1", "router"), enlace("d2", "router"), enlace("router", "gw"));
+  return figura(null, "Corte de una pila de lixiviación de dos pisos. Bajo el techo hay esferas enterradas repartidas a lo largo y a lo ancho; en el corte se ven diez, en dos niveles, enlazadas entre sí hasta la pica más cercana. Seis picas, menos densas, están clavadas desde el techo: el tubo queda dentro del mineral y la cabeza con panel y antena queda al aire. Al pie del talud, dos tuberías de desagüe llevan una sonda cada una antes de la canaleta. Picas y sondas se enlazan por radio a un router solar, y este a la puerta de enlace.", o);
 }
 
 // ================= 02 · planta de procesos =================
