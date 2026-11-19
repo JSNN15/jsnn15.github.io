@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Hardware de terreno · diseño</title>
-<meta name="description" content="Siete proyectos de hardware: sensores en pilas de lixiviación, cámara fija en planta, cultivo, recolección con dron, rover de inspección, malla de emergencia y detección de incendios forestales. Cada uno con su diagrama de bloques, su nodo en despiece, su esquema eléctrico y su lista de materiales." />
+<meta name="description" content="Siete proyectos de hardware de terreno, de pilas de lixiviación a incendios forestales, con diagrama de bloques, despiece, esquema eléctrico y materiales." />
 <meta property="og:title" content="Hardware de terreno · Julián Neira Nova" />
-<meta property="og:description" content="Siete proyectos de hardware con diagrama de bloques, nodo en despiece, esquema eléctrico y lista de materiales." />
+<meta property="og:description" content="De pilas de lixiviación a incendios forestales: diagrama de bloques, despiece, esquema eléctrico y materiales de cada proyecto." />
 <meta property="og:image" content="https://jsnn15.github.io/img/v/red-oscuro.jpg" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://jsnn15.github.io/industrial_sensor_network_2026/" />
@@ -396,6 +396,7 @@ td{color:var(--fg2)}
 .pl-g{fill:var(--hoja);stroke:var(--fg);stroke-width:1.1} .pl-gt{font:600 11px var(--mono);fill:var(--fg)}
 .bom tr.grupo td{padding:9px 14px 7px;font:600 11.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--acc);background:color-mix(in srgb,var(--acc) 6%,transparent)}
 .mat td.comp{font:500 13px var(--mono);color:var(--fg)}
+.equipos{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important}
 .st2{margin:16px 0 8px;font:600 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--fg2)} .st2:first-of-type{margin-top:0}
 .mat td{padding:11px 14px;font-size:15px;vertical-align:top} .mat td:first-child{font-weight:600;color:var(--fg)} .mat td:nth-child(2){color:var(--fg)}
 .criterios{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
@@ -440,7 +441,7 @@ td{color:var(--fg2)}
 
   <section aria-labelledby="h-equipos">
     <h2 id="h-equipos">De prototipo a equipo</h2>
-    <p class="sub">Cada prototipo de software del portafolio tiene una versión para terreno entre estos proyectos.</p>
+    <p class="sub">Algunas herramientas del portafolio y el equipo que las llevaría a terreno.</p>
     <ul class="equipos">
       <li id="eq-supervisor"><p class="rot"><a href="../supervisor_computer_vision_2026/">Supervisor normativo</a></p><h3>Rover de inspección</h3><p>Recorre la sala o la bodega, fotografía cada equipo y entrega la misma revisión que hoy se hace con una foto tomada a mano.</p><p class="con"><b>Con:</b> Raspberry Pi 5, STM32, cámara con giro, LiDAR</p><p class="est"><a href="#rover">Proyecto 05</a></p></li>
       <li id="eq-lector"><p class="rot"><a href="../gauge_reader_computer_vision_2026/">Lector de instrumentos</a></p><h3>Cámara fija frente al instrumento</h3><p>Una cámara con luz propia frente al manómetro. Envía la foto cada pocos minutos y el lector entrega el número.</p><p class="con"><b>Con:</b> ESP32-CAM</p><p class="est"><a href="#planta">Proyecto 02</a></p></li>
@@ -449,34 +450,13 @@ td{color:var(--fg2)}
     </ul>
   </section>
 
-  <section aria-labelledby="h-inv">
-    <h2 id="h-inv">Con qué se arma</h2>
-    <p class="sub">Los diseños parten de placas que ya están en el taller. En las listas de materiales, «en taller» indica que ese modelo ya está disponible, no cuántas unidades hay.</p>
-    <div class="tabla" tabindex="0">
-      <table>
-        <thead><tr><th>Placa</th><th>Papel en la red</th><th>Por qué esa</th></tr></thead>
-        <tbody>
-          <tr><td>Raspberry Pi 5</td><td>Servidor de borde</td><td>Recibe la malla, guarda los datos y corre en local los modelos de visión, sin depender de internet.</td></tr>
-          <tr><td>XBee 3 y XBee S2C</td><td>Malla de radio</td><td>Radios de 2,4 GHz que se retransmiten entre sí. El fabricante declara hasta 60 m en interior y 1.200 m con línea de vista para el XBee 3 estándar.</td></tr>
-          <tr><td>STM32</td><td>Nodo de vibración</td><td>Tiene capacidad para muestrear rápido y calcular el espectro en el propio nodo.</td></tr>
-          <tr><td>Raspberry Pi Pico 2 W</td><td>Nodo de bajo consumo</td><td>Para medidas lentas: humedad, temperatura, presión, nivel.</td></tr>
-          <tr><td>ESP32-CAM</td><td>Nodo de cámara</td><td>Fotografía un instrumento sin transmisor y envía la imagen para leerla.</td></tr>
-          <tr><td>ESP32</td><td>Nodo de planta</td><td>Donde hay Wi-Fi industrial, evita la malla.</td></tr>
-          <tr><td>Raspberry Pi Zero 2 W</td><td>Cámara con proceso local, o puerta de enlace secundaria</td><td>Corre Linux: puede filtrar imágenes antes de enviarlas.</td></tr>
-          <tr><td>Arduino Mega</td><td>Banco de pruebas</td><td>Genera señales conocidas para probar los nodos y mueve actuadores, como el expulsor del selector de fruta.</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="falta"><b>Falta comprar:</b> acelerómetros, sondas de humedad de suelo, transductores de presión, cajas estancas, paneles y baterías. Si una pila exige más alcance que el de la malla de 2,4 GHz, también radios de largo alcance.</p>
-  </section>
-
   <section aria-labelledby="h-plan">
     <h2 id="h-plan">Qué se construye primero</h2>
     <p class="sub">Tres hitos para empezar. Cada uno termina con una medición publicada, salga bien o mal.</p>
     <ol class="hitos">
       <li><b>Nodo de vibración</b><p>Un nodo sobre un motor de banco, enviando a la Raspberry Pi 5 y de ahí al cuaderno de análisis.</p><p>Se mide: el valor del nodo contra un instrumento de referencia y la autonomía con batería.</p></li>
       <li><b>Cámara frente a un manómetro</b><p>Una ESP32-CAM fija, una foto cada pocos minutos y la lectura hecha por la herramienta que ya existe.</p><p>Se mide: el error contra la lectura manual y cuántas fotos se rechazan por luz o reflejo.</p></li>
-      <li><b>Malla de tres nodos</b><p>Tres nodos y una puerta de enlace en terreno abierto, con un nodo fuera de alcance directo.</p><p>Se mide: el alcance real por salto y los mensajes perdidos.</p></li>
+      <li><b>Enlace inductivo en mineral</b><p>Dos bobinas de 125 kHz enterradas en un tambor con mineral húmedo, a distancias crecientes, y después en una pila de prueba. Es lo que decide si las esferas de la pila funcionan.</p><p>Se mide: la atenuación por metro de mineral regado y la distancia a la que el mensaje deja de llegar.</p></li>
     </ol>
   </section>
 </main>
